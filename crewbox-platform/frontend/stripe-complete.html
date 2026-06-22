@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CrewBox — Bank Account Connected</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Barlow+Condensed:wght@800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0C0C0C;--s1:#161616;--s2:#1E1E1E;--bd:#2C2C2C;--y:#F5C800;--green:#22C55E;--red:#EF4444;--orange:#F97316;--slate:#7A8A9A;--white:#FFFFFF;--D:'Barlow Condensed',sans-serif;--B:'Inter',sans-serif;--M:'JetBrains Mono',monospace;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:var(--B);background:var(--bg);color:var(--white);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes checkPop{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 rgba(34,197,94,0)}50%{box-shadow:0 0 40px rgba(34,197,94,.2)}}
+
+.card{
+  background:var(--s1);border:1px solid var(--bd);
+  border-radius:16px;padding:48px 40px;
+  max-width:460px;width:100%;
+  text-align:center;
+  animation:fadeUp .4s ease both;
+}
+
+/* Loading state */
+.state{display:none;}
+.state.active{display:block;}
+
+/* Spinner */
+.spinner-wrap{margin-bottom:24px;}
+.spinner{
+  width:48px;height:48px;margin:0 auto;
+  border:3px solid rgba(245,200,0,.15);
+  border-top-color:var(--y);border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+.loading-title{font-family:var(--D);font-size:26px;font-weight:900;text-transform:uppercase;letter-spacing:-.2px;margin-bottom:8px;}
+.loading-sub{font-size:14px;color:var(--slate);line-height:1.6;}
+
+/* Success state */
+.success-wrap{margin-bottom:20px;animation:glow 3s ease-in-out infinite;}
+.success-circle{
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(34,197,94,.1);border:2px solid rgba(34,197,94,.3);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;
+  animation:checkPop .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.success-circle svg{animation:checkPop .4s ease .15s both;}
+.success-title{font-family:var(--D);font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:-.3px;color:var(--green);margin-bottom:8px;}
+.success-biz{font-family:var(--D);font-size:18px;font-weight:800;color:var(--white);margin-bottom:16px;}
+.success-sub{font-size:14px;color:var(--slate);line-height:1.65;margin-bottom:24px;}
+
+/* What's enabled */
+.enabled-list{
+  background:var(--s2);border:1px solid rgba(34,197,94,.15);
+  border-radius:10px;padding:18px 20px;margin-bottom:24px;
+  text-align:left;
+}
+.enabled-title{font-family:var(--M);font-size:10px;color:var(--slate);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;}
+.enabled-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 0;border-bottom:1px solid var(--bd);
+  font-size:13px;color:#C8C2BB;
+}
+.enabled-item:last-child{border:none;}
+.enabled-ic{font-size:16px;flex-shrink:0;}
+.enabled-check{color:var(--green);font-weight:700;flex-shrink:0;margin-left:auto;}
+
+/* Buttons */
+.btn-primary{
+  display:block;width:100%;
+  background:var(--y);color:var(--bg);
+  font-family:var(--D);font-weight:900;font-size:17px;
+  letter-spacing:.4px;text-transform:uppercase;
+  padding:14px;border-radius:8px;border:none;
+  cursor:pointer;text-decoration:none;
+  transition:transform .15s,box-shadow .2s;margin-bottom:10px;
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(245,200,0,.28);}
+.btn-secondary{
+  display:block;width:100%;
+  background:transparent;color:var(--slate);
+  border:1px solid var(--bd);border-radius:8px;
+  padding:12px;font-size:13px;font-weight:500;
+  cursor:pointer;text-decoration:none;
+  transition:all .2s;
+}
+.btn-secondary:hover{border-color:#444;color:var(--white);}
+
+/* Error state */
+.error-circle{
+  width:64px;height:64px;border-radius:50%;
+  background:rgba(239,68,68,.1);border:2px solid rgba(239,68,68,.3);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;font-size:28px;
+}
+.error-title{font-family:var(--D);font-size:26px;font-weight:900;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+.error-sub{font-size:14px;color:var(--slate);line-height:1.65;margin-bottom:24px;}
+.error-detail{
+  background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);
+  border-radius:8px;padding:12px 14px;
+  font-family:var(--M);font-size:12px;color:rgba(239,68,68,.8);
+  text-align:left;margin-bottom:20px;line-height:1.5;
+}
+
+/* Logo */
+.logo{font-family:'Black Han Sans',sans-serif;font-size:18px;letter-spacing:1px;margin-bottom:32px;display:block;}
+.logo .c{color:var(--white);}.logo .b{color:var(--y);}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <a href="/" class="logo"><span class="c">CREW</span><span class="b">BOX</span></a>
+
+  <!-- LOADING STATE -->
+  <div class="state active" id="state-loading">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+    <div class="loading-title">Verifying your account...</div>
+    <div class="loading-sub">Checking your Stripe connection. This takes just a moment.</div>
+  </div>
+
+  <!-- SUCCESS STATE -->
+  <div class="state" id="state-success">
+    <div class="success-wrap">
+      <div class="success-circle">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="success-title">Bank Connected</div>
+    <div class="success-biz" id="success-biz-name">Mike's HVAC & Cooling</div>
+    <div class="success-sub">
+      Your bank account is verified and active. Customers can now pay invoices by card, bank transfer, or Apple Pay. Money hits your bank in 1–2 business days.
+    </div>
+    <div class="enabled-list">
+      <div class="enabled-title">What's now enabled</div>
+      <div class="enabled-item"><span class="enabled-ic">💳</span>Accept Visa, Mastercard, Amex<span class="enabled-check">✓</span></div>
+      <div class="enabled-item"><span class="enabled-ic">🏦</span>ACH bank transfer payments<span class="enabled-check">✓</span></div>
+      <div class="enabled-item"><span class="enabled-ic"> </span>Apple Pay &amp; Google Pay<span class="enabled-check">✓</span></div>
+      <div class="enabled-item"><span class="enabled-ic">💸</span>Auto payouts every 2 days<span class="enabled-check">✓</span></div>
+      <div class="enabled-item"><span class="enabled-ic">📋</span>Automatic 1099 at year end<span class="enabled-check">✓</span></div>
+    </div>
+    <a href="/setup?step=4&stripe=complete" class="btn-primary" id="btn-continue">Continue Setup →</a>
+    <a href="/my-business" class="btn-secondary">Go to Dashboard</a>
+  </div>
+
+  <!-- ERROR STATE -->
+  <div class="state" id="state-error">
+    <div class="error-circle">⚠️</div>
+    <div class="error-title">Connection Failed</div>
+    <div class="error-sub">Something went wrong while connecting your bank account. This is usually a temporary issue with Stripe.</div>
+    <div class="error-detail" id="error-detail">
+      Error: Stripe account verification incomplete. Please try again or contact support.
+    </div>
+    <button class="btn-primary" onclick="retryStripe()">Try Again →</button>
+    <a href="/setup?step=3" class="btn-secondary">Back to Setup</a>
+  </div>
+
+  <!-- ALREADY CONNECTED STATE -->
+  <div class="state" id="state-already">
+    <div class="success-wrap">
+      <div class="success-circle"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+    </div>
+    <div class="success-title">Already Connected</div>
+    <div class="success-sub">Your bank account is already linked and active. No action needed.</div>
+    <a href="/my-business" class="btn-primary">Go to Dashboard →</a>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const stripeCode  = params.get('code');     // from Stripe OAuth
+const stripeError = params.get('error');    // if Stripe had an issue
+const contractorId = params.get('contractor_id') || localStorage.getItem('crewbox_contractor_id');
+
+async function checkStripeStatus() {
+  // DEMO: Simulate API call to verify Stripe connection
+  await new Promise(r => setTimeout(r, 1500));
+
+  if (stripeError) {
+    showError(stripeError === 'access_denied'
+      ? 'You cancelled the bank connection. Click "Try Again" to connect your bank account.'
+      : `Stripe returned an error: ${stripeError}`);
+    return;
+  }
+
+  // PRODUCTION:
+  // const token = localStorage.getItem('crewbox_access_token');
+  // const res = await fetch('/api/stripe/connect/complete', {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     'Authorization': `Bearer ${token}`,
+  //   },
+  //   body: JSON.stringify({ code: stripeCode, contractor_id: contractorId }),
+  // });
+  // const data = await res.json();
+  // if (!res.ok) { showError(data.error); return; }
+  // if (data.already_connected) { showAlready(); return; }
+  // showSuccess(data.business_name);
+
+  // DEMO: Show success
+  const bizName = localStorage.getItem('crewbox_biz_name') || 'Your Business';
+  showSuccess(bizName);
+}
+
+function showSuccess(bizName) {
+  document.getElementById('success-biz-name').textContent = bizName;
+  // If coming from setup wizard, go back to it
+  const fromSetup = document.referrer.includes('/setup') || params.get('from') === 'setup';
+  document.getElementById('btn-continue').href = fromSetup
+    ? '/setup?step=4&stripe=complete'
+    : '/my-business?payment=connected';
+  switchState('success');
+}
+
+function showError(msg) {
+  document.getElementById('error-detail').textContent = msg;
+  switchState('error');
+}
+
+function showAlready() {
+  switchState('already');
+}
+
+function switchState(name) {
+  document.querySelectorAll('.state').forEach(s => s.classList.remove('active'));
+  document.getElementById(`state-${name}`).classList.add('active');
+}
+
+async function retryStripe() {
+  // PRODUCTION: Re-generate onboarding link and redirect
+  // const res = await fetch('/api/stripe/onboarding-link', { method: 'POST', ... });
+  // const { url } = await res.json();
+  // window.location.href = url;
+  window.location.href = '/setup?step=3';
+}
+
+// Run on page load
+checkStripeStatus();
+</script>
+</body>
+</html>

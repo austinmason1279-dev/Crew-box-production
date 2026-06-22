@@ -1,0 +1,261 @@
+<!-- ============================================================
+     CREWBOX — PAYMENT STATUS COMPONENT
+     File: frontend/components/payment-status.html
+     
+     Drop this component into the contractor dashboard.
+     Shows three states based on Stripe onboarding status:
+     
+     1. NOT CONNECTED — orange warning banner + connect CTA
+     2. PENDING       — yellow info banner (Stripe reviewing)
+     3. CONNECTED     — green success (hidden after 3 days)
+     
+     Usage: Include before the KPI row in dashboard.html
+     The JS at the bottom auto-detects status and renders.
+     ============================================================ -->
+
+<!-- Payment Status Banner (inserted above KPI row in dashboard) -->
+<div id="payment-status-wrap" style="margin-bottom:16px;display:none">
+
+  <!-- ── NOT CONNECTED ── -->
+  <div id="pstatus-none" class="pstatus-card" style="
+    background:rgba(249,115,22,.06);
+    border:1px solid rgba(249,115,22,.22);
+    border-radius:10px;padding:16px 20px;
+    display:none;align-items:center;gap:16px;flex-wrap:wrap;
+  ">
+    <div style="font-size:24px;flex-shrink:0">🏦</div>
+    <div style="flex:1;min-width:200px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#F97316;margin-bottom:3px">
+        Connect your bank to accept payments
+      </div>
+      <div style="font-size:13px;color:#7A8A9A;line-height:1.5">
+        Your AI crew can book jobs and send quotes — but customers can't pay until you link a bank account. Takes 3 minutes via Stripe.
+      </div>
+    </div>
+    <button onclick="connectStripe()" style="
+      background:#F97316;color:#111;border:none;border-radius:7px;
+      padding:11px 22px;font-family:'Barlow Condensed',sans-serif;
+      font-weight:900;font-size:15px;letter-spacing:.3px;text-transform:uppercase;
+      cursor:pointer;white-space:nowrap;flex-shrink:0;
+      transition:transform .15s,box-shadow .2s;
+    " onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 18px rgba(249,115,22,.35)'"
+       onmouseout="this.style.transform='';this.style.boxShadow=''">
+      Connect Bank Account →
+    </button>
+  </div>
+
+  <!-- ── PENDING VERIFICATION ── -->
+  <div id="pstatus-pending" class="pstatus-card" style="
+    background:rgba(245,200,0,.05);
+    border:1px solid rgba(245,200,0,.18);
+    border-radius:10px;padding:16px 20px;
+    display:none;align-items:center;gap:16px;
+  ">
+    <div style="font-size:24px;flex-shrink:0">⏳</div>
+    <div style="flex:1">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#F5C800;margin-bottom:3px">
+        Bank verification in progress
+      </div>
+      <div style="font-size:13px;color:#7A8A9A;line-height:1.5">
+        Stripe is verifying your bank account. This usually takes 1–2 business days. You'll get an email when it's complete.
+      </div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(245,200,0,.6);flex-shrink:0">
+      Checking daily
+    </div>
+  </div>
+
+  <!-- ── CONNECTED (new) ── -->
+  <div id="pstatus-connected" class="pstatus-card" style="
+    background:rgba(34,197,94,.05);
+    border:1px solid rgba(34,197,94,.18);
+    border-radius:10px;padding:14px 20px;
+    display:none;align-items:center;gap:14px;
+  ">
+    <div style="font-size:20px;flex-shrink:0">✅</div>
+    <div style="flex:1">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#22C55E;margin-bottom:2px">
+        Payments active — customers can pay by card, bank, or Apple Pay
+      </div>
+      <div style="font-size:12px;color:#7A8A9A">
+        Payouts to your bank every 2 business days automatically.
+      </div>
+    </div>
+    <button onclick="dismissPaymentBanner()" style="
+      background:transparent;border:none;color:#7A8A9A;
+      cursor:pointer;font-size:18px;padding:4px;line-height:1;
+    " title="Dismiss">×</button>
+  </div>
+
+</div>
+
+<!-- ── STRIPE CONNECT MODAL (in-dashboard) ── -->
+<div id="stripe-modal" style="
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.85);z-index:500;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+" onclick="if(event.target===this)closeStripeModal()">
+  <div style="
+    background:#161616;border:1px solid #2C2C2C;
+    border-radius:14px;width:500px;max-width:95vw;
+    overflow:hidden;animation:fadeUp .2s ease;
+  ">
+    <div style="background:#1E1E1E;padding:20px 24px;border-bottom:1px solid #2C2C2C;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:.3px">Connect Your Bank</div>
+      <button onclick="closeStripeModal()" style="background:rgba(255,255,255,.06);border:none;color:#7A8A9A;cursor:pointer;width:28px;height:28px;border-radius:5px;font-size:16px">×</button>
+    </div>
+    <div style="padding:24px">
+      <div style="background:linear-gradient(135deg,#1E3A5F,#162d4e);border-radius:10px;padding:20px;margin-bottom:20px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">Powered by Stripe</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;text-transform:uppercase;margin-bottom:5px">Bank-level security</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.55">CrewBox never stores your banking information. Stripe handles all verification and deposit securely.</div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <span style="background:rgba(255,255,255,.07);border-radius:3px;padding:4px 9px;font-size:11px;color:rgba(255,255,255,.65)">🔒 256-bit SSL</span>
+          <span style="background:rgba(255,255,255,.07);border-radius:3px;padding:4px 9px;font-size:11px;color:rgba(255,255,255,.65)">✓ PCI Level 1</span>
+          <span style="background:rgba(255,255,255,.07);border-radius:3px;padding:4px 9px;font-size:11px;color:rgba(255,255,255,.65)">🏦 Direct deposit</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0;margin-bottom:20px">
+        <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #2C2C2C">
+          <div style="width:30px;height:30px;background:rgba(245,200,0,.08);border:1px solid rgba(245,200,0,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">👤</div>
+          <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;margin-bottom:2px">Verify identity</div><div style="font-size:12px;color:#7A8A9A">Legal name + last 4 of SSN. ~90 seconds.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #2C2C2C">
+          <div style="width:30px;height:30px;background:rgba(245,200,0,.08);border:1px solid rgba(245,200,0,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🏦</div>
+          <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;margin-bottom:2px">Add bank account</div><div style="font-size:12px;color:#7A8A9A">Routing + account number, or connect via Plaid.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;padding:12px 0">
+          <div style="width:30px;height:30px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.18);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">✅</div>
+          <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;color:#22C55E;margin-bottom:2px">Accept payments instantly</div><div style="font-size:12px;color:#7A8A9A">Card, bank, Apple Pay. Payouts every 2 days.</div></div>
+        </div>
+      </div>
+
+      <button id="modal-stripe-btn" onclick="launchStripeOnboarding()" style="
+        width:100%;background:#1E3A5F;color:#fff;
+        font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:17px;
+        letter-spacing:.4px;text-transform:uppercase;
+        padding:15px;border-radius:8px;border:none;cursor:pointer;
+        transition:background .15s,transform .15s;margin-bottom:10px;
+        display:flex;align-items:center;justify-content:center;gap:8px;
+      " onmouseover="this.style.background='#162d4e';this.style.transform='translateY(-1px)'"
+         onmouseout="this.style.background='#1E3A5F';this.style.transform=''">
+        🏦 Connect via Stripe →
+      </button>
+      <button onclick="closeStripeModal()" style="
+        width:100%;background:transparent;color:#7A8A9A;
+        border:1px solid #2C2C2C;border-radius:7px;
+        padding:11px;font-size:13px;cursor:pointer;
+      ">Set up later</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PAYMENT STATUS LOGIC ──────────────────────────────────
+
+/**
+ * Call this from the dashboard loader after getting contractor profile.
+ * stripeStatus: 'none' | 'pending' | 'connected'
+ * 
+ * Usage in dashboard-loader.js:
+ *   renderPaymentStatus(profile.stripe_charges_enabled, profile.stripe_onboarding_complete);
+ */
+function renderPaymentStatus(chargesEnabled, onboardingComplete) {
+  const wrap = document.getElementById('payment-status-wrap');
+  if (!wrap) return;
+
+  // Hide if dismissed recently
+  const dismissed = localStorage.getItem('crewbox_payment_banner_dismissed');
+  const dismissedAt = dismissed ? new Date(dismissed) : null;
+  const daysSince = dismissedAt ? (Date.now() - dismissedAt.getTime()) / 86400000 : 999;
+
+  if (chargesEnabled) {
+    // Connected — only show for 3 days then auto-hide
+    if (daysSince < 3) {
+      wrap.style.display = 'block';
+      showPStatus('connected');
+    }
+    return;
+  }
+
+  if (onboardingComplete && !chargesEnabled) {
+    // In Stripe review
+    wrap.style.display = 'block';
+    showPStatus('pending');
+    return;
+  }
+
+  // Not started
+  if (daysSince > 0.5) {
+    // Don't show if dismissed less than 12 hours ago
+    wrap.style.display = 'block';
+    showPStatus('none');
+  }
+}
+
+function showPStatus(status) {
+  document.querySelectorAll('.pstatus-card').forEach(c => c.style.display = 'none');
+  const el = document.getElementById(`pstatus-${status}`);
+  if (el) el.style.display = 'flex';
+}
+
+function connectStripe() {
+  document.getElementById('stripe-modal').style.display = 'flex';
+}
+
+function closeStripeModal() {
+  document.getElementById('stripe-modal').style.display = 'none';
+}
+
+async function launchStripeOnboarding() {
+  const btn = document.getElementById('modal-stripe-btn');
+  btn.textContent = 'Opening Stripe...';
+  btn.disabled = true;
+
+  // PRODUCTION:
+  // const token = localStorage.getItem('crewbox_access_token');
+  // const res = await fetch('/api/stripe/onboarding-link', {
+  //   method: 'POST',
+  //   headers: { 'Authorization': `Bearer ${token}` },
+  // });
+  // const { url } = await res.json();
+  // window.location.href = url;
+
+  // DEMO
+  await new Promise(r => setTimeout(r, 1000));
+  window.location.href = '/stripe-complete?from=dashboard';
+}
+
+function dismissPaymentBanner() {
+  localStorage.setItem('crewbox_payment_banner_dismissed', new Date().toISOString());
+  document.getElementById('payment-status-wrap').style.display = 'none';
+}
+
+// ── POLLING: Check Stripe status every 60s ────────────────
+// Useful for the 'pending' state where Stripe takes time to verify
+let stripePolling;
+function startStripePolling(contractorId) {
+  clearInterval(stripePolling);
+  stripePolling = setInterval(async () => {
+    try {
+      // PRODUCTION:
+      // const res = await fetch(`/api/contractors/${contractorId}/stripe-status`, {
+      //   headers: { 'Authorization': `Bearer ${token}` },
+      // });
+      // const { charges_enabled } = await res.json();
+      // if (charges_enabled) {
+      //   clearInterval(stripePolling);
+      //   renderPaymentStatus(true, true);
+      //   showToast('Your bank account is now verified — payments are live! 🎉');
+      // }
+    } catch (e) { /* silent */ }
+  }, 60000); // check every 60 seconds
+}
+
+// Add keydown to close modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeStripeModal();
+});
+</script>

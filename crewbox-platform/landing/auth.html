@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CrewBox — Sign In</title>
+<meta name="robots" content="noindex"/>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Barlow+Condensed:wght@800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:    #0C0C0C;
+  --s1:    #141414;
+  --s2:    #1C1C1C;
+  --s3:    #242424;
+  --bd:    #2C2C2C;
+  --bd2:   #383838;
+  --y:     #F5C800;
+  --y2:    #FFD740;
+  --green: #22C55E;
+  --red:   #EF4444;
+  --blue:  #60A5FA;
+  --slate: #7A8A9A;
+  --worn:  #C8C2BB;
+  --white: #FFFFFF;
+  --D: 'Barlow Condensed', sans-serif;
+  --B: 'Inter', sans-serif;
+  --M: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { font-family: var(--B); background: var(--bg); color: var(--white); overflow: hidden; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp   { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn   { from{opacity:0} to{opacity:1} }
+@keyframes slideIn  { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+@keyframes blink    { 0%,100%{opacity:1} 50%{opacity:.2} }
+@keyframes ticker   { 0%{transform:translateY(0)} 100%{transform:translateY(-50%)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+@keyframes spin     { to{transform:rotate(360deg)} }
+@keyframes glow     { 0%,100%{box-shadow:0 0 0 rgba(245,200,0,0)} 50%{box-shadow:0 0 32px rgba(245,200,0,.1)} }
+@keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.25;transform:scale(1.8)} }
+
+/* ── LAYOUT ── */
+.auth-shell {
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  height: 100vh;
+}
+
+/* ── LEFT PANEL ── */
+.left-panel {
+  background: var(--s1);
+  border-right: 1px solid var(--bd);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+.left-panel::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    -45deg, transparent, transparent 40px,
+    rgba(245,200,0,.012) 40px, rgba(245,200,0,.012) 41px
+  );
+  pointer-events: none;
+}
+
+/* Left top bar */
+.lp-topbar {
+  padding: 24px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--bd);
+  flex-shrink: 0;
+}
+.logo { font-family: 'Black Han Sans', sans-serif; font-size: 22px; letter-spacing: 1px; text-decoration: none; }
+.logo .c { color: var(--white); } .logo .b { color: var(--y); }
+.lp-back { font-family: var(--M); font-size: 11px; color: var(--slate); text-decoration: none; letter-spacing: .1em; transition: color .2s; display: flex; align-items: center; gap: 6px; }
+.lp-back:hover { color: var(--white); }
+
+/* Account preview */
+.lp-account {
+  padding: 28px 32px 20px;
+  flex-shrink: 0;
+}
+.lp-account-label { font-family: var(--M); font-size: 10px; color: var(--slate); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 16px; }
+.lp-biz-card {
+  background: var(--s2); border: 1px solid rgba(245,200,0,.15);
+  border-radius: 10px; padding: 18px 20px;
+  display: flex; align-items: center; gap: 14px;
+  animation: glow 4s ease-in-out infinite;
+}
+.lp-biz-avatar {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: rgba(245,200,0,.12); border: 1px solid rgba(245,200,0,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Black Han Sans', sans-serif; font-size: 20px; color: var(--y);
+  flex-shrink: 0;
+}
+.lp-biz-name { font-family: var(--D); font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 3px; }
+.lp-biz-status { display: flex; align-items: center; gap: 6px; font-family: var(--M); font-size: 10px; color: var(--green); }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+
+/* Agent health row */
+.lp-agents {
+  display: flex; gap: 8px; padding: 0 32px 20px;
+  flex-shrink: 0;
+}
+.agent-pip {
+  flex: 1; background: var(--s2); border: 1px solid var(--bd);
+  border-radius: 7px; padding: 10px 8px; text-align: center;
+  transition: border-color .2s;
+}
+.agent-pip:hover { border-color: rgba(245,200,0,.25); }
+.agent-pip-ic { font-size: 16px; margin-bottom: 4px; }
+.agent-pip-status { font-family: var(--M); font-size: 9px; color: var(--green); letter-spacing: .04em; }
+
+/* Live feed */
+.lp-feed-label {
+  padding: 0 32px 12px;
+  font-family: var(--M); font-size: 10px; color: var(--slate);
+  letter-spacing: .14em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+.feed-live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+
+.lp-feed-wrap {
+  flex: 1; overflow: hidden; position: relative;
+  padding: 0 32px;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 88%, transparent 100%);
+}
+.lp-feed-track {
+  display: flex; flex-direction: column; gap: 0;
+  animation: ticker 28s linear infinite;
+}
+.feed-event {
+  display: flex; gap: 12px; padding: 11px 0;
+  border-bottom: 1px solid var(--bd);
+  align-items: flex-start;
+  animation: slideIn .3s ease both;
+}
+.feed-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.fd-g { background: var(--green); }
+.fd-y { background: var(--y); }
+.fd-b { background: var(--blue); }
+.fd-o { background: #F97316; }
+.feed-body { flex: 1; min-width: 0; }
+.feed-agent { font-family: var(--M); font-size: 9px; color: var(--slate); margin-bottom: 2px; letter-spacing: .04em; }
+.feed-text { font-size: 12px; color: var(--worn); line-height: 1.45; }
+.feed-text strong { color: var(--white); font-weight: 600; }
+.feed-time { font-family: var(--M); font-size: 10px; color: rgba(122,138,154,.4); margin-top: 2px; }
+.feed-amount { font-family: var(--D); font-size: 15px; font-weight: 900; color: var(--green); flex-shrink: 0; margin-top: 3px; }
+
+/* Left footer */
+.lp-footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--bd);
+  flex-shrink: 0;
+}
+.lp-trial-banner {
+  background: rgba(34,197,94,.06); border: 1px solid rgba(34,197,94,.18);
+  border-radius: 7px; padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.lp-trial-icon { font-size: 20px; flex-shrink: 0; }
+.lp-trial-text { font-size: 12px; color: var(--worn); line-height: 1.5; }
+.lp-trial-text strong { color: var(--green); }
+
+/* ── RIGHT PANEL — AUTH FORM ── */
+.right-panel {
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  padding: 40px 48px;
+  overflow-y: auto;
+}
+
+.auth-card {
+  width: 100%; max-width: 360px;
+  animation: fadeUp .35s ease both;
+}
+
+/* Screen switcher */
+.auth-screen { display: none; }
+.auth-screen.active { display: block; }
+
+/* Form header */
+.auth-h {
+  font-family: var(--D); font-size: 32px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: -.3px;
+  margin-bottom: 6px; line-height: 1;
+}
+.auth-sub { font-size: 14px; color: var(--slate); margin-bottom: 28px; line-height: 1.5; }
+.auth-sub a { color: var(--y); text-decoration: none; font-weight: 500; }
+.auth-sub a:hover { text-decoration: underline; }
+
+/* Role selector */
+.role-tabs {
+  display: flex; gap: 0; background: var(--s2);
+  border-radius: 8px; padding: 3px; margin-bottom: 24px;
+  border: 1px solid var(--bd);
+}
+.role-tab {
+  flex: 1; padding: 9px 10px; border-radius: 6px;
+  font-family: var(--B); font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none; background: transparent;
+  color: var(--slate); transition: all .15s; text-align: center;
+}
+.role-tab.active {
+  background: var(--s3); color: var(--white);
+  box-shadow: 0 1px 3px rgba(0,0,0,.4);
+}
+.role-tab-ic { font-size: 14px; display: block; margin-bottom: 2px; }
+
+/* Divider */
+.auth-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0; color: var(--slate); font-size: 12px;
+}
+.auth-divider::before, .auth-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--bd);
+}
+
+/* Form fields */
+.field { margin-bottom: 14px; }
+.field-label {
+  font-family: var(--M); font-size: 10px; color: var(--slate);
+  letter-spacing: .12em; text-transform: uppercase;
+  display: block; margin-bottom: 6px;
+}
+.field-input {
+  width: 100%; background: var(--s2); border: 1px solid var(--bd);
+  border-radius: 7px; padding: 13px 14px;
+  font-family: var(--B); font-size: 14px; color: var(--white);
+  outline: none; transition: border-color .2s, background .2s;
+  -webkit-appearance: none;
+}
+.field-input:focus { border-color: rgba(245,200,0,.5); background: var(--s3); }
+.field-input::placeholder { color: rgba(122,138,154,.45); }
+.field-input.error { border-color: rgba(239,68,68,.5); animation: shake .35s ease; }
+.field-input.success { border-color: rgba(34,197,94,.4); }
+
+/* Password wrapper */
+.pw-wrap { position: relative; }
+.pw-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--slate);
+  font-size: 16px; padding: 4px; transition: color .2s;
+}
+.pw-toggle:hover { color: var(--white); }
+
+/* Field note */
+.field-note { font-size: 11px; color: var(--slate); margin-top: 5px; }
+.field-note.error-note { color: var(--red); display: none; }
+.field-note.error-note.show { display: block; }
+
+/* Remember + forgot row */
+.auth-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.auth-check-wrap { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.auth-check {
+  width: 16px; height: 16px; border: 1px solid var(--bd2);
+  border-radius: 4px; background: var(--s2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s; flex-shrink: 0;
+}
+.auth-check.checked { background: var(--y); border-color: var(--y); }
+.auth-check-label { font-size: 13px; color: var(--slate); user-select: none; }
+.auth-link { font-size: 13px; color: var(--slate); text-decoration: none; transition: color .2s; }
+.auth-link:hover { color: var(--y); }
+
+/* Submit button */
+.btn-submit {
+  width: 100%; background: var(--y); color: var(--bg);
+  font-family: var(--D); font-weight: 900; font-size: 17px;
+  letter-spacing: .4px; text-transform: uppercase;
+  padding: 14px; border-radius: 7px; border: none;
+  cursor: pointer; transition: transform .15s, box-shadow .2s, background .2s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.btn-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(245,200,0,.28); }
+.btn-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.btn-submit .spinner {
+  width: 16px; height: 16px; border: 2px solid rgba(0,0,0,.3);
+  border-top-color: var(--bg); border-radius: 50%;
+  animation: spin .7s linear infinite; display: none;
+}
+.btn-submit.loading .spinner { display: block; }
+.btn-submit.loading .btn-text { opacity: .7; }
+
+/* Magic link button */
+.btn-magic {
+  width: 100%; background: transparent; color: var(--white);
+  font-family: var(--D); font-weight: 700; font-size: 15px;
+  letter-spacing: .3px; text-transform: uppercase;
+  padding: 13px; border-radius: 7px;
+  border: 1px solid var(--bd2); cursor: pointer;
+  transition: border-color .2s, background .2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-magic:hover { border-color: rgba(245,200,0,.3); background: rgba(245,200,0,.04); color: var(--y); }
+
+/* Error/success banners */
+.auth-banner {
+  border-radius: 7px; padding: 12px 14px;
+  font-size: 13px; line-height: 1.5;
+  margin-bottom: 18px; display: none; align-items: flex-start; gap: 10px;
+}
+.auth-banner.show { display: flex; }
+.auth-banner.error { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); color: #FCA5A5; }
+.auth-banner.success { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); color: #86EFAC; }
+.banner-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* Google SSO */
+.btn-google {
+  width: 100%; background: var(--s2); color: var(--white);
+  font-family: var(--B); font-weight: 500; font-size: 14px;
+  padding: 13px; border-radius: 7px;
+  border: 1px solid var(--bd); cursor: pointer;
+  transition: border-color .2s, background .2s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.btn-google:hover { border-color: var(--bd2); background: var(--s3); }
+.google-ic { width: 18px; height: 18px; }
+
+/* Terms */
+.auth-terms { font-size: 11px; color: var(--slate); text-align: center; line-height: 1.55; margin-top: 8px; }
+.auth-terms a { color: var(--slate); text-decoration: underline; }
+
+/* Trial callout inside form */
+.trial-callout {
+  background: rgba(34,197,94,.06); border: 1px solid rgba(34,197,94,.18);
+  border-radius: 7px; padding: 12px 14px; margin-bottom: 20px;
+  font-size: 13px; color: var(--worn); line-height: 1.5;
+}
+.trial-callout strong { color: var(--green); }
+
+/* ── VERIFICATION SCREEN ── */
+.verify-icon { font-size: 48px; margin-bottom: 16px; }
+.verify-email { font-family: var(--M); font-size: 13px; color: var(--y); background: rgba(245,200,0,.08); border: 1px solid rgba(245,200,0,.18); padding: 8px 14px; border-radius: 6px; margin: 12px 0 20px; text-align: center; word-break: break-all; }
+.verify-steps { list-style: none; margin-bottom: 24px; }
+.verify-steps li { font-size: 13px; color: var(--slate); padding: 8px 0; border-bottom: 1px solid var(--bd); display: flex; gap: 10px; align-items: flex-start; }
+.verify-steps li:last-child { border: none; }
+.verify-step-num { font-family: var(--M); font-size: 11px; color: var(--y); flex-shrink: 0; min-width: 20px; }
+.btn-resend { width: 100%; background: transparent; color: var(--slate); border: 1px solid var(--bd); border-radius: 7px; padding: 12px; font-family: var(--B); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; margin-bottom: 10px; }
+.btn-resend:hover { border-color: var(--bd2); color: var(--white); }
+.resend-countdown { font-family: var(--M); font-size: 11px; color: var(--slate); text-align: center; }
+
+/* ── SUCCESS SCREEN ── */
+.success-screen { text-align: center; padding: 20px 0; }
+.success-ic { font-size: 52px; margin-bottom: 16px; }
+.success-h { font-family: var(--D); font-size: 30px; font-weight: 900; text-transform: uppercase; letter-spacing: -.3px; color: var(--green); margin-bottom: 8px; }
+.success-sub { font-size: 14px; color: var(--slate); line-height: 1.6; margin-bottom: 24px; }
+.btn-dashboard { display: block; width: 100%; text-align: center; background: var(--y); color: var(--bg); font-family: var(--D); font-weight: 900; font-size: 17px; letter-spacing: .4px; text-transform: uppercase; padding: 14px; border-radius: 7px; text-decoration: none; transition: transform .15s, box-shadow .2s; }
+.btn-dashboard:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(245,200,0,.28); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 840px) {
+  body { overflow-y: auto; }
+  .auth-shell { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
+  .left-panel { display: none; }
+  .right-panel { padding: 40px 24px 60px; justify-content: flex-start; padding-top: 60px; }
+  .right-panel::before {
+    content: '';
+    position: fixed; top: 0; left: 0; right: 0; height: 56px;
+    background: rgba(12,12,12,.97); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--bd); z-index: 100;
+    display: flex; align-items: center; padding: 0 24px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="auth-shell">
+
+  <!-- ── LEFT PANEL ── -->
+  <div class="left-panel">
+    <div class="lp-topbar">
+      <a href="/" class="logo"><span class="c">CREW</span><span class="b">BOX</span></a>
+      <a href="/" class="lp-back">← Back to getcrewbox.com</a>
+    </div>
+
+    <div class="lp-account">
+      <div class="lp-account-label">Your AI crew — live right now</div>
+      <div class="lp-biz-card">
+        <div class="lp-biz-avatar">M</div>
+        <div>
+          <div class="lp-biz-name">Mike's HVAC & Cooling</div>
+          <div class="lp-biz-status"><div class="status-dot"></div>All 5 agents active</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lp-agents">
+      <div class="agent-pip"><div class="agent-pip-ic">📞</div><div class="agent-pip-status">LIVE</div></div>
+      <div class="agent-pip"><div class="agent-pip-ic">📋</div><div class="agent-pip-status">LIVE</div></div>
+      <div class="agent-pip"><div class="agent-pip-ic">💰</div><div class="agent-pip-status">LIVE</div></div>
+      <div class="agent-pip"><div class="agent-pip-ic">📱</div><div class="agent-pip-status">LIVE</div></div>
+      <div class="agent-pip"><div class="agent-pip-ic">⭐</div><div class="agent-pip-status">LIVE</div></div>
+    </div>
+
+    <div class="lp-feed-label">
+      <div class="feed-live-dot"></div>
+      Activity while you were away
+    </div>
+
+    <div class="lp-feed-wrap">
+      <div class="lp-feed-track" id="feed-track">
+        <!-- Duplicated for seamless loop -->
+        <div class="feed-event"><div class="feed-dot fd-g"></div><div class="feed-body"><div class="feed-agent">📞 Receptionist</div><div class="feed-text"><strong>AC install booked</strong> — Sarah Johnson, Thu 2pm</div><div class="feed-time">8 min ago</div></div><div class="feed-amount">$2,200</div></div>
+        <div class="feed-event"><div class="feed-dot fd-y"></div><div class="feed-body"><div class="feed-agent">💰 Collector</div><div class="feed-text"><strong>Invoice paid</strong> — Robert Chen paid INV-0039</div><div class="feed-time">22 min ago</div></div><div class="feed-amount">$1,450</div></div>
+        <div class="feed-event"><div class="feed-dot fd-g"></div><div class="feed-body"><div class="feed-agent">⭐ Rep</div><div class="feed-text"><strong>5★ review responded</strong> — James T. on Google</div><div class="feed-time">41 min ago</div></div></div>
+        <div class="feed-event"><div class="feed-dot fd-b"></div><div class="feed-body"><div class="feed-agent">📱 Marketer</div><div class="feed-text"><strong>Post published</strong> — Google Business, 847 impressions</div><div class="feed-time">1 hr ago</div></div></div>
+        <div class="feed-event"><div class="feed-dot fd-y"></div><div class="feed-body"><div class="feed-agent">📋 Estimator</div><div class="feed-text"><strong>Quote sent</strong> — $4,800 estimate to Linda Park</div><div class="feed-time">2 hrs ago</div></div><div class="feed-amount">$4,800</div></div>
+        <div class="feed-event"><div class="feed-dot fd-g"></div><div class="feed-body"><div class="feed-agent">📞 Receptionist</div><div class="feed-text"><strong>Job booked</strong> — furnace inspection, Mon 10am</div><div class="feed-time">3 hrs ago</div></div><div class="feed-amount">$189</div></div>
+        <div class="feed-event"><div class="feed-dot fd-o"></div><div class="feed-body"><div class="feed-agent">💰 Collector</div><div class="feed-text"><strong>Reminder sent</strong> — INV-0037, $780, 7 days overdue</div><div class="feed-time">4 hrs ago</div></div></div>
+        <div class="feed-event"><div class="feed-dot fd-g"></div><div class="feed-body"><div class="feed-agent">📞 Receptionist</div><div class="feed-text"><strong>Call transferred</strong> — emergency, no heat, sent to Mike</div><div class="feed-time">5 hrs ago</div></div></div>
+        <!-- Duplicate for loop -->
+        <div class="feed-event"><div class="feed-dot fd-g"></div><div class="feed-body"><div class="feed-agent">📞 Receptionist</div><div class="feed-text"><strong>AC install booked</strong> — Sarah Johnson, Thu 2pm</div><div class="feed-time">8 min ago</div></div><div class="feed-amount">$2,200</div></div>
+        <div class="feed-event"><div class="feed-dot fd-y"></div><div class="feed-body"><div class="feed-agent">💰 Collector</div><div class="feed-text"><strong>Invoice paid</strong> — Robert Chen paid INV-0039</div><div class="feed-time">22 min ago</div></div><div class="feed-amount">$1,450</div></div>
+        <div class="feed-event"><div class="feed-dot fd-g"></div><div class="feed-body"><div class="feed-agent">⭐ Rep</div><div class="feed-text"><strong>5★ review responded</strong> — James T. on Google</div><div class="feed-time">41 min ago</div></div></div>
+        <div class="feed-event"><div class="feed-dot fd-b"></div><div class="feed-body"><div class="feed-agent">📱 Marketer</div><div class="feed-text"><strong>Post published</strong> — Google Business, 847 impressions</div><div class="feed-time">1 hr ago</div></div></div>
+        <div class="feed-event"><div class="feed-dot fd-y"></div><div class="feed-body"><div class="feed-agent">📋 Estimator</div><div class="feed-text"><strong>Quote sent</strong> — $4,800 estimate to Linda Park</div><div class="feed-time">2 hrs ago</div></div><div class="feed-amount">$4,800</div></div>
+        <div class="feed-event"><div class="feed-dot fd-g"></div><div class="feed-body"><div class="feed-agent">📞 Receptionist</div><div class="feed-text"><strong>Job booked</strong> — furnace inspection, Mon 10am</div><div class="feed-time">3 hrs ago</div></div><div class="feed-amount">$189</div></div>
+        <div class="feed-event"><div class="feed-dot fd-o"></div><div class="feed-body"><div class="feed-agent">💰 Collector</div><div class="feed-text"><strong>Reminder sent</strong> — INV-0037, $780, 7 days overdue</div><div class="feed-time">4 hrs ago</div></div></div>
+        <div class="feed-event"><div class="feed-dot fd-g"></div><div class="feed-body"><div class="feed-agent">📞 Receptionist</div><div class="feed-text"><strong>Call transferred</strong> — emergency, no heat, sent to Mike</div><div class="feed-time">5 hrs ago</div></div></div>
+      </div>
+    </div>
+
+    <div class="lp-footer">
+      <div class="lp-trial-banner">
+        <div class="lp-trial-icon">🎉</div>
+        <div class="lp-trial-text">Your <strong>14-day free trial</strong> includes all 5 agents. No card required until day 15.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+    <div class="auth-card">
+
+      <!-- ════════════════════════════════════════════════
+           SCREEN 1: SIGN IN
+      ════════════════════════════════════════════════ -->
+      <div class="auth-screen active" id="screen-signin">
+        <div class="auth-h">Sign In</div>
+        <div class="auth-sub">
+          New to CrewBox? <a href="#" onclick="goto('screen-signup')">Start your free 14-day trial →</a>
+        </div>
+
+        <!-- Google SSO -->
+        <button class="btn-google" onclick="handleGoogle()">
+          <svg class="google-ic" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+
+        <div class="auth-divider">or sign in with email</div>
+
+        <!-- Error banner -->
+        <div class="auth-banner error" id="signin-error">
+          <span class="banner-icon">⚠️</span>
+          <span id="signin-error-text">Incorrect email or password. Please try again.</span>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Email address</label>
+          <input class="field-input" type="email" id="si-email" placeholder="you@yourbusiness.com" autocomplete="email"/>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Password</label>
+          <div class="pw-wrap">
+            <input class="field-input" type="password" id="si-password" placeholder="Your password" autocomplete="current-password"/>
+            <button class="pw-toggle" onclick="togglePw('si-password', this)" type="button" aria-label="Show password">👁</button>
+          </div>
+        </div>
+
+        <div class="auth-row">
+          <div class="auth-check-wrap" onclick="toggleCheck(this)">
+            <div class="auth-check" id="remember-check"></div>
+            <span class="auth-check-label">Remember me</span>
+          </div>
+          <a href="#" class="auth-link" onclick="goto('screen-forgot')">Forgot password?</a>
+        </div>
+
+        <button class="btn-submit" id="signin-btn" onclick="handleSignIn()">
+          <div class="spinner"></div>
+          <span class="btn-text">Sign In →</span>
+        </button>
+
+        <button class="btn-magic" onclick="goto('screen-magic')">
+          ✉️ Email me a sign-in link instead
+        </button>
+
+        <div class="auth-terms" style="margin-top:20px">
+          By signing in you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════
+           SCREEN 2: SIGN UP
+      ════════════════════════════════════════════════ -->
+      <div class="auth-screen" id="screen-signup">
+        <div class="auth-h">Start Free</div>
+        <div class="auth-sub">
+          Already have an account? <a href="#" onclick="goto('screen-signin')">Sign in →</a>
+        </div>
+
+        <div class="trial-callout">
+          <strong>14 days free</strong> — all 5 AI agents, no credit card required. Cancel anytime.
+        </div>
+
+        <!-- Role picker -->
+        <div class="role-tabs" id="role-tabs">
+          <button class="role-tab active" onclick="setSignupRole('contractor', this)">
+            <span class="role-tab-ic">🔧</span>I'm a Contractor
+          </button>
+          <button class="role-tab" onclick="setSignupRole('licensee', this)">
+            <span class="role-tab-ic">💼</span>I'm an Operator
+          </button>
+        </div>
+
+        <!-- Error banner -->
+        <div class="auth-banner error" id="signup-error">
+          <span class="banner-icon">⚠️</span>
+          <span id="signup-error-text">Please fill in all required fields.</span>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Full name</label>
+          <input class="field-input" type="text" id="su-name" placeholder="Mike Rivera" autocomplete="name"/>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Email address</label>
+          <input class="field-input" type="email" id="su-email" placeholder="mike@mikeshvac.com" autocomplete="email"/>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Phone number</label>
+          <input class="field-input" type="tel" id="su-phone" placeholder="(214) 555-0182" autocomplete="tel"/>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Business name</label>
+          <input class="field-input" type="text" id="su-biz" placeholder="Mike's HVAC & Cooling"/>
+        </div>
+
+        <!-- Contractor-specific fields -->
+        <div id="su-contractor-fields">
+          <div class="field">
+            <label class="field-label">Trade type</label>
+            <select class="field-input" id="su-trade" style="appearance:none;cursor:pointer">
+              <option value="">Select your trade...</option>
+              <option>HVAC</option><option>Plumbing</option><option>Electrical</option>
+              <option>Roofing</option><option>General Contracting</option>
+              <option>Cleaning Services</option><option>Landscaping</option>
+              <option>Auto Repair</option><option>Painting</option><option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">City & State</label>
+            <input class="field-input" type="text" id="su-city" placeholder="Dallas, TX"/>
+          </div>
+        </div>
+
+        <!-- Licensee-specific fields -->
+        <div id="su-licensee-fields" style="display:none">
+          <div class="field">
+            <label class="field-label">Your market / region</label>
+            <input class="field-input" type="text" id="su-market" placeholder="Dallas–Fort Worth, TX"/>
+          </div>
+          <div class="field">
+            <label class="field-label">Plan</label>
+            <select class="field-input" id="su-plan" style="appearance:none;cursor:pointer">
+              <option value="growth">Growth — $597/mo · Up to 50 clients</option>
+              <option value="enterprise">Enterprise — $1,497/mo · Unlimited clients</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Password</label>
+          <div class="pw-wrap">
+            <input class="field-input" type="password" id="su-password" placeholder="At least 8 characters" autocomplete="new-password"/>
+            <button class="pw-toggle" onclick="togglePw('su-password', this)" type="button" aria-label="Show password">👁</button>
+          </div>
+          <div class="field-note">Minimum 8 characters</div>
+          <div class="field-note error-note" id="su-pw-error">Password must be at least 8 characters</div>
+        </div>
+
+        <button class="btn-submit" id="signup-btn" onclick="handleSignUp()">
+          <div class="spinner"></div>
+          <span class="btn-text">Create Account — Free Trial →</span>
+        </button>
+
+        <div class="auth-terms">
+          By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. No credit card required for your 14-day trial.
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════
+           SCREEN 3: FORGOT PASSWORD
+      ════════════════════════════════════════════════ -->
+      <div class="auth-screen" id="screen-forgot">
+        <div class="auth-h">Reset Password</div>
+        <div class="auth-sub">
+          Enter your email and we'll send a reset link. <a href="#" onclick="goto('screen-signin')">Back to sign in</a>
+        </div>
+
+        <div class="auth-banner success" id="forgot-success">
+          <span class="banner-icon">✅</span>
+          <span>Reset link sent. Check your inbox — it expires in 60 minutes.</span>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Email address</label>
+          <input class="field-input" type="email" id="fp-email" placeholder="you@yourbusiness.com"/>
+        </div>
+
+        <button class="btn-submit" id="forgot-btn" onclick="handleForgot()">
+          <div class="spinner"></div>
+          <span class="btn-text">Send Reset Link →</span>
+        </button>
+
+        <button class="btn-magic" style="margin-top:8px" onclick="goto('screen-signin')">
+          ← Back to Sign In
+        </button>
+      </div>
+
+      <!-- ════════════════════════════════════════════════
+           SCREEN 4: MAGIC LINK
+      ════════════════════════════════════════════════ -->
+      <div class="auth-screen" id="screen-magic">
+        <div class="auth-h">Email Sign-In</div>
+        <div class="auth-sub">
+          We'll email you a one-click sign-in link. No password needed. <a href="#" onclick="goto('screen-signin')">Use password instead</a>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Email address</label>
+          <input class="field-input" type="email" id="ml-email" placeholder="you@yourbusiness.com"/>
+        </div>
+
+        <button class="btn-submit" id="magic-btn" onclick="handleMagicLink()">
+          <div class="spinner"></div>
+          <span class="btn-text">Send Sign-In Link →</span>
+        </button>
+      </div>
+
+      <!-- ════════════════════════════════════════════════
+           SCREEN 5: VERIFY EMAIL (post-signup)
+      ════════════════════════════════════════════════ -->
+      <div class="auth-screen" id="screen-verify">
+        <div style="text-align:center">
+          <div class="verify-icon">📬</div>
+          <div class="auth-h" style="text-align:center">Check your email</div>
+          <div class="auth-sub" style="text-align:center">We sent a verification link to</div>
+          <div class="verify-email" id="verify-email-display">mike@mikeshvac.com</div>
+        </div>
+        <ul class="verify-steps">
+          <li><span class="verify-step-num">01</span>Open the email from CrewBox</li>
+          <li><span class="verify-step-num">02</span>Click "Verify my email"</li>
+          <li><span class="verify-step-num">03</span>You'll land directly in your dashboard</li>
+        </ul>
+        <button class="btn-resend" id="resend-btn" onclick="handleResend()">Resend verification email</button>
+        <div class="resend-countdown" id="resend-countdown"></div>
+        <div class="auth-terms" style="margin-top:16px">
+          Wrong email? <a href="#" onclick="goto('screen-signup')" style="color:var(--y)">Go back and change it</a>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════
+           SCREEN 6: MAGIC LINK SENT
+      ════════════════════════════════════════════════ -->
+      <div class="auth-screen" id="screen-link-sent">
+        <div style="text-align:center">
+          <div class="verify-icon">✉️</div>
+          <div class="auth-h" style="text-align:center">Link sent</div>
+          <div class="auth-sub" style="text-align:center">A sign-in link is on its way to</div>
+          <div class="verify-email" id="magic-email-display">you@email.com</div>
+          <div style="font-size:13px;color:var(--slate);line-height:1.6;margin-bottom:20px">Click the link in the email to sign in instantly. It expires in 10 minutes.</div>
+        </div>
+        <button class="btn-resend" onclick="goto('screen-signin')">← Back to Sign In</button>
+      </div>
+
+      <!-- ════════════════════════════════════════════════
+           SCREEN 7: SIGNED IN — REDIRECT
+      ════════════════════════════════════════════════ -->
+      <div class="auth-screen" id="screen-success">
+        <div class="success-screen">
+          <div class="success-ic">🚀</div>
+          <div class="success-h">You're in!</div>
+          <div class="success-sub" id="success-msg">Welcome to CrewBox. Your AI crew is ready to go live.</div>
+          <a href="/dashboard" class="btn-dashboard" id="dashboard-link">Go to Dashboard →</a>
+          <div class="field-note" style="text-align:center;margin-top:12px">Redirecting automatically in <span id="redirect-count">3</span>s...</div>
+        </div>
+      </div>
+
+    </div><!-- /auth-card -->
+  </div><!-- /right-panel -->
+</div><!-- /auth-shell -->
+
+<script>
+// ── SUPABASE CONFIG ───────────────────────────────────
+// Replace with real values at deploy time
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+// ── SCREEN NAVIGATION ─────────────────────────────────
+function goto(screenId) {
+  document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active'));
+  const screen = document.getElementById(screenId);
+  if (screen) {
+    screen.classList.add('active');
+    // Clear error states
+    document.querySelectorAll('.auth-banner').forEach(b => b.classList.remove('show'));
+    document.querySelectorAll('.field-input').forEach(i => i.classList.remove('error'));
+  }
+}
+
+// ── ROLE TOGGLE (signup) ──────────────────────────────
+let currentSignupRole = 'contractor';
+function setSignupRole(role, btn) {
+  currentSignupRole = role;
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('su-contractor-fields').style.display = role === 'contractor' ? 'block' : 'none';
+  document.getElementById('su-licensee-fields').style.display = role === 'licensee' ? 'block' : 'none';
+  document.getElementById('signup-btn').querySelector('.btn-text').textContent =
+    role === 'contractor' ? 'Create Account — Free Trial →' : 'Get My Licensee Trial →';
+}
+
+// ── PASSWORD VISIBILITY ───────────────────────────────
+function togglePw(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const isShowing = input.type === 'text';
+  input.type = isShowing ? 'password' : 'text';
+  btn.textContent = isShowing ? '👁' : '🙈';
+}
+
+// ── CHECKBOX ──────────────────────────────────────────
+function toggleCheck(wrap) {
+  const check = wrap.querySelector('.auth-check');
+  check.classList.toggle('checked');
+}
+
+// ── LOADING STATE ─────────────────────────────────────
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  btn.classList.toggle('loading', loading);
+  btn.disabled = loading;
+}
+
+// ── ERROR DISPLAY ─────────────────────────────────────
+function showError(bannerId, textId, message) {
+  document.getElementById(textId).textContent = message;
+  document.getElementById(bannerId).classList.add('show');
+}
+function hideError(bannerId) {
+  document.getElementById(bannerId).classList.remove('show');
+}
+function shakeInput(inputId) {
+  const el = document.getElementById(inputId);
+  el.classList.add('error');
+  el.addEventListener('input', () => el.classList.remove('error'), { once: true });
+}
+
+// ── VALIDATION ────────────────────────────────────────
+function validateEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+function validatePhone(phone) { return phone.replace(/\D/g, '').length >= 10; }
+
+// ── SIGN IN ───────────────────────────────────────────
+async function handleSignIn() {
+  const email = document.getElementById('si-email').value.trim();
+  const password = document.getElementById('si-password').value;
+
+  hideError('signin-error');
+
+  if (!email || !validateEmail(email)) {
+    shakeInput('si-email');
+    showError('signin-error', 'signin-error-text', 'Please enter a valid email address.');
+    return;
+  }
+  if (!password || password.length < 6) {
+    shakeInput('si-password');
+    showError('signin-error', 'signin-error-text', 'Please enter your password.');
+    return;
+  }
+
+  setLoading('signin-btn', true);
+
+  try {
+    // Supabase Auth signIn
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error_description || data.error);
+
+    // Store session
+    localStorage.setItem('crewbox_access_token', data.access_token);
+    localStorage.setItem('crewbox_refresh_token', data.refresh_token);
+
+    // Determine role from user metadata
+    const role = data.user?.app_metadata?.role || 'contractor';
+    const name = data.user?.user_metadata?.name || 'there';
+    const dashPath = role === 'licensee' ? '/partner' : '/my-business';
+
+    // Show success
+    document.getElementById('success-msg').textContent =
+      `Welcome back, ${name.split(' ')[0]}. Your AI crew has been busy.`;
+    document.getElementById('dashboard-link').href = dashPath;
+    goto('screen-success');
+    startRedirect(dashPath);
+
+  } catch (err) {
+    setLoading('signin-btn', false);
+    showError('signin-error', 'signin-error-text',
+      err.message.includes('Invalid') ? 'Incorrect email or password. Try again or reset your password.'
+      : 'Something went wrong. Please try again.');
+    shakeInput('si-email');
+    shakeInput('si-password');
+  }
+}
+
+// ── SIGN UP ───────────────────────────────────────────
+async function handleSignUp() {
+  const name  = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const phone = document.getElementById('su-phone').value.trim();
+  const biz   = document.getElementById('su-biz').value.trim();
+  const pw    = document.getElementById('su-password').value;
+
+  hideError('signup-error');
+
+  // Validate
+  const errs = [];
+  if (!name)                      { errs.push('Full name'); shakeInput('su-name'); }
+  if (!validateEmail(email))      { errs.push('Valid email'); shakeInput('su-email'); }
+  if (!biz)                       { errs.push('Business name'); shakeInput('su-biz'); }
+  if (pw.length < 8)              { errs.push('Password (8+ chars)'); shakeInput('su-password'); document.getElementById('su-pw-error').classList.add('show'); }
+
+  if (errs.length) {
+    showError('signup-error', 'signup-error-text', `Please fill in: ${errs.join(', ')}.`);
+    return;
+  }
+
+  setLoading('signup-btn', true);
+
+  try {
+    const role = currentSignupRole;
+    const trade = document.getElementById('su-trade')?.value || '';
+    const city = document.getElementById('su-city')?.value || document.getElementById('su-market')?.value || '';
+    const plan = document.getElementById('su-plan')?.value || 'contractor';
+
+    // Supabase Auth signUp
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      body: JSON.stringify({
+        email,
+        password: pw,
+        data: { name, phone, business_name: biz, role, trade, city, plan },
+      }),
+    });
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error_description || data.error);
+
+    // Also write to waitlist table
+    await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ name, email, phone, business: biz, role, trade, city, source: 'auth_signup' }),
+    });
+
+    // Show verification screen
+    document.getElementById('verify-email-display').textContent = email;
+    goto('screen-verify');
+    startResendCountdown();
+
+  } catch (err) {
+    setLoading('signup-btn', false);
+    const msg = err.message.includes('already registered')
+      ? 'This email is already registered. Try signing in instead.'
+      : err.message || 'Something went wrong. Please try again.';
+    showError('signup-error', 'signup-error-text', msg);
+  }
+}
+
+// ── FORGOT PASSWORD ───────────────────────────────────
+async function handleForgot() {
+  const email = document.getElementById('fp-email').value.trim();
+
+  if (!validateEmail(email)) {
+    shakeInput('fp-email');
+    return;
+  }
+
+  setLoading('forgot-btn', true);
+
+  try {
+    await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      body: JSON.stringify({ email }),
+    });
+    // Always show success (don't reveal if email exists)
+    document.getElementById('forgot-success').classList.add('show');
+    setLoading('forgot-btn', false);
+  } catch (err) {
+    document.getElementById('forgot-success').classList.add('show');
+    setLoading('forgot-btn', false);
+  }
+}
+
+// ── MAGIC LINK ────────────────────────────────────────
+async function handleMagicLink() {
+  const email = document.getElementById('ml-email').value.trim();
+
+  if (!validateEmail(email)) {
+    shakeInput('ml-email');
+    return;
+  }
+
+  setLoading('magic-btn', true);
+
+  try {
+    await fetch(`${SUPABASE_URL}/auth/v1/magiclink`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      body: JSON.stringify({ email }),
+    });
+    document.getElementById('magic-email-display').textContent = email;
+    goto('screen-link-sent');
+  } catch (err) {
+    document.getElementById('magic-email-display').textContent = email;
+    goto('screen-link-sent');
+  }
+}
+
+// ── GOOGLE OAUTH ──────────────────────────────────────
+async function handleGoogle() {
+  // Redirect to Supabase Google OAuth
+  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(window.location.origin + '/auth/callback')}`;
+}
+
+// ── RESEND VERIFICATION ───────────────────────────────
+let resendTimer;
+function handleResend() {
+  const email = document.getElementById('verify-email-display').textContent;
+  fetch(`${SUPABASE_URL}/auth/v1/resend`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+    body: JSON.stringify({ type: 'signup', email }),
+  });
+  document.getElementById('resend-btn').disabled = true;
+  startResendCountdown();
+}
+
+function startResendCountdown() {
+  let secs = 60;
+  const btn = document.getElementById('resend-btn');
+  const countdown = document.getElementById('resend-countdown');
+  btn.disabled = true;
+  clearInterval(resendTimer);
+  resendTimer = setInterval(() => {
+    countdown.textContent = `Resend available in ${secs}s`;
+    secs--;
+    if (secs < 0) {
+      clearInterval(resendTimer);
+      btn.disabled = false;
+      countdown.textContent = '';
+    }
+  }, 1000);
+}
+
+// ── REDIRECT AFTER LOGIN ──────────────────────────────
+function startRedirect(path) {
+  let count = 3;
+  const counter = document.getElementById('redirect-count');
+  const timer = setInterval(() => {
+    count--;
+    if (counter) counter.textContent = count;
+    if (count <= 0) {
+      clearInterval(timer);
+      window.location.href = path;
+    }
+  }, 1000);
+}
+
+// ── KEYBOARD SUBMIT ───────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  const active = document.querySelector('.auth-screen.active');
+  if (!active) return;
+  const id = active.id;
+  if (id === 'screen-signin') handleSignIn();
+  else if (id === 'screen-signup') handleSignUp();
+  else if (id === 'screen-forgot') handleForgot();
+  else if (id === 'screen-magic') handleMagicLink();
+});
+
+// ── CHECK FOR EXISTING SESSION ────────────────────────
+(function checkSession() {
+  const token = localStorage.getItem('crewbox_access_token');
+  if (!token) return;
+  // Could validate token here — for now just redirect
+  // In production: verify with Supabase /auth/v1/user
+})();
+</script>
+</body>
+</html>

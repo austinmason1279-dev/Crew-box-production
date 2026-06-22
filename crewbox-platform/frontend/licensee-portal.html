@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CrewBox — Licensee Partner Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:     #0C0C0C;
+  --s1:     #161616;
+  --s2:     #1E1E1E;
+  --s3:     #262626;
+  --bd:     #2E2E2E;
+  --bd2:    #3A3A3A;
+  --y:      #F5C800;
+  --y2:     #FFD740;
+  --green:  #22C55E;
+  --red:    #EF4444;
+  --blue:   #60A5FA;
+  --orange: #F97316;
+  --slate:  #7A8A9A;
+  --worn:   #D4CFC8;
+  --white:  #FFFFFF;
+  --D: 'Barlow Condensed', sans-serif;
+  --B: 'Inter', sans-serif;
+  --M: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--B); background: var(--bg); color: var(--white); min-height: 100vh; }
+
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.25;transform:scale(1.6)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+@keyframes slideRight { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+@keyframes glow { 0%,100%{box-shadow:0 0 0 rgba(245,200,0,0)} 50%{box-shadow:0 0 24px rgba(245,200,0,.15)} }
+
+/* ── TOP BAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(12,12,12,.97); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--bd);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px; height: 58px;
+}
+.tb-left { display: flex; align-items: center; gap: 20px; }
+.logo { font-family: 'Black Han Sans', sans-serif; font-size: 22px; letter-spacing: 1px; text-decoration: none; }
+.logo .c { color: var(--white); } .logo .b { color: var(--y); }
+.portal-label { font-family: var(--M); font-size: 10px; color: var(--slate); letter-spacing: .14em; text-transform: uppercase; background: var(--s2); border: 1px solid var(--bd); padding: 4px 10px; border-radius: 3px; }
+.tb-right { display: flex; align-items: center; gap: 14px; }
+.tb-plan { font-family: var(--M); font-size: 10px; color: var(--y); background: rgba(245,200,0,.08); border: 1px solid rgba(245,200,0,.2); padding: 4px 10px; border-radius: 3px; letter-spacing: .08em; }
+.tb-notif { width: 34px; height: 34px; border-radius: 8px; background: var(--s2); border: 1px solid var(--bd); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; position: relative; transition: border-color .2s; }
+.tb-notif:hover { border-color: var(--bd2); }
+.notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--red); border: 1.5px solid var(--bg); }
+.tb-avatar { width: 34px; height: 34px; border-radius: 8px; background: var(--y); display: flex; align-items: center; justify-content: center; font-family: 'Black Han Sans', sans-serif; font-size: 17px; color: var(--bg); cursor: pointer; }
+
+/* ── LAYOUT ── */
+.layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 58px); }
+
+/* ── SIDEBAR ── */
+.sidebar { background: var(--s1); border-right: 1px solid var(--bd); padding: 20px 12px; display: flex; flex-direction: column; gap: 2px; position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; }
+.sb-section { font-family: var(--M); font-size: 9px; color: var(--slate); letter-spacing: .16em; text-transform: uppercase; padding: 0 10px; margin: 14px 0 6px; }
+.sb-section:first-child { margin-top: 0; }
+.sb-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--slate); transition: all .15s; border: 1px solid transparent; text-decoration: none; }
+.sb-item:hover { background: var(--s2); color: var(--white); }
+.sb-item.active { background: rgba(245,200,0,.08); color: var(--y); border-color: rgba(245,200,0,.15); }
+.sb-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+.sb-badge { margin-left: auto; font-family: var(--M); font-size: 10px; background: var(--red); color: var(--white); padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+.sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--bd); }
+.sf-plan { background: rgba(245,200,0,.05); border: 1px solid rgba(245,200,0,.15); border-radius: 8px; padding: 12px 14px; }
+.sf-tier { font-family: var(--M); font-size: 10px; color: var(--y); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+.sf-name { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.sf-bar-bg { background: var(--bd); border-radius: 3px; height: 4px; }
+.sf-bar { background: var(--y); border-radius: 3px; height: 4px; transition: width .5s; }
+.sf-count { font-family: var(--M); font-size: 10px; color: var(--slate); margin-top: 5px; }
+
+/* ── MAIN CONTENT ── */
+.main { padding: 24px 28px; overflow-y: auto; }
+.page { display: none; animation: fadeUp .2s ease; }
+.page.active { display: block; }
+
+/* ── PAGE HEADER ── */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+.page-title { font-family: var(--D); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: -.3px; }
+.page-sub { font-size: 13px; color: var(--slate); margin-top: 4px; }
+.btn { font-family: var(--D); font-weight: 800; font-size: 14px; letter-spacing: .4px; text-transform: uppercase; padding: 9px 20px; border-radius: 6px; border: none; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 8px; }
+.btn-y { background: var(--y); color: var(--bg); }
+.btn-y:hover { background: var(--y2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,200,0,.25); }
+.btn-ghost { background: transparent; color: var(--slate); border: 1px solid var(--bd); }
+.btn-ghost:hover { color: var(--white); border-color: var(--bd2); }
+.btn-sm { font-size: 12px; padding: 6px 14px; }
+
+/* ── MRR HERO ── */
+.mrr-hero {
+  background: linear-gradient(135deg, #1A1500 0%, #1E1A00 50%, #161200 100%);
+  border: 1px solid rgba(245,200,0,.2);
+  border-radius: 12px; padding: 28px 32px; margin-bottom: 20px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0;
+  animation: glow 4s ease-in-out infinite;
+  position: relative; overflow: hidden;
+}
+.mrr-hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(245,200,0,.03) 50%, transparent 100%);
+  background-size: 200% 100%; animation: shimmer 3s linear infinite;
+}
+.mrr-block { padding: 0 28px; border-right: 1px solid rgba(245,200,0,.1); }
+.mrr-block:first-child { padding-left: 0; }
+.mrr-block:last-child { border: none; }
+.mrr-label { font-family: var(--M); font-size: 10px; color: rgba(245,200,0,.6); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px; }
+.mrr-val { font-family: var(--D); font-size: 38px; font-weight: 900; color: var(--y); line-height: 1; letter-spacing: -1px; }
+.mrr-sub { font-family: var(--M); font-size: 11px; margin-top: 5px; }
+.mrr-up { color: var(--green); } .mrr-flat { color: var(--slate); }
+
+/* ── CARDS ── */
+.card { background: var(--s1); border: 1px solid var(--bd); border-radius: 10px; padding: 20px; }
+.card-title { font-family: var(--D); font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+.card-action { font-family: var(--M); font-size: 10px; color: var(--y); cursor: pointer; font-weight: 500; text-transform: none; letter-spacing: 0; }
+
+/* ── BOOK OF BUSINESS (signature element) ── */
+.bob-grid { display: flex; flex-direction: column; gap: 2px; }
+.bob-row {
+  display: grid; grid-template-columns: 40px 1fr 100px 120px 80px 100px;
+  align-items: center; gap: 12px; padding: 12px 14px;
+  background: var(--s2); border-radius: 7px; border: 1px solid transparent;
+  transition: border-color .15s, background .15s; cursor: pointer;
+  animation: slideRight .3s ease both;
+}
+.bob-row:hover { border-color: var(--bd2); background: var(--s3); }
+.bob-row.header { background: transparent; border: none; padding: 4px 14px; cursor: default; }
+.bob-row.header:hover { background: transparent; border: none; }
+.bob-col-label { font-family: var(--M); font-size: 9px; color: var(--slate); letter-spacing: .12em; text-transform: uppercase; }
+.bob-avatar { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Black Han Sans', sans-serif; font-size: 15px; flex-shrink: 0; }
+.bob-biz { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.bob-trade { font-size: 11px; color: var(--slate); }
+.bob-city { font-size: 12px; color: var(--slate); }
+.bob-mrr { font-family: var(--D); font-size: 18px; font-weight: 900; color: var(--white); }
+.bob-agents { display: flex; gap: 4px; }
+.bob-agent-dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot-live { background: var(--green); }
+.dot-off { background: var(--bd2); }
+.bob-status-wrap { }
+
+/* ── FEED ── */
+.feed { display: flex; flex-direction: column; gap: 0; }
+.feed-item { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--bd); align-items: flex-start; }
+.feed-item:last-child { border: none; }
+.feed-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.fd-g { background: var(--green); } .fd-y { background: var(--y); } .fd-b { background: var(--blue); } .fd-o { background: var(--orange); }
+.feed-agent { font-family: var(--M); font-size: 10px; color: var(--slate); margin-bottom: 2px; }
+.feed-text { font-size: 12px; color: var(--worn); line-height: 1.5; }
+.feed-text strong { color: var(--white); font-weight: 600; }
+.feed-time { font-family: var(--M); font-size: 10px; color: rgba(122,138,154,.45); margin-top: 2px; }
+.feed-amount { font-family: var(--D); font-size: 16px; font-weight: 900; color: var(--green); flex-shrink: 0; margin-top: 2px; }
+
+/* ── BADGES ── */
+.badge { font-family: var(--M); font-size: 9px; font-weight: 600; letter-spacing: .07em; padding: 3px 7px; border-radius: 3px; display: inline-block; }
+.badge-live { background: rgba(34,197,94,.1); color: var(--green); border: 1px solid rgba(34,197,94,.22); }
+.badge-y { background: rgba(245,200,0,.1); color: var(--y); border: 1px solid rgba(245,200,0,.2); }
+.badge-r { background: rgba(239,68,68,.1); color: var(--red); border: 1px solid rgba(239,68,68,.2); }
+.badge-b { background: rgba(96,165,250,.1); color: var(--blue); border: 1px solid rgba(96,165,250,.2); }
+.badge-sl { background: rgba(122,138,154,.08); color: var(--slate); border: 1px solid rgba(122,138,154,.18); }
+.badge-o { background: rgba(249,115,22,.1); color: var(--orange); border: 1px solid rgba(249,115,22,.2); }
+
+/* ── PERMISSIONS PAGE ── */
+.perm-section { margin-bottom: 32px; }
+.perm-section-title { font-family: var(--D); font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: -.2px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+.perm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.perm-card { border-radius: 9px; padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start; border: 1px solid; }
+.perm-card.can { background: rgba(34,197,94,.04); border-color: rgba(34,197,94,.18); }
+.perm-card.cannot { background: rgba(239,68,68,.04); border-color: rgba(239,68,68,.16); }
+.perm-card.soon { background: rgba(249,115,22,.04); border-color: rgba(249,115,22,.16); }
+.perm-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.perm-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.perm-can .perm-title { color: var(--white); }
+.perm-cannot .perm-title { color: rgba(255,255,255,.5); }
+.perm-desc { font-size: 12px; color: var(--slate); line-height: 1.55; }
+.perm-tag { font-family: var(--M); font-size: 9px; letter-spacing: .07em; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-top: 6px; }
+.tag-can { background: rgba(34,197,94,.12); color: var(--green); }
+.tag-cannot { background: rgba(239,68,68,.1); color: var(--red); }
+.tag-soon { background: rgba(249,115,22,.1); color: var(--orange); }
+
+/* ── ADD CLIENT MODAL ── */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 400; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.modal-bg.open { display: flex; }
+.modal { background: var(--s1); border: 1px solid var(--bd); border-radius: 14px; width: 520px; max-width: 95vw; overflow: hidden; animation: fadeUp .2s ease; }
+.modal-head { background: var(--s2); padding: 20px 24px; border-bottom: 1px solid var(--bd); display: flex; align-items: center; justify-content: space-between; }
+.modal-title-text { font-family: var(--D); font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: .3px; }
+.modal-close { width: 30px; height: 30px; border-radius: 6px; background: var(--s3); border: 1px solid var(--bd); color: var(--slate); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.modal-body { padding: 24px; }
+.wiz-steps { display: flex; gap: 6px; margin-bottom: 22px; }
+.wiz-s { height: 3px; flex: 1; border-radius: 2px; background: var(--bd2); transition: background .3s; }
+.wiz-s.done { background: var(--green); }
+.wiz-s.active { background: var(--y); }
+.wiz-panel { display: none; }
+.wiz-panel.show { display: block; }
+.wiz-ptitle { font-family: var(--D); font-size: 22px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+.wiz-psub { font-size: 13px; color: var(--slate); margin-bottom: 20px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-full { margin-bottom: 14px; }
+.form-label { font-family: var(--M); font-size: 10px; color: var(--slate); letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: 6px; }
+.form-input { width: 100%; background: var(--s2); border: 1px solid var(--bd); border-radius: 7px; padding: 11px 14px; font-family: var(--B); font-size: 14px; color: var(--white); outline: none; transition: border-color .2s; }
+.form-input:focus { border-color: var(--y); }
+.form-input::placeholder { color: rgba(122,138,154,.4); }
+.form-select { appearance: none; cursor: pointer; }
+.agent-toggles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px; }
+.agent-toggle { background: var(--s2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all .2s; }
+.agent-toggle.on { background: rgba(34,197,94,.08); border-color: rgba(34,197,94,.3); }
+.agent-toggle-ic { font-size: 20px; margin-bottom: 5px; }
+.agent-toggle-name { font-size: 10px; font-weight: 600; color: var(--slate); }
+.agent-toggle.on .agent-toggle-name { color: var(--green); }
+.success-screen { text-align: center; padding: 16px 0; }
+.success-ic { font-size: 48px; margin-bottom: 14px; }
+.success-title { font-family: var(--D); font-size: 32px; font-weight: 900; text-transform: uppercase; color: var(--green); letter-spacing: .3px; margin-bottom: 8px; }
+.success-sub { font-size: 13px; color: var(--slate); line-height: 1.6; max-width: 360px; margin: 0 auto 20px; }
+.launch-chips { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-bottom: 20px; }
+.launch-chip { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.22); border-radius: 7px; padding: 10px 6px; text-align: center; }
+.launch-chip-ic { font-size: 18px; margin-bottom: 3px; }
+.launch-chip-label { font-family: var(--M); font-size: 9px; color: var(--green); }
+.modal-foot { padding: 16px 24px; border-top: 1px solid var(--bd); background: rgba(0,0,0,.2); display: flex; justify-content: space-between; align-items: center; }
+
+/* ── BRANDING PAGE ── */
+.brand-preview { background: var(--s2); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+.bp-bar { background: #0A0A0A; padding: 12px 18px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--bd); }
+.bp-dots { display: flex; gap: 5px; }
+.bp-dot { width: 9px; height: 9px; border-radius: 50%; }
+.bp-url { font-family: var(--M); font-size: 11px; color: var(--slate); flex: 1; background: rgba(0,0,0,.4); padding: 4px 10px; border-radius: 3px; margin-left: 8px; }
+.bp-body { padding: 20px 22px; }
+.bp-brand-name { font-family: 'Black Han Sans', sans-serif; font-size: 26px; margin-bottom: 4px; }
+.bp-brand-sub { font-family: var(--M); font-size: 10px; color: var(--slate); margin-bottom: 18px; }
+.bp-agents { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bp-agent { background: rgba(0,0,0,.4); border-radius: 6px; padding: 9px 12px; border: 1px solid rgba(255,255,255,.05); }
+.bp-agent-name { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+.bp-agent-status { font-family: var(--M); font-size: 10px; color: var(--green); }
+.brand-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.color-input-wrap { position: relative; }
+.color-swatch { width: 28px; height: 28px; border-radius: 4px; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; border: 1px solid var(--bd2); }
+
+/* ── BILLING PAGE ── */
+.billing-card { background: linear-gradient(135deg,#1A1500,#1E1A00); border: 1px solid rgba(245,200,0,.18); border-radius: 12px; padding: 24px 28px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+.bc-tier { font-family: var(--M); font-size: 10px; color: var(--y); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 6px; }
+.bc-name { font-family: var(--D); font-size: 28px; font-weight: 900; margin-bottom: 4px; }
+.bc-price { font-size: 13px; color: var(--slate); }
+.bc-right { text-align: right; }
+.bc-next { font-family: var(--M); font-size: 11px; color: var(--slate); margin-bottom: 4px; }
+.bc-date { font-size: 14px; font-weight: 600; }
+.invoice-table { width: 100%; border-collapse: collapse; }
+.invoice-table th { font-family: var(--M); font-size: 9px; color: var(--slate); letter-spacing: .12em; text-transform: uppercase; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--bd); }
+.invoice-table td { padding: 12px 12px; font-size: 13px; border-bottom: 1px solid rgba(46,46,46,.5); }
+.invoice-table tr:last-child td { border: none; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; box-shadow: 0 8px 32px rgba(0,0,0,.6); animation: fadeUp .2s ease; display: none; }
+.toast.show { display: block; }
+.toast-success { background: var(--green); color: #fff; }
+.toast-warn { background: var(--orange); color: #fff; }
+
+@media(max-width:800px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .mrr-hero{grid-template-columns:1fr 1fr;}
+  .perm-grid{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .brand-form{grid-template-columns:1fr;}
+  .bob-row{grid-template-columns:36px 1fr 80px 60px;}
+  .bob-row > *:nth-child(5),.bob-row > *:nth-child(6){display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <a href="#" class="logo"><span class="c">CREW</span><span class="b">BOX</span></a>
+    <div class="portal-label">Partner Portal</div>
+  </div>
+  <div class="tb-right">
+    <div class="tb-plan">GROWTH PLAN · 28/50 CLIENTS</div>
+    <div class="tb-notif" onclick="showToast('3 alerts: 1 payment received, 2 agents need attention','warn')">🔔<div class="notif-dot"></div></div>
+    <div class="tb-avatar">A</div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-section">Main</div>
+    <div class="sb-item active" onclick="nav('overview',this)"><span class="sb-icon">⚡</span>Overview</div>
+    <div class="sb-item" onclick="nav('clients',this)"><span class="sb-icon">🏢</span>My Clients<span class="sb-badge">28</span></div>
+    <div class="sb-item" onclick="nav('activity',this)"><span class="sb-icon">📡</span>Live Activity</div>
+
+    <div class="sb-section">Revenue</div>
+    <div class="sb-item" onclick="nav('billing',this)"><span class="sb-icon">💳</span>Billing</div>
+    <div class="sb-item" onclick="nav('payouts',this)"><span class="sb-icon">💰</span>My Earnings</div>
+
+    <div class="sb-section">Platform</div>
+    <div class="sb-item" onclick="nav('branding',this)"><span class="sb-icon">🎨</span>My Brand</div>
+    <div class="sb-item" onclick="nav('permissions',this)"><span class="sb-icon">🔐</span>What You Can Do</div>
+    <div class="sb-item" onclick="nav('integrations',this)"><span class="sb-icon">🔌</span>Integrations</div>
+
+    <div class="sb-section">Support</div>
+    <div class="sb-item" onclick="nav('scripts',this)"><span class="sb-icon">📜</span>Sales Scripts</div>
+    <div class="sb-item" onclick="showToast('Opening support chat...')"><span class="sb-icon">💬</span>Help & Support</div>
+
+    <div class="sidebar-footer">
+      <div class="sf-plan">
+        <div class="sf-tier">Growth Plan</div>
+        <div class="sf-name">Acme Trade Solutions</div>
+        <div class="sf-bar-bg"><div class="sf-bar" style="width:56%"></div></div>
+        <div class="sf-count">28 / 50 client slots used</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- OVERVIEW PAGE -->
+    <div class="page active" id="page-overview">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Good morning, Alex 👋</div>
+          <div class="page-sub">Your AI platform is running for 28 contractors right now.</div>
+        </div>
+        <button class="btn btn-y" onclick="openModal()">+ Add Client</button>
+      </div>
+
+      <!-- MRR HERO -->
+      <div class="mrr-hero">
+        <div class="mrr-block">
+          <div class="mrr-label">Monthly Revenue</div>
+          <div class="mrr-val">$11,200</div>
+          <div class="mrr-sub mrr-up">↑ +$1,600 vs last month</div>
+        </div>
+        <div class="mrr-block">
+          <div class="mrr-label">Active Clients</div>
+          <div class="mrr-val" style="color:var(--white)">28</div>
+          <div class="mrr-sub mrr-up">↑ +4 this week</div>
+        </div>
+        <div class="mrr-block">
+          <div class="mrr-label">Calls Handled</div>
+          <div class="mrr-val" style="color:var(--green)">1,847</div>
+          <div class="mrr-sub mrr-flat">For all clients this month</div>
+        </div>
+        <div class="mrr-block">
+          <div class="mrr-label">Revenue Recovered</div>
+          <div class="mrr-val" style="color:var(--green)">$94K</div>
+          <div class="mrr-sub mrr-flat">Collected for clients</div>
+        </div>
+      </div>
+
+      <!-- TWO COLUMNS -->
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px">
+
+        <!-- BOOK OF BUSINESS -->
+        <div class="card">
+          <div class="card-title">Book of Business <span class="card-action" onclick="nav('clients',document.querySelector('.sb-item:nth-child(3)'))">View all 28 →</span></div>
+          <div class="bob-grid">
+            <!-- HEADER -->
+            <div class="bob-row header">
+              <div></div>
+              <div class="bob-col-label">Business</div>
+              <div class="bob-col-label">Monthly</div>
+              <div class="bob-col-label">Agents</div>
+              <div class="bob-col-label">Status</div>
+              <div class="bob-col-label"></div>
+            </div>
+            <!-- CLIENTS -->
+            <div class="bob-row" onclick="showToast('Opening Mike\'s HVAC dashboard...')" style="animation-delay:.05s">
+              <div class="bob-avatar" style="background:rgba(255,92,26,.15);color:#F97316;">M</div>
+              <div><div class="bob-biz">Mike's HVAC & Cooling</div><div class="bob-trade">HVAC · Dallas, TX</div></div>
+              <div class="bob-mrr">$400</div>
+              <div class="bob-agents"><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div></div>
+              <div><span class="badge badge-live">ACTIVE</span></div>
+              <div><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();showToast('Viewing Mike\'s dashboard')">View</button></div>
+            </div>
+            <div class="bob-row" onclick="showToast('Opening Rivera Plumbing dashboard...')" style="animation-delay:.1s">
+              <div class="bob-avatar" style="background:rgba(96,165,250,.15);color:#60A5FA;">R</div>
+              <div><div class="bob-biz">Rivera Plumbing Co.</div><div class="bob-trade">Plumbing · Houston, TX</div></div>
+              <div class="bob-mrr">$400</div>
+              <div class="bob-agents"><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot" style="background:var(--bd2)"></div></div>
+              <div><span class="badge badge-live">ACTIVE</span></div>
+              <div><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();showToast('Viewing Rivera dashboard')">View</button></div>
+            </div>
+            <div class="bob-row" onclick="showToast('Opening Parker Electric dashboard...')" style="animation-delay:.15s">
+              <div class="bob-avatar" style="background:rgba(245,200,0,.15);color:#F5C800;">P</div>
+              <div><div class="bob-biz">Parker Electric LLC</div><div class="bob-trade">Electrical · Austin, TX</div></div>
+              <div class="bob-mrr">$400</div>
+              <div class="bob-agents"><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div></div>
+              <div><span class="badge badge-live">ACTIVE</span></div>
+              <div><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();showToast('Viewing Parker dashboard')">View</button></div>
+            </div>
+            <div class="bob-row" onclick="showToast('Opening Top Notch Roofing dashboard...')" style="animation-delay:.2s">
+              <div class="bob-avatar" style="background:rgba(34,197,94,.15);color:#22C55E;">T</div>
+              <div><div class="bob-biz">Top Notch Roofing</div><div class="bob-trade">Roofing · San Antonio, TX</div></div>
+              <div class="bob-mrr">$400</div>
+              <div class="bob-agents"><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot" style="background:var(--bd2)"></div><div class="bob-agent-dot dot-live"></div></div>
+              <div><span class="badge badge-live">ACTIVE</span></div>
+              <div><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation()">View</button></div>
+            </div>
+            <div class="bob-row" style="animation-delay:.25s">
+              <div class="bob-avatar" style="background:rgba(249,115,22,.15);color:#F97316;">S</div>
+              <div><div class="bob-biz">Summit Contracting</div><div class="bob-trade">General · Fort Worth, TX</div></div>
+              <div class="bob-mrr">$400</div>
+              <div class="bob-agents"><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot" style="background:var(--bd2)"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot" style="background:var(--bd2)"></div><div class="bob-agent-dot dot-live"></div></div>
+              <div><span class="badge badge-o">SETUP</span></div>
+              <div><button class="btn btn-ghost btn-sm" onclick="showToast('Resuming onboarding for Summit Contracting')">Setup</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE FEED -->
+        <div class="card">
+          <div class="card-title">Live Activity <div class="pulse-dot" style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite;margin-left:6px"></div></div>
+          <div class="feed">
+            <div class="feed-item">
+              <div class="feed-dot fd-g"></div>
+              <div style="flex:1">
+                <div class="feed-agent">📞 Receptionist · Mike's HVAC</div>
+                <div class="feed-text"><strong>AC install booked</strong> — Sarah Johnson, Thursday 2pm</div>
+                <div class="feed-time">2 min ago</div>
+              </div>
+              <div class="feed-amount">$2,200</div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-dot fd-y"></div>
+              <div style="flex:1">
+                <div class="feed-agent">💰 Collector · Rivera Plumbing</div>
+                <div class="feed-text"><strong>Invoice paid</strong> — Robert Chen paid INV-0041</div>
+                <div class="feed-time">11 min ago</div>
+              </div>
+              <div class="feed-amount">$1,450</div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-dot fd-g"></div>
+              <div style="flex:1">
+                <div class="feed-agent">⭐ Rep · Parker Electric</div>
+                <div class="feed-text"><strong>5★ review responded</strong> — James T. on Google</div>
+                <div class="feed-time">34 min ago</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-dot fd-b"></div>
+              <div style="flex:1">
+                <div class="feed-agent">📱 Marketer · Top Notch Roofing</div>
+                <div class="feed-text"><strong>Post published</strong> — Google Business + Facebook</div>
+                <div class="feed-time">1 hr ago</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-dot fd-y"></div>
+              <div style="flex:1">
+                <div class="feed-agent">📋 Estimator · Summit Contracting</div>
+                <div class="feed-text"><strong>Quote sent</strong> — $4,800 roofing job to customer</div>
+                <div class="feed-time">2 hrs ago</div>
+              </div>
+              <div class="feed-amount">$4,800</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTS PAGE -->
+    <div class="page" id="page-clients">
+      <div class="page-header">
+        <div><div class="page-title">My Clients</div><div class="page-sub">28 active · 22 client slots remaining on your Growth plan</div></div>
+        <button class="btn btn-y" onclick="openModal()">+ Add Client</button>
+      </div>
+      <div class="card">
+        <div class="bob-grid">
+          <div class="bob-row header">
+            <div></div><div class="bob-col-label">Business</div>
+            <div class="bob-col-label">Monthly</div><div class="bob-col-label">Agents</div>
+            <div class="bob-col-label">Status</div><div class="bob-col-label">Actions</div>
+          </div>
+          <div class="bob-row"><div class="bob-avatar" style="background:rgba(255,92,26,.15);color:#F97316;">M</div><div><div class="bob-biz">Mike's HVAC & Cooling</div><div class="bob-trade">HVAC · Dallas, TX</div></div><div class="bob-mrr">$400</div><div class="bob-agents"><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div></div><div><span class="badge badge-live">ACTIVE</span></div><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showToast('Viewing Mike\'s dashboard')">View</button><button class="btn btn-ghost btn-sm" onclick="showToast('Opening Mike\'s settings')">⚙</button></div></div>
+          <div class="bob-row"><div class="bob-avatar" style="background:rgba(96,165,250,.15);color:#60A5FA;">R</div><div><div class="bob-biz">Rivera Plumbing Co.</div><div class="bob-trade">Plumbing · Houston, TX</div></div><div class="bob-mrr">$400</div><div class="bob-agents"><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot" style="background:var(--bd2)"></div></div><div><span class="badge badge-live">ACTIVE</span></div><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showToast('Viewing Rivera dashboard')">View</button><button class="btn btn-ghost btn-sm">⚙</button></div></div>
+          <div class="bob-row"><div class="bob-avatar" style="background:rgba(245,200,0,.15);color:#F5C800;">P</div><div><div class="bob-biz">Parker Electric LLC</div><div class="bob-trade">Electrical · Austin, TX</div></div><div class="bob-mrr">$400</div><div class="bob-agents"><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot dot-live"></div></div><div><span class="badge badge-live">ACTIVE</span></div><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">View</button><button class="btn btn-ghost btn-sm">⚙</button></div></div>
+          <div class="bob-row"><div class="bob-avatar" style="background:rgba(249,115,22,.15);color:#F97316;">S</div><div><div class="bob-biz">Summit Contracting</div><div class="bob-trade">General · Fort Worth, TX</div></div><div class="bob-mrr">$400</div><div class="bob-agents"><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot" style="background:var(--bd2)"></div><div class="bob-agent-dot dot-live"></div><div class="bob-agent-dot" style="background:var(--bd2)"></div><div class="bob-agent-dot dot-live"></div></div><div><span class="badge badge-o">SETUP</span></div><div style="display:flex;gap:6px"><button class="btn btn-y btn-sm" onclick="showToast('Resuming Summit Contracting onboarding')">Resume Setup</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERMISSIONS PAGE -->
+    <div class="page" id="page-permissions">
+      <div class="page-header">
+        <div><div class="page-title">What You Can Do</div><div class="page-sub">Full breakdown of licensee permissions — what's yours to control, what CrewBox manages.</div></div>
+      </div>
+
+      <!-- CAN DO -->
+      <div class="perm-section">
+        <div class="perm-section-title" style="color:var(--green)">✅ What You Can Do — Full Control</div>
+        <div class="perm-grid">
+          <div class="perm-card can"><div class="perm-icon">🏢</div><div><div class="perm-title">Add, manage, and remove clients</div><div class="perm-desc">Onboard new contractors in 3 minutes. Pause or deactivate accounts instantly. View every client's full dashboard and activity.</div><div class="perm-tag tag-can">FULL ACCESS</div></div></div>
+          <div class="perm-card can"><div class="perm-icon">💵</div><div><div class="perm-title">Set your own prices</div><div class="perm-desc">Charge your clients whatever price the market will bear. $300, $500, $800/month — your call. The spread between what you charge and what you pay CrewBox is your profit.</div><div class="perm-tag tag-can">FULL CONTROL</div></div></div>
+          <div class="perm-card can"><div class="perm-icon">🎨</div><div><div class="perm-title">Brand everything as your own</div><div class="perm-desc">Your logo, your colors, your domain, your email sender name. Every touchpoint your clients see carries your brand. CrewBox is completely invisible to them.</div><div class="perm-tag tag-can">FULL WHITE-LABEL</div></div></div>
+          <div class="perm-card can"><div class="perm-icon">🤖</div><div><div class="perm-title">Configure every AI agent per client</div><div class="perm-desc">Customize voice, hours, transfer rules, reminder timing, social platforms, and special instructions for each contractor individually.</div><div class="perm-tag tag-can">FULL CONFIG</div></div></div>
+          <div class="perm-card can"><div class="perm-icon">📊</div><div><div class="perm-title">See all client data and activity</div><div class="perm-desc">Every call transcript, every invoice, every payment, every review — for all your clients. Full visibility across your entire book of business.</div><div class="perm-tag tag-can">FULL VISIBILITY</div></div></div>
+          <div class="perm-card can"><div class="perm-icon">📜</div><div><div class="perm-title">Access all sales materials</div><div class="perm-desc">Cold outreach scripts, objection handling, demo guides, pricing calculators — everything you need to close new clients is built into the platform.</div><div class="perm-tag tag-can">INCLUDED</div></div></div>
+          <div class="perm-card can"><div class="perm-icon">📱</div><div><div class="perm-title">Pause or activate any agent</div><div class="perm-desc">Toggle any of the 5 AI agents on or off for any client at any time. Useful during transitions, holidays, or when a client wants to handle something manually.</div><div class="perm-tag tag-can">INSTANT CONTROL</div></div></div>
+          <div class="perm-card can"><div class="perm-icon">💳</div><div><div class="perm-title">Manage your own billing</div><div class="perm-desc">Update your payment method, view invoices, upgrade your plan, and download receipts anytime from the billing section.</div><div class="perm-tag tag-can">SELF-SERVICE</div></div></div>
+        </div>
+      </div>
+
+      <!-- CANNOT DO -->
+      <div class="perm-section">
+        <div class="perm-section-title" style="color:var(--red)">🔒 What You Cannot Do — Platform Level</div>
+        <div class="perm-grid">
+          <div class="perm-card cannot"><div class="perm-icon" style="opacity:.5">🏗️</div><div class="perm-cannot"><div class="perm-title">Modify the core AI models</div><div class="perm-desc">The underlying AI (Claude, Vapi) is managed by CrewBox. You configure behavior and personality — you don't change the model itself.</div><div class="perm-tag tag-cannot">PLATFORM ONLY</div></div></div>
+          <div class="perm-card cannot"><div class="perm-icon" style="opacity:.5">💸</div><div class="perm-cannot"><div class="perm-title">Access contractor payment accounts</div><div class="perm-desc">Your clients' Stripe Connected Accounts and bank details are private to them. You see aggregated revenue data, not individual financial accounts.</div><div class="perm-tag tag-cannot">PRIVACY PROTECTED</div></div></div>
+          <div class="perm-card cannot"><div class="perm-icon" style="opacity:.5">🔁</div><div class="perm-cannot"><div class="perm-title">Sub-license to other operators</div><div class="perm-desc">Building your own reseller network requires the Enterprise tier. On Growth, you sell directly to contractors — not to other licensees.</div><div class="perm-tag tag-cannot">ENTERPRISE ONLY</div></div></div>
+          <div class="perm-card cannot"><div class="perm-icon" style="opacity:.5">📞</div><div class="perm-cannot"><div class="perm-title">Listen to live calls in progress</div><div class="perm-desc">You can read call transcripts and summaries after calls end, but you cannot monitor calls in real time. Contractor privacy is protected.</div><div class="perm-tag tag-cannot">PRIVACY PROTECTED</div></div></div>
+          <div class="perm-card cannot"><div class="perm-icon" style="opacity:.5">📧</div><div class="perm-cannot"><div class="perm-title">Access contractor customer contact lists</div><div class="perm-desc">Customer data belongs to the contractor. You see aggregate stats (total customers, call count) but not individual customer phone numbers or emails.</div><div class="perm-tag tag-cannot">DATA OWNERSHIP</div></div></div>
+          <div class="perm-card cannot"><div class="perm-icon" style="opacity:.5">🗄️</div><div class="perm-cannot"><div class="perm-title">Export raw database records</div><div class="perm-desc">Raw bulk data export is not available on any tier. Reports and analytics are available in-platform. Individual contractors can export their own data.</div><div class="perm-tag tag-cannot">NOT AVAILABLE</div></div></div>
+        </div>
+      </div>
+
+      <!-- COMING SOON -->
+      <div class="perm-section">
+        <div class="perm-section-title" style="color:var(--orange)">🔜 Coming Soon — In Development</div>
+        <div class="perm-grid">
+          <div class="perm-card soon"><div class="perm-icon">👥</div><div><div class="perm-title">Sub-licensee network management</div><div class="perm-desc">Enterprise tier — build your own team of operators who each sell under your brand. Stack revenue layers without doing all the selling yourself.</div><div class="perm-tag tag-soon">Q3 2026</div></div></div>
+          <div class="perm-card soon"><div class="perm-icon">📈</div><div><div class="perm-title">Automated client ROI reports</div><div class="perm-desc">Monthly PDF reports showing each contractor exactly how much revenue the AI generated, calls handled, and invoices collected. Sent automatically.</div><div class="perm-tag tag-soon">Q3 2026</div></div></div>
+          <div class="perm-card soon"><div class="perm-icon">📅</div><div><div class="perm-title">Calendar sync (Google + Outlook)</div><div class="perm-desc">Appointments booked by the Receptionist agent flow directly into the contractor's Google Calendar or Outlook. Two-way sync.</div><div class="perm-tag tag-soon">Q3 2026</div></div></div>
+          <div class="perm-card soon"><div class="perm-icon">📲</div><div><div class="perm-title">Contractor mobile app (iOS + Android)</div><div class="perm-desc">Push notifications for new calls, one-tap invoice creation, photo upload direct from camera. Under your brand in the App Store.</div><div class="perm-tag tag-soon">Q4 2026</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRANDING PAGE -->
+    <div class="page" id="page-branding">
+      <div class="page-header">
+        <div><div class="page-title">My Brand</div><div class="page-sub">Everything your clients see. CrewBox is invisible.</div></div>
+        <button class="btn btn-y" onclick="updateBrand()">Save Changes</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-title">Live Preview</div>
+            <div class="brand-preview">
+              <div class="bp-bar">
+                <div class="bp-dots"><div class="bp-dot" style="background:#FF5F57"></div><div class="bp-dot" style="background:#FFBD2E"></div><div class="bp-dot" style="background:#28C840"></div></div>
+                <div class="bp-url" id="preview-url">app.protradeai.com/dashboard</div>
+              </div>
+              <div class="bp-body">
+                <div class="bp-brand-name" id="preview-brand" style="color:#3B82F6;">PROTRADE<span style="color:#F59E0B;">AI</span></div>
+                <div class="bp-brand-sub">// Powered by your platform · White-labeled</div>
+                <div class="bp-agents">
+                  <div class="bp-agent"><div class="bp-agent-name">📞 Receptionist</div><div class="bp-agent-status">● LIVE · 4 calls today</div></div>
+                  <div class="bp-agent"><div class="bp-agent-name">💰 Collector</div><div class="bp-agent-status">● LIVE · $2,100 recovered</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Brand Settings</div>
+          <div class="brand-form">
+            <div><label class="form-label">Brand Name</label><input class="form-input" value="ProTrade AI" oninput="document.getElementById('preview-brand').textContent=this.value||'Your Brand'"/></div>
+            <div><label class="form-label">Your Domain</label><input class="form-input" value="app.protradeai.com" oninput="document.getElementById('preview-url').textContent=this.value+'/dashboard'"/></div>
+            <div><label class="form-label">Support Email</label><input class="form-input" value="support@protradeai.com"/></div>
+            <div><label class="form-label">Support Phone</label><input class="form-input" value="(800) 555-0100"/></div>
+            <div class="color-input-wrap"><label class="form-label">Primary Color</label><input class="form-input" value="#3B82F6"/><div class="color-swatch" style="background:#3B82F6"></div></div>
+            <div class="color-input-wrap"><label class="form-label">Accent Color</label><input class="form-input" value="#F59E0B"/><div class="color-swatch" style="background:#F59E0B"></div></div>
+            <div style="grid-column:1/-1"><label class="form-label">Logo URL</label><input class="form-input" placeholder="https://yoursite.com/logo.png"/></div>
+            <div style="grid-column:1/-1"><label class="form-label">Tagline</label><input class="form-input" value="AI-powered business tools for trade contractors"/></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BILLING PAGE -->
+    <div class="page" id="page-billing">
+      <div class="page-header">
+        <div><div class="page-title">Billing</div><div class="page-sub">Your CrewBox license subscription and payment history.</div></div>
+      </div>
+      <div class="billing-card">
+        <div>
+          <div class="bc-tier">Current Plan</div>
+          <div class="bc-name">Growth License</div>
+          <div class="bc-price">$597/month · Up to 50 client accounts</div>
+        </div>
+        <div class="bc-right">
+          <div class="bc-next">Next billing date</div>
+          <div class="bc-date">July 14, 2026</div>
+          <button class="btn btn-y" style="margin-top:12px" onclick="showToast('Opening upgrade options...')">Upgrade to Enterprise →</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Payment History</div>
+        <table class="invoice-table">
+          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--slate)">Jun 14, 2026</td><td>Growth License — June 2026</td><td style="font-family:var(--D);font-size:16px;font-weight:900">$597</td><td><span class="badge badge-live">PAID</span></td><td><button class="btn btn-ghost btn-sm" onclick="showToast('Downloading receipt...')">Receipt</button></td></tr>
+            <tr><td style="color:var(--slate)">May 14, 2026</td><td>Growth License — May 2026</td><td style="font-family:var(--D);font-size:16px;font-weight:900">$597</td><td><span class="badge badge-live">PAID</span></td><td><button class="btn btn-ghost btn-sm" onclick="showToast('Downloading receipt...')">Receipt</button></td></tr>
+            <tr><td style="color:var(--slate)">Apr 14, 2026</td><td>Starter License — April 2026</td><td style="font-family:var(--D);font-size:16px;font-weight:900">$297</td><td><span class="badge badge-live">PAID</span></td><td><button class="btn btn-ghost btn-sm" onclick="showToast('Downloading receipt...')">Receipt</button></td></tr>
+            <tr><td style="color:var(--slate)">Mar 14, 2026</td><td>Starter License — March 2026</td><td style="font-family:var(--D);font-size:16px;font-weight:900">$297</td><td><span class="badge badge-live">PAID</span></td><td><button class="btn btn-ghost btn-sm">Receipt</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- EARNINGS PAGE -->
+    <div class="page" id="page-payouts">
+      <div class="page-header">
+        <div><div class="page-title">My Earnings</div><div class="page-sub">What you charge your clients minus your CrewBox license fee.</div></div>
+      </div>
+      <div class="mrr-hero" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="mrr-block"><div class="mrr-label">You Charge Clients</div><div class="mrr-val">$11,200</div><div class="mrr-sub mrr-flat">28 clients × $400/mo avg</div></div>
+        <div class="mrr-block"><div class="mrr-label">Your License Fee</div><div class="mrr-val" style="color:var(--red)">$597</div><div class="mrr-sub mrr-flat">Growth plan</div></div>
+        <div class="mrr-block"><div class="mrr-label">Your Net Profit</div><div class="mrr-val">$10,603</div><div class="mrr-sub mrr-up">94.7% margin</div></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="card-title">Earnings Projection</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:4px">
+          <div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:16px;text-align:center"><div style="font-family:var(--M);font-size:10px;color:var(--slate);margin-bottom:8px">10 CLIENTS</div><div style="font-family:var(--D);font-size:28px;font-weight:900;color:var(--white)">$3,403</div><div style="font-size:11px;color:var(--slate);margin-top:4px">After $597 fee</div></div>
+          <div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:16px;text-align:center"><div style="font-family:var(--M);font-size:10px;color:var(--slate);margin-bottom:8px">25 CLIENTS</div><div style="font-family:var(--D);font-size:28px;font-weight:900;color:var(--y)">$9,403</div><div style="font-size:11px;color:var(--slate);margin-top:4px">After $597 fee</div></div>
+          <div style="background:rgba(245,200,0,.05);border:1px solid rgba(245,200,0,.2);border-radius:8px;padding:16px;text-align:center"><div style="font-family:var(--M);font-size:10px;color:var(--y);margin-bottom:8px">YOU NOW (28)</div><div style="font-family:var(--D);font-size:28px;font-weight:900;color:var(--y)">$10,603</div><div style="font-size:11px;color:var(--slate);margin-top:4px">After $597 fee</div></div>
+          <div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:16px;text-align:center"><div style="font-family:var(--M);font-size:10px;color:var(--slate);margin-bottom:8px">50 CLIENTS</div><div style="font-family:var(--D);font-size:28px;font-weight:900;color:var(--green)">$19,403</div><div style="font-size:11px;color:var(--slate);margin-top:4px">After $597 fee</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPTS PAGE -->
+    <div class="page" id="page-scripts">
+      <div class="page-header">
+        <div><div class="page-title">Sales Scripts</div><div class="page-sub">Proven outreach to land your first (and next) clients.</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-title">Cold DM — Facebook Groups</div>
+          <div style="background:var(--s2);border-radius:8px;padding:16px;font-size:13px;color:var(--worn);line-height:1.7;font-family:var(--M);border:1px solid var(--bd)">
+            Hey [Name] — I saw you do [HVAC/plumbing/electrical] in [City].<br><br>
+            Quick question: how many calls do you miss when you're on a job?<br><br>
+            I built an AI that answers your calls, books jobs, chases invoices, and posts to Google — all under your business name. No tech needed.<br><br>
+            Want me to run it free for 2 weeks? Zero commitment.
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="showToast('Script copied to clipboard ✓')">Copy Script</button>
+        </div>
+        <div class="card">
+          <div class="card-title">The One Objection That Kills Deals</div>
+          <div style="margin-bottom:14px">
+            <div style="font-family:var(--M);font-size:11px;color:var(--red);margin-bottom:6px">THEY SAY:</div>
+            <div style="font-size:13px;color:var(--worn);line-height:1.6">"I don't want to change my phone number."</div>
+          </div>
+          <div>
+            <div style="font-family:var(--M);font-size:11px;color:var(--green);margin-bottom:6px">YOU SAY:</div>
+            <div style="font-size:13px;color:var(--worn);line-height:1.6">"You don't change anything. Your number stays exactly what it is. Your customers call the same number they always have. We just make sure when you're under a sink and can't answer, an AI picks up and books the job instead of sending them to voicemail. One 5-minute call to your carrier and it's done."</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="showToast('Objection handle copied ✓')">Copy Handle</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTEGRATIONS PAGE -->
+    <div class="page" id="page-integrations">
+      <div class="page-header">
+        <div><div class="page-title">Integrations</div><div class="page-sub">Connect your clients' platforms so agents can post, respond, and sync.</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div class="card"><div style="font-size:28px;margin-bottom:10px">🔍</div><div style="font-family:var(--D);font-size:17px;font-weight:800;text-transform:uppercase;margin-bottom:5px">Google Business</div><div style="font-size:12px;color:var(--slate);margin-bottom:14px">Review sync, post publishing, rating tracking</div><span class="badge badge-live">CONNECTED</span></div>
+        <div class="card"><div style="font-size:28px;margin-bottom:10px">📘</div><div style="font-family:var(--D);font-size:17px;font-weight:800;text-transform:uppercase;margin-bottom:5px">Facebook Pages</div><div style="font-size:12px;color:var(--slate);margin-bottom:14px">Auto-post completed jobs to Facebook Business</div><span class="badge badge-live">CONNECTED</span></div>
+        <div class="card"><div style="font-size:28px;margin-bottom:10px">📸</div><div style="font-family:var(--D);font-size:17px;font-weight:800;text-transform:uppercase;margin-bottom:5px">Instagram</div><div style="font-size:12px;color:var(--slate);margin-bottom:14px">Post job photos to Instagram Business</div><button class="btn btn-y btn-sm" onclick="showToast('Opening Instagram connect flow...')">Connect</button></div>
+        <div class="card"><div style="font-size:28px;margin-bottom:10px">💳</div><div style="font-family:var(--D);font-size:17px;font-weight:800;text-transform:uppercase;margin-bottom:5px">Stripe Connect</div><div style="font-size:12px;color:var(--slate);margin-bottom:14px">Contractor payment processing + payouts</div><span class="badge badge-live">ACTIVE</span></div>
+        <div class="card"><div style="font-size:28px;margin-bottom:10px">📅</div><div style="font-family:var(--D);font-size:17px;font-weight:800;text-transform:uppercase;margin-bottom:5px">Google Calendar</div><div style="font-size:12px;color:var(--slate);margin-bottom:14px">Sync booked appointments to contractor calendars</div><span class="badge badge-o">COMING Q3</span></div>
+        <div class="card"><div style="font-size:28px;margin-bottom:10px">📧</div><div style="font-family:var(--D);font-size:17px;font-weight:800;text-transform:uppercase;margin-bottom:5px">Email (Resend)</div><div style="font-size:12px;color:var(--slate);margin-bottom:14px">Invoice emails, quote delivery, notifications</div><span class="badge badge-live">ACTIVE</span></div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY PAGE -->
+    <div class="page" id="page-activity">
+      <div class="page-header"><div><div class="page-title">Live Activity</div><div class="page-sub">Everything happening across all 28 of your clients right now.</div></div></div>
+      <div class="card">
+        <div class="feed">
+          <div class="feed-item"><div class="feed-dot fd-g"></div><div style="flex:1"><div class="feed-agent">📞 Receptionist · Mike's HVAC</div><div class="feed-text"><strong>AC install booked</strong> — Sarah Johnson, Thursday 2pm, Dallas TX</div><div class="feed-time">2 min ago</div></div><div class="feed-amount">$2,200</div></div>
+          <div class="feed-item"><div class="feed-dot fd-y"></div><div style="flex:1"><div class="feed-agent">💰 Collector · Rivera Plumbing</div><div class="feed-text"><strong>Invoice paid</strong> — Robert Chen paid INV-0041 via card</div><div class="feed-time">11 min ago</div></div><div class="feed-amount">$1,450</div></div>
+          <div class="feed-item"><div class="feed-dot fd-g"></div><div style="flex:1"><div class="feed-agent">⭐ Rep · Parker Electric</div><div class="feed-text"><strong>5★ review responded</strong> — James T. on Google. Response auto-posted.</div><div class="feed-time">34 min ago</div></div></div>
+          <div class="feed-item"><div class="feed-dot fd-b"></div><div style="flex:1"><div class="feed-agent">📱 Marketer · Top Notch Roofing</div><div class="feed-text"><strong>Job post published</strong> — Google Business + Facebook. 847 impressions.</div><div class="feed-time">1 hr ago</div></div></div>
+          <div class="feed-item"><div class="feed-dot fd-y"></div><div style="flex:1"><div class="feed-agent">📋 Estimator · Summit Contracting</div><div class="feed-text"><strong>Quote sent</strong> — $4,800 quote delivered via SMS to Jennifer Walsh</div><div class="feed-time">2 hrs ago</div></div><div class="feed-amount">$4,800</div></div>
+          <div class="feed-item"><div class="feed-dot fd-g"></div><div style="flex:1"><div class="feed-agent">📞 Receptionist · Clean Cut Gutters</div><div class="feed-text"><strong>Job booked</strong> — Gutter cleaning for The Martinez family, Saturday 9am</div><div class="feed-time">3 hrs ago</div></div><div class="feed-amount">$280</div></div>
+          <div class="feed-item"><div class="feed-dot fd-y"></div><div style="flex:1"><div class="feed-agent">💰 Collector · Mike's HVAC</div><div class="feed-text"><strong>Reminder sent</strong> — Friendly reminder #1 for INV-0037, $780 overdue 7 days</div><div class="feed-time">4 hrs ago</div></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ADD CLIENT MODAL -->
+<div class="modal-bg" id="addModal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title-text">Add New Client</div>
+      <button class="modal-close" onclick="document.getElementById('addModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="wiz-steps">
+        <div class="wiz-s active" id="ws1"></div>
+        <div class="wiz-s" id="ws2"></div>
+        <div class="wiz-s" id="ws3"></div>
+        <div class="wiz-s" id="ws4"></div>
+      </div>
+
+      <div class="wiz-panel show" id="wp1">
+        <div class="wiz-ptitle">Business Info</div>
+        <div class="wiz-psub">Basic details — trains the AI to speak in the right voice.</div>
+        <div class="form-row">
+          <div><label class="form-label">Business Name</label><input class="form-input" placeholder="Mike's HVAC & Cooling"/></div>
+          <div><label class="form-label">Owner Name</label><input class="form-input" placeholder="Mike Rivera"/></div>
+        </div>
+        <div class="form-row">
+          <div><label class="form-label">Owner Phone</label><input class="form-input" placeholder="(214) 555-0182" type="tel"/></div>
+          <div><label class="form-label">City, State</label><input class="form-input" placeholder="Dallas, TX"/></div>
+        </div>
+        <div class="form-full">
+          <label class="form-label">Trade Type</label>
+          <select class="form-input form-select">
+            <option>HVAC</option><option>Plumbing</option><option>Electrical</option>
+            <option>Roofing</option><option>General Contracting</option><option>Cleaning</option>
+            <option>Landscaping</option><option>Auto Repair</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="wiz-panel" id="wp2">
+        <div class="wiz-ptitle">Phone Setup</div>
+        <div class="wiz-psub">How should CrewBox handle this client's calls?</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div onclick="selectPhone(this)" class="phone-opt" style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.3);border-radius:9px;padding:16px 18px;cursor:pointer;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-family:var(--D);font-size:16px;font-weight:800;text-transform:uppercase;">Call Forward ← Recommended</div><span class="badge badge-live">5 MIN SETUP</span></div>
+            <div style="font-size:12px;color:var(--slate)">Client keeps their existing number. One call to their carrier. Zero downtime. Works everywhere.</div>
+          </div>
+          <div onclick="selectPhone(this)" class="phone-opt" style="background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:16px 18px;cursor:pointer;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-family:var(--D);font-size:16px;font-weight:800;text-transform:uppercase;">Port Existing Number</div><span class="badge badge-sl">7–10 DAYS</span></div>
+            <div style="font-size:12px;color:var(--slate)">Move their number fully into CrewBox via Twilio. AI owns the line completely.</div>
+          </div>
+          <div onclick="selectPhone(this)" class="phone-opt" style="background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:16px 18px;cursor:pointer;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-family:var(--D);font-size:16px;font-weight:800;text-transform:uppercase;">New AI Number</div><span class="badge badge-b">INSTANT</span></div>
+            <div style="font-size:12px;color:var(--slate)">Fresh local number for AI only. Client keeps personal cell separate.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wiz-panel" id="wp3">
+        <div class="wiz-ptitle">Activate Agents</div>
+        <div class="wiz-psub">All 5 recommended. Toggle any off per client preference.</div>
+        <div class="agent-toggles">
+          <div class="agent-toggle on" onclick="this.classList.toggle('on')"><div class="agent-toggle-ic">📞</div><div class="agent-toggle-name">Receptionist</div></div>
+          <div class="agent-toggle on" onclick="this.classList.toggle('on')"><div class="agent-toggle-ic">📋</div><div class="agent-toggle-name">Estimator</div></div>
+          <div class="agent-toggle on" onclick="this.classList.toggle('on')"><div class="agent-toggle-ic">💰</div><div class="agent-toggle-name">Collector</div></div>
+          <div class="agent-toggle on" onclick="this.classList.toggle('on')"><div class="agent-toggle-ic">📱</div><div class="agent-toggle-name">Marketer</div></div>
+          <div class="agent-toggle on" onclick="this.classList.toggle('on')"><div class="agent-toggle-ic">⭐</div><div class="agent-toggle-name">Rep</div></div>
+        </div>
+        <div class="form-full">
+          <label class="form-label">Special Instructions for AI (optional)</label>
+          <input class="form-input" placeholder="e.g. We don't work weekends. Always mention our 10-year warranty."/>
+        </div>
+      </div>
+
+      <div class="wiz-panel" id="wp4">
+        <div class="success-screen">
+          <div class="success-ic">🚀</div>
+          <div class="success-title">All Agents Live</div>
+          <div style="font-size:13px;color:var(--slate);margin-bottom:16px">Mike's HVAC & Cooling is protected. All 5 AI agents are active. A welcome text has been sent to Mike Rivera.</div>
+          <div class="launch-chips">
+            <div class="launch-chip"><div class="launch-chip-ic">📞</div><div class="launch-chip-label">LIVE</div></div>
+            <div class="launch-chip"><div class="launch-chip-ic">📋</div><div class="launch-chip-label">LIVE</div></div>
+            <div class="launch-chip"><div class="launch-chip-ic">💰</div><div class="launch-chip-label">LIVE</div></div>
+            <div class="launch-chip"><div class="launch-chip-ic">📱</div><div class="launch-chip-label">LIVE</div></div>
+            <div class="launch-chip"><div class="launch-chip-ic">⭐</div><div class="launch-chip-label">LIVE</div></div>
+          </div>
+          <div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:14px 18px;text-align:left">
+            <div style="font-family:var(--M);font-size:10px;color:var(--slate);margin-bottom:8px">CALL FORWARD INSTRUCTIONS FOR MIKE</div>
+            <div style="font-size:12px;color:var(--worn);line-height:1.6">Tell Mike to call his carrier (AT&T, Verizon, etc.) and say: <strong>"I'd like to forward unanswered calls to (214) 555-0199."</strong> Takes 5 minutes. His existing number stays the same.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="wiz-back" onclick="wizStep(-1)" style="visibility:hidden">← Back</button>
+      <button class="btn btn-y" id="wiz-next" onclick="wizStep(1)">Next Step →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── NAVIGATION ──────────────────────────────────────────
+function nav(pageId, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  const page = document.getElementById('page-' + pageId);
+  if (page) page.classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+// ── ONBOARDING WIZARD ──────────────────────────────────
+let wizCurrentStep = 1;
+const totalSteps = 4;
+
+function wizStep(dir) {
+  document.getElementById('wp' + wizCurrentStep).classList.remove('show');
+  document.getElementById('ws' + wizCurrentStep).classList.remove('active');
+  document.getElementById('ws' + wizCurrentStep).classList.add('done');
+  wizCurrentStep = Math.min(Math.max(wizCurrentStep + dir, 1), totalSteps);
+  document.getElementById('wp' + wizCurrentStep).classList.add('show');
+  document.getElementById('ws' + wizCurrentStep).classList.remove('done');
+  document.getElementById('ws' + wizCurrentStep).classList.add('active');
+  document.getElementById('wiz-back').style.visibility = wizCurrentStep > 1 ? 'visible' : 'hidden';
+  const nextBtn = document.getElementById('wiz-next');
+  if (wizCurrentStep === totalSteps) {
+    nextBtn.textContent = '+ Add Another';
+    nextBtn.onclick = () => { wizCurrentStep = 0; wizStep(1); document.getElementById('addModal').classList.remove('open'); showToast('Client added! Welcome email sent to Mike Rivera ✓'); };
+  } else {
+    nextBtn.textContent = wizCurrentStep === 3 ? 'Launch Agents →' : 'Next Step →';
+    nextBtn.onclick = () => wizStep(1);
+  }
+}
+
+function openModal() {
+  wizCurrentStep = 1;
+  document.querySelectorAll('.wiz-panel').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.wiz-s').forEach(s => { s.classList.remove('active','done'); });
+  document.getElementById('wp1').classList.add('show');
+  document.getElementById('ws1').classList.add('active');
+  document.getElementById('wiz-back').style.visibility = 'hidden';
+  document.getElementById('wiz-next').textContent = 'Next Step →';
+  document.getElementById('wiz-next').onclick = () => wizStep(1);
+  document.getElementById('addModal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('addModal')) {
+    document.getElementById('addModal').classList.remove('open');
+  }
+}
+
+function selectPhone(el) {
+  document.querySelectorAll('.phone-opt').forEach(p => {
+    p.style.background = 'var(--s2)';
+    p.style.borderColor = 'var(--bd)';
+  });
+  el.style.background = 'rgba(34,197,94,.06)';
+  el.style.borderColor = 'rgba(34,197,94,.3)';
+}
+
+// ── BRANDING ────────────────────────────────────────────
+function updateBrand() { showToast('Brand settings saved. Changes live in ~60 seconds ✓'); }
+
+// ── TOAST ───────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show toast-' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>

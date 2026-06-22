@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Invoice from Mike's HVAC & Cooling</title>
+<meta name="robots" content="noindex"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Barlow+Condensed:wght@800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── TOKENS ── */
+:root {
+  --white:   #FFFFFF;
+  --bg:      #F3F2F0;
+  --card:    #FAFAF8;
+  --ink:     #1A1A1A;
+  --ink2:    #3A3A3A;
+  --muted:   #6B7280;
+  --border:  #E5E3DF;
+  --green:   #16A34A;
+  --green2:  #15803D;
+  --green-l: #DCFCE7;
+  --red:     #DC2626;
+  --red-l:   #FEE2E2;
+  --yellow:  #CA8A04;
+  --yellow-l:#FEF9C3;
+  --amount-font: 'Barlow Condensed', sans-serif;
+  --biz-font:    'DM Serif Display', serif;
+  --body-font:   'Inter', sans-serif;
+  --mono-font:   'JetBrains Mono', monospace;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--body-font);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 24px 16px 60px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.page-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp   { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn   { from{opacity:0} to{opacity:1} }
+@keyframes spin     { to{transform:rotate(360deg)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
+@keyframes checkPop { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
+
+/* ── CONTRACTOR HEADER ── */
+.contractor-header {
+  text-align: center;
+  padding: 28px 0 20px;
+  animation: fadeUp .4s ease both;
+}
+.biz-name {
+  font-family: var(--biz-font);
+  font-size: 26px;
+  color: var(--ink);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.biz-meta {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.biz-trade-dot {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--border);
+  display: inline-block;
+}
+.biz-verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--green);
+  background: var(--green-l);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* ── INVOICE CARD — the signature element ── */
+.invoice-card {
+  background: var(--white);
+  border-radius: 14px 14px 0 0;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  padding: 28px 28px 24px;
+  animation: fadeUp .4s ease .08s both;
+  position: relative;
+}
+/* Perforated tear edge — the signature element */
+.invoice-card::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background:
+    radial-gradient(circle at 6px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 18px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 30px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 42px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 54px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 66px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 78px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 90px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 102px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 114px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 126px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 138px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 150px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 162px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 174px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 186px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 198px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 210px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 222px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 234px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 246px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 258px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 270px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 282px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 294px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 306px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 318px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 330px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 342px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 354px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 366px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 378px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 390px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 402px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 414px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 426px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 438px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 450px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 462px 0, var(--bg) 5px, transparent 5px),
+    radial-gradient(circle at 474px 0, var(--bg) 5px, transparent 5px);
+  background-repeat: no-repeat;
+  background-color: var(--white);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  z-index: 1;
+}
+
+/* Invoice header row */
+.invoice-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.invoice-label {
+  font-family: var(--mono-font);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.invoice-number {
+  font-family: var(--mono-font);
+  font-size: 13px;
+  color: var(--ink2);
+  font-weight: 500;
+}
+.invoice-status-badge {
+  font-family: var(--mono-font);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+.status-due {
+  background: var(--yellow-l);
+  color: var(--yellow);
+}
+.status-overdue {
+  background: var(--red-l);
+  color: var(--red);
+}
+.status-paid {
+  background: var(--green-l);
+  color: var(--green);
+}
+
+/* Amount */
+.amount-section {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.amount-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.amount-due {
+  font-family: var(--amount-font);
+  font-size: 56px;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.amount-due.overdue { color: var(--red); }
+.due-date-row {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.overdue-tag {
+  background: var(--red-l);
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+/* Line items */
+.line-items {
+  margin-bottom: 20px;
+}
+.line-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
+}
+.line-item:last-child { border: none; }
+.li-desc {
+  font-size: 14px;
+  color: var(--ink2);
+  line-height: 1.4;
+  flex: 1;
+}
+.li-qty {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.li-amount {
+  font-family: var(--mono-font);
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* Totals */
+.totals {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.total-row.final {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.total-row.final span:last-child {
+  font-family: var(--amount-font);
+  font-size: 22px;
+  font-weight: 900;
+}
+
+/* Job details */
+.job-details {
+  background: var(--card);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 0;
+}
+.jd-row {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--ink2);
+  margin-bottom: 6px;
+}
+.jd-row:last-child { margin-bottom: 0; }
+.jd-label {
+  font-size: 11px;
+  color: var(--muted);
+  min-width: 72px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+/* ── PAYMENT FORM CARD ── */
+.payment-card {
+  background: var(--white);
+  border-radius: 0 0 14px 14px;
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: 28px 28px 24px;
+  margin-top: 12px;
+  animation: fadeUp .4s ease .15s both;
+}
+.payment-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 18px;
+}
+
+/* Payment method toggle */
+.pay-methods {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.pay-method {
+  flex: 1;
+  padding: 10px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  background: var(--white);
+  transition: all .15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.pay-method.active {
+  border-color: var(--green);
+  background: var(--green-l);
+  color: var(--green2);
+}
+.pay-method:hover:not(.active) { border-color: #CBD5E1; }
+.pay-method-ic { font-size: 18px; }
+
+/* Form fields */
+.form-field { margin-bottom: 14px; }
+.form-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink2);
+  display: block;
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 13px 14px;
+  font-family: var(--body-font);
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  transition: border-color .2s;
+  -webkit-appearance: none;
+}
+.form-input:focus { border-color: var(--green); }
+.form-input.error { border-color: var(--red); animation: shake .3s ease; }
+.form-input::placeholder { color: #CBD5E1; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Card preview */
+.card-preview {
+  background: linear-gradient(135deg, #1E3A5F 0%, #2D5A8E 100%);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.card-preview::before {
+  content: '';
+  position: absolute;
+  right: -20px; top: -20px;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+}
+.card-preview::after {
+  content: '';
+  position: absolute;
+  right: 20px; top: 20px;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+.card-number-display {
+  font-family: var(--mono-font);
+  font-size: 15px;
+  color: rgba(255,255,255,.85);
+  letter-spacing: .15em;
+}
+.card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+.card-holder { font-size: 11px; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .08em; }
+.card-exp { font-family: var(--mono-font); font-size: 12px; color: rgba(255,255,255,.7); }
+
+/* ACH form */
+#ach-form { display: none; }
+
+/* Pay button */
+.btn-pay {
+  width: 100%;
+  background: var(--green);
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 20px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  padding: 17px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: background .15s, transform .15s, box-shadow .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.btn-pay:hover:not(:disabled) {
+  background: var(--green2);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(22,163,74,.3);
+}
+.btn-pay:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+.btn-pay .spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  display: none;
+}
+.btn-pay.loading .spinner { display: block; }
+.btn-pay.loading .pay-btn-text { opacity: .7; }
+
+/* Trust row */
+.trust-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.trust-item svg { flex-shrink: 0; }
+
+/* Error banner */
+.pay-error {
+  background: var(--red-l);
+  border: 1px solid rgba(220,38,38,.2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--red);
+  margin-bottom: 14px;
+  display: none;
+  align-items: flex-start;
+  gap: 8px;
+}
+.pay-error.show { display: flex; }
+
+/* ── SUCCESS SCREEN ── */
+.success-screen {
+  display: none;
+  text-align: center;
+  padding: 40px 28px;
+  animation: fadeIn .4s ease;
+}
+.success-check {
+  width: 72px; height: 72px;
+  background: var(--green-l);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  animation: checkPop .4s ease;
+}
+.success-check svg { animation: checkPop .4s ease .1s both; }
+.success-h {
+  font-family: var(--biz-font);
+  font-size: 28px;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.success-amount {
+  font-family: var(--amount-font);
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--green);
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+}
+.success-sub { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+.success-receipt {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+.receipt-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; color: var(--ink2);
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.receipt-row:last-child { border: none; }
+.receipt-label { color: var(--muted); }
+.btn-receipt {
+  width: 100%;
+  background: transparent;
+  color: var(--muted);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 13px;
+  font-family: var(--body-font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.btn-receipt:hover { border-color: var(--ink2); color: var(--ink); }
+
+/* ── EXPIRED / PAID STATE ── */
+.state-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 40px 28px;
+  text-align: center;
+  animation: fadeUp .4s ease both;
+}
+.state-icon { font-size: 44px; margin-bottom: 16px; }
+.state-h { font-family: var(--biz-font); font-size: 24px; color: var(--ink); margin-bottom: 8px; }
+.state-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.btn-call {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--ink); color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 16px; letter-spacing: .3px;
+  text-transform: uppercase; padding: 12px 24px;
+  border-radius: 8px; text-decoration: none; margin-top: 20px;
+  transition: background .15s;
+}
+.btn-call:hover { background: #333; }
+
+/* ── QUOTE ACCEPT VARIANT ── */
+.quote-banner {
+  background: linear-gradient(135deg, #1E3A5F 0%, #1a3358 100%);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.quote-banner-ic { font-size: 28px; flex-shrink: 0; }
+.quote-banner-text h3 {
+  font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 3px;
+}
+.quote-banner-text p { font-size: 12px; color: rgba(255,255,255,.65); line-height: 1.4; }
+.btn-accept {
+  width: 100%; background: #1E3A5F; color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 18px; letter-spacing: .4px;
+  text-transform: uppercase; padding: 16px; border-radius: 10px;
+  border: none; cursor: pointer; transition: background .15s, transform .15s;
+  margin-bottom: 10px;
+}
+.btn-accept:hover { background: #162d4e; transform: translateY(-1px); }
+.btn-decline {
+  width: 100%; background: transparent; color: var(--muted);
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 12px; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .15s;
+}
+.btn-decline:hover { border-color: var(--red); color: var(--red); }
+.quote-valid {
+  font-size: 12px; color: var(--muted);
+  text-align: center; margin-top: 10px;
+}
+
+/* ── PAGE FOOTER ── */
+.page-footer {
+  text-align: center;
+  padding-top: 28px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.page-footer a { color: var(--muted); text-decoration: underline; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 400px) {
+  body { padding: 16px 12px 48px; }
+  .invoice-card, .payment-card { padding: 20px 18px; }
+  .amount-due { font-size: 44px; }
+  .pay-methods { flex-direction: column; }
+  .pay-method { flex-direction: row; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ═══════════════════════════════════════════════════
+       PAGE STATE: Controlled by JS
+       States: invoice | quote | paid | expired | loading
+  ════════════════════════════════════════════════════ -->
+
+  <!-- ── CONTRACTOR HEADER ── -->
+  <div class="contractor-header" id="contractor-header">
+    <div class="biz-name" id="biz-name">Mike's HVAC & Cooling</div>
+    <div class="biz-meta">
+      <span id="biz-city">Dallas, TX</span>
+      <span class="biz-trade-dot"></span>
+      <span id="biz-trade">HVAC</span>
+      <span class="biz-trade-dot"></span>
+      <span class="biz-verified">✓ Verified Business</span>
+    </div>
+  </div>
+
+  <!-- ── INVOICE VIEW ── -->
+  <div id="view-invoice">
+
+    <!-- Invoice card with perforated edge -->
+    <div class="invoice-card">
+      <div class="invoice-top">
+        <div>
+          <div class="invoice-label">Invoice</div>
+          <div class="invoice-number" id="inv-number">INV-2026-0041</div>
+        </div>
+        <div class="invoice-status-badge status-due" id="inv-status-badge">Due</div>
+      </div>
+
+      <!-- Amount -->
+      <div class="amount-section">
+        <div class="amount-label">Amount due</div>
+        <div class="amount-due" id="inv-amount">$1,840.00</div>
+        <div class="due-date-row">
+          <span id="inv-due-label">Due <span id="inv-due-date">Jul 14, 2026</span></span>
+          <span class="overdue-tag" id="inv-overdue-tag" style="display:none">Overdue</span>
+        </div>
+      </div>
+
+      <!-- Line items -->
+      <div class="line-items" id="inv-line-items">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Totals -->
+      <div class="totals">
+        <div class="total-row"><span>Subtotal</span><span id="inv-subtotal">$1,840.00</span></div>
+        <div class="total-row" id="inv-tax-row" style="display:none"><span>Tax</span><span id="inv-tax">$0.00</span></div>
+        <div class="total-row final"><span>Total</span><span id="inv-total">$1,840.00</span></div>
+      </div>
+    </div><!-- /invoice-card -->
+
+    <!-- Payment form — connects to invoice-card via perforated edge -->
+    <div class="payment-card">
+      <div class="payment-title">Pay securely</div>
+
+      <!-- Payment method toggle -->
+      <div class="pay-methods">
+        <div class="pay-method active" onclick="setPayMethod('card', this)" id="pm-card">
+          <span class="pay-method-ic">💳</span>
+          <span>Card</span>
+        </div>
+        <div class="pay-method" onclick="setPayMethod('ach', this)" id="pm-ach">
+          <span class="pay-method-ic">🏦</span>
+          <span>Bank</span>
+        </div>
+        <div class="pay-method" onclick="setPayMethod('apple', this)" id="pm-apple">
+          <span class="pay-method-ic"> </span>
+          <span>Apple Pay</span>
+        </div>
+      </div>
+
+      <!-- Error banner -->
+      <div class="pay-error" id="pay-error">
+        <span>⚠️</span>
+        <span id="pay-error-text">Your card was declined. Please check the details or try a different card.</span>
+      </div>
+
+      <!-- Card form -->
+      <div id="card-form">
+        <!-- Live card preview -->
+        <div class="card-preview" id="card-preview">
+          <div class="card-number-display" id="preview-number">•••• •••• •••• ••••</div>
+          <div class="card-bottom">
+            <div class="card-holder" id="preview-name">YOUR NAME</div>
+            <div class="card-exp" id="preview-exp">MM/YY</div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Name on card</label>
+          <input class="form-input" type="text" id="card-name" placeholder="Sarah Johnson"
+            autocomplete="cc-name" oninput="updatePreview()"/>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Card number</label>
+          <input class="form-input" type="text" id="card-number" placeholder="1234 5678 9012 3456"
+            autocomplete="cc-number" maxlength="19"
+            oninput="formatCardNumber(this);updatePreview()"/>
+        </div>
+        <div class="form-row-2">
+          <div class="form-field">
+            <label class="form-label">Expiry</label>
+            <input class="form-input" type="text" id="card-exp" placeholder="MM / YY"
+              autocomplete="cc-exp" maxlength="7"
+              oninput="formatExpiry(this);updatePreview()"/>
+          </div>
+          <div class="form-field">
+            <label class="form-label">CVV</label>
+            <input class="form-input" type="text" id="card-cvv" placeholder="123"
+              autocomplete="cc-csc" maxlength="4" inputmode="numeric"/>
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Your email <span style="color:#9CA3AF;font-weight:400">(for receipt)</span></label>
+          <input class="form-input" type="email" id="card-email" placeholder="sarah@email.com"
+            autocomplete="email"/>
+        </div>
+      </div>
+
+      <!-- ACH / Bank form -->
+      <div id="ach-form">
+        <div class="form-field">
+          <label class="form-label">Account holder name</label>
+          <input class="form-input" type="text" id="ach-name" placeholder="Sarah Johnson"/>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Routing number</label>
+          <input class="form-input" type="text" id="ach-routing" placeholder="021000021"
+            inputmode="numeric" maxlength="9"/>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Account number</label>
+          <input class="form-input" type="text" id="ach-account" placeholder="••••••••"
+            inputmode="numeric"/>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Email <span style="color:#9CA3AF;font-weight:400">(for receipt)</span></label>
+          <input class="form-input" type="email" id="ach-email" placeholder="sarah@email.com"
+            autocomplete="email"/>
+        </div>
+        <div style="font-size:12px;color:#9CA3AF;margin-bottom:16px;line-height:1.5">
+          By providing your bank account details, you authorize this payment. ACH payments typically settle in 2–3 business days.
+        </div>
+      </div>
+
+      <!-- Apple Pay placeholder -->
+      <div id="apple-form" style="display:none;text-align:center;padding:20px 0">
+        <div style="font-size:40px;margin-bottom:12px"> </div>
+        <div style="font-size:14px;color:#6B7280;margin-bottom:16px">
+          Complete your payment using Apple Pay.
+        </div>
+        <button class="btn-pay" style="background:#000" onclick="handleApplePay()">
+          <span class="pay-btn-text"> Pay <span id="apple-amount">$1,840.00</span></span>
+        </button>
+      </div>
+
+      <!-- Pay button -->
+      <button class="btn-pay" id="pay-btn" onclick="handlePayment()">
+        <div class="spinner"></div>
+        <span class="pay-btn-text">Pay <span id="pay-btn-amount">$1,840.00</span></span>
+      </button>
+
+      <!-- Trust signals -->
+      <div class="trust-row">
+        <div class="trust-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          SSL encrypted
+        </div>
+        <div class="trust-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          PCI compliant
+        </div>
+        <div class="trust-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2.5"><path d="M20 7l-8 8-4-4"/></svg>
+          Powered by Stripe
+        </div>
+      </div>
+    </div><!-- /payment-card -->
+
+    <!-- Job details (collapsible) -->
+    <div style="margin-top:16px">
+      <details>
+        <summary style="cursor:pointer;font-size:13px;color:#6B7280;list-style:none;display:flex;align-items:center;gap:6px;padding:8px 0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          View job details
+        </summary>
+        <div class="job-details" style="margin-top:10px" id="job-details">
+          <div class="jd-row"><span class="jd-label">Job</span><span id="job-title">AC Unit Installation</span></div>
+          <div class="jd-row"><span class="jd-label">Address</span><span id="job-address">123 Oak Street, Dallas TX 75201</span></div>
+          <div class="jd-row"><span class="jd-label">Date</span><span id="job-date">June 12, 2026</span></div>
+          <div class="jd-row"><span class="jd-label">Tech</span><span id="job-tech">Mike Rivera</span></div>
+        </div>
+      </details>
+    </div>
+
+  </div><!-- /view-invoice -->
+
+  <!-- ── QUOTE VIEW (alternate state) ── -->
+  <div id="view-quote" style="display:none">
+    <div class="invoice-card">
+      <div class="invoice-top">
+        <div>
+          <div class="invoice-label">Quote</div>
+          <div class="invoice-number" id="quote-number">Q-2026-0019</div>
+        </div>
+        <div class="invoice-status-badge" style="background:#EFF6FF;color:#2563EB">PENDING</div>
+      </div>
+
+      <div class="amount-section">
+        <div class="amount-label">Quote total</div>
+        <div class="amount-due" id="quote-amount">$4,800.00</div>
+        <div class="due-date-row">Valid until <span id="quote-valid-date">Jul 14, 2026</span></div>
+      </div>
+
+      <div class="line-items" id="quote-line-items"></div>
+
+      <div class="totals">
+        <div class="total-row"><span>Subtotal</span><span id="q-subtotal">$4,800.00</span></div>
+        <div class="total-row final"><span>Total</span><span id="q-total">$4,800.00</span></div>
+      </div>
+    </div>
+
+    <div class="payment-card">
+      <div class="quote-banner">
+        <div class="quote-banner-ic">📋</div>
+        <div class="quote-banner-text">
+          <h3>Review and accept this quote</h3>
+          <p>Accepting creates an invoice. You'll pay when the work is complete.</p>
+        </div>
+      </div>
+      <button class="btn-accept" onclick="handleAcceptQuote()">Accept Quote — $<span id="accept-amount">4,800.00</span></button>
+      <button class="btn-decline" onclick="handleDeclineQuote()">Decline — I'll pass on this one</button>
+      <div class="quote-valid">This quote expires <span id="q-valid-display">Jul 14, 2026</span></div>
+    </div>
+  </div><!-- /view-quote -->
+
+  <!-- ── SUCCESS SCREEN ── -->
+  <div id="view-success" style="display:none">
+    <div class="invoice-card" style="border-radius:14px;border-bottom:1px solid var(--border)">
+      <div class="success-screen">
+        <div class="success-check">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="success-h">Payment received</div>
+        <div class="success-amount" id="success-amount">$1,840.00</div>
+        <div class="success-sub">
+          Thank you. <span id="success-biz">Mike's HVAC & Cooling</span> has been notified and your receipt is on the way.
+        </div>
+        <div class="success-receipt">
+          <div class="receipt-row"><span class="receipt-label">Paid to</span><span id="r-biz">Mike's HVAC</span></div>
+          <div class="receipt-row"><span class="receipt-label">Invoice</span><span id="r-invoice">INV-2026-0041</span></div>
+          <div class="receipt-row"><span class="receipt-label">Amount</span><span id="r-amount">$1,840.00</span></div>
+          <div class="receipt-row"><span class="receipt-label">Method</span><span id="r-method">Visa ••4242</span></div>
+          <div class="receipt-row"><span class="receipt-label">Date</span><span id="r-date">—</span></div>
+          <div class="receipt-row" style="border:none"><span class="receipt-label">Confirmation</span><span id="r-ref" style="font-family:monospace;font-size:12px">—</span></div>
+        </div>
+        <button class="btn-receipt" onclick="window.print()">Download Receipt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ALREADY PAID STATE ── -->
+  <div id="view-paid" style="display:none">
+    <div class="state-card">
+      <div class="state-icon">✅</div>
+      <div class="state-h">This invoice is paid</div>
+      <div class="state-sub">
+        Invoice <strong id="paid-number"></strong> was paid in full on <strong id="paid-date"></strong>. No further action needed.
+      </div>
+      <a class="btn-call" href="tel:" id="paid-call-btn">📞 Call <span id="paid-biz-name"></span></a>
+    </div>
+  </div>
+
+  <!-- ── EXPIRED STATE ── -->
+  <div id="view-expired" style="display:none">
+    <div class="state-card">
+      <div class="state-icon">⏱️</div>
+      <div class="state-h">This link has expired</div>
+      <div class="state-sub">
+        This payment link is no longer active. Please contact <strong id="expired-biz"></strong> directly for an updated invoice.
+      </div>
+      <a class="btn-call" href="tel:" id="expired-call-btn">📞 Call <span id="expired-biz-name"></span></a>
+    </div>
+  </div>
+
+  <!-- PAGE FOOTER -->
+  <div class="page-footer">
+    Payments processed securely by <a href="https://stripe.com" target="_blank">Stripe</a>.
+    Your payment details are never stored by <span id="footer-biz">the contractor</span>.<br>
+    Questions? Call <a href="tel:" id="footer-phone"></a>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<script>
+// ── PAGE DATA (injected from URL params or API) ───────────
+// In production: parse the invoice/quote ID from the URL,
+// fetch from Supabase, then call initPage(data)
+
+const PAGE_ID   = new URLSearchParams(location.search).get('id') || 'demo';
+const PAGE_TYPE = new URLSearchParams(location.search).get('type') || 'invoice'; // invoice | quote
+
+// ── DEMO DATA (replace with real API fetch in production) ──
+const DEMO = {
+  invoice: {
+    type: 'invoice',
+    status: 'sent',                    // sent | overdue | paid
+    number: 'INV-2026-0041',
+    amount: 1840.00,
+    subtotal: 1840.00,
+    tax: 0,
+    total: 1840.00,
+    dueDate: '2026-07-14',
+    isOverdue: false,
+    daysOverdue: 0,
+    lineItems: [
+      { description: 'Labor — AC Unit Installation', qty: 1, unit: 'job', unitPrice: 450, total: 450 },
+      { description: 'Goodman 3-Ton Condenser Unit (GSX14)', qty: 1, unit: 'unit', unitPrice: 1200, total: 1200 },
+      { description: 'Refrigerant R-410A (3 lbs)', qty: 3, unit: 'lb', unitPrice: 45, total: 135 },
+      { description: 'Thermostat — Honeywell T6 Pro', qty: 1, unit: 'unit', unitPrice: 55, total: 55 },
+    ],
+    job: { title: 'AC Unit Replacement', address: '123 Oak Street, Dallas TX 75201', date: 'June 12, 2026', tech: 'Mike Rivera' },
+    contractor: { name: "Mike's HVAC & Cooling", city: 'Dallas', state: 'TX', trade: 'HVAC', phone: '(214) 555-0182' },
+    stripePaymentIntentId: null,  // set from API
+  },
+  quote: {
+    type: 'quote',
+    number: 'Q-2026-0019',
+    amount: 4800.00,
+    subtotal: 4800.00,
+    total: 4800.00,
+    validUntil: '2026-07-14',
+    lineItems: [
+      { description: 'Labor — Complete HVAC System Replacement', qty: 1, unit: 'job', unitPrice: 1200, total: 1200 },
+      { description: 'Carrier 5-Ton Central Air System', qty: 1, unit: 'unit', unitPrice: 3100, total: 3100 },
+      { description: 'Disposal of old unit', qty: 1, unit: 'job', unitPrice: 250, total: 250 },
+      { description: 'Extended 3-year labor warranty', qty: 1, unit: 'incl.', unitPrice: 250, total: 250 },
+    ],
+    contractor: { name: "Mike's HVAC & Cooling", city: 'Dallas', state: 'TX', trade: 'HVAC', phone: '(214) 555-0182' },
+  },
+};
+
+// ── INIT ──────────────────────────────────────────────────
+async function initPage() {
+  // In production: fetch from API using PAGE_ID
+  // const data = await fetchInvoiceData(PAGE_ID);
+  const data = DEMO[PAGE_TYPE] || DEMO.invoice;
+
+  const c = data.contractor;
+
+  // Set contractor identity
+  document.getElementById('biz-name').textContent  = c.name;
+  document.getElementById('biz-city').textContent  = `${c.city}, ${c.state}`;
+  document.getElementById('biz-trade').textContent = c.trade;
+  document.getElementById('footer-biz').textContent = c.name;
+  document.getElementById('footer-phone').textContent = c.phone;
+  document.getElementById('footer-phone').href = `tel:${c.phone.replace(/\D/g,'')}`;
+
+  if (data.type === 'quote') {
+    initQuoteView(data);
+  } else {
+    initInvoiceView(data);
+  }
+}
+
+function initInvoiceView(data) {
+  // Handle already-paid
+  if (data.status === 'paid') {
+    showView('paid');
+    document.getElementById('paid-number').textContent  = data.number;
+    document.getElementById('paid-date').textContent    = formatDate(data.paidAt);
+    document.getElementById('paid-biz-name').textContent = data.contractor.name;
+    document.getElementById('paid-call-btn').href = `tel:${data.contractor.phone.replace(/\D/g,'')}`;
+    return;
+  }
+
+  showView('invoice');
+
+  // Populate invoice
+  document.getElementById('inv-number').textContent    = data.number;
+  document.getElementById('inv-amount').textContent    = fmt$(data.amount);
+  document.getElementById('inv-subtotal').textContent  = fmt$(data.subtotal);
+  document.getElementById('inv-total').textContent     = fmt$(data.total);
+  document.getElementById('inv-due-date').textContent  = formatDate(data.dueDate);
+  document.getElementById('pay-btn-amount').textContent = fmt$(data.total);
+  document.getElementById('apple-amount').textContent  = fmt$(data.total);
+
+  // Overdue state
+  if (data.isOverdue) {
+    document.getElementById('inv-amount').classList.add('overdue');
+    document.getElementById('inv-status-badge').className = 'invoice-status-badge status-overdue';
+    document.getElementById('inv-status-badge').textContent = 'Overdue';
+    document.getElementById('inv-overdue-tag').style.display = 'inline';
+  }
+
+  // Tax row
+  if (data.tax > 0) {
+    document.getElementById('inv-tax-row').style.display = 'flex';
+    document.getElementById('inv-tax').textContent = fmt$(data.tax);
+  }
+
+  // Line items
+  document.getElementById('inv-line-items').innerHTML = data.lineItems.map(li => `
+    <div class="line-item">
+      <div>
+        <div class="li-desc">${escHtml(li.description)}</div>
+        ${li.qty > 1 ? `<div class="li-qty">${li.qty} × ${fmt$(li.unitPrice)}</div>` : ''}
+      </div>
+      <div class="li-amount">${fmt$(li.total)}</div>
+    </div>`).join('');
+
+  // Job details
+  if (data.job) {
+    document.getElementById('job-title').textContent   = data.job.title;
+    document.getElementById('job-address').textContent = data.job.address;
+    document.getElementById('job-date').textContent    = data.job.date;
+    document.getElementById('job-tech').textContent    = data.job.tech;
+  }
+}
+
+function initQuoteView(data) {
+  showView('quote');
+
+  document.getElementById('quote-number').textContent  = data.number;
+  document.getElementById('quote-amount').textContent  = fmt$(data.amount);
+  document.getElementById('q-subtotal').textContent    = fmt$(data.subtotal);
+  document.getElementById('q-total').textContent       = fmt$(data.total);
+  document.getElementById('accept-amount').textContent = data.total.toFixed(2);
+  document.getElementById('quote-valid-date').textContent = formatDate(data.validUntil);
+  document.getElementById('q-valid-display').textContent  = formatDate(data.validUntil);
+
+  document.getElementById('quote-line-items').innerHTML = data.lineItems.map(li => `
+    <div class="line-item">
+      <div>
+        <div class="li-desc">${escHtml(li.description)}</div>
+        ${li.qty > 1 ? `<div class="li-qty">${li.qty} × ${fmt$(li.unitPrice)}</div>` : ''}
+      </div>
+      <div class="li-amount">${fmt$(li.total)}</div>
+    </div>`).join('');
+}
+
+// ── VIEW SWITCHER ────────────────────────────────────────
+function showView(name) {
+  ['invoice','quote','success','paid','expired'].forEach(v => {
+    const el = document.getElementById(`view-${v}`);
+    if (el) el.style.display = v === name ? 'block' : 'none';
+  });
+}
+
+// ── PAYMENT METHOD TOGGLE ─────────────────────────────────
+function setPayMethod(method, btn) {
+  document.querySelectorAll('.pay-method').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.getElementById('card-form').style.display  = method === 'card'  ? 'block' : 'none';
+  document.getElementById('ach-form').style.display   = method === 'ach'   ? 'block' : 'none';
+  document.getElementById('apple-form').style.display = method === 'apple' ? 'block' : 'none';
+  document.getElementById('pay-btn').style.display    = method === 'apple' ? 'none'  : 'flex';
+}
+
+// ── CARD INPUT FORMATTING ─────────────────────────────────
+function formatCardNumber(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 16);
+  input.value = v.match(/.{1,4}/g)?.join(' ') || v;
+}
+
+function formatExpiry(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 4);
+  if (v.length >= 2) v = v.slice(0,2) + ' / ' + v.slice(2);
+  input.value = v;
+}
+
+function updatePreview() {
+  const num = document.getElementById('card-number').value || '•••• •••• •••• ••••';
+  const name = document.getElementById('card-name').value.toUpperCase() || 'YOUR NAME';
+  const exp = document.getElementById('card-exp').value || 'MM/YY';
+  document.getElementById('preview-number').textContent = num || '•••• •••• •••• ••••';
+  document.getElementById('preview-name').textContent   = name.slice(0, 22);
+  document.getElementById('preview-exp').textContent    = exp.replace(' / ', '/');
+}
+
+// ── PAYMENT HANDLER ───────────────────────────────────────
+async function handlePayment() {
+  hideError();
+  const btn = document.getElementById('pay-btn');
+
+  // Validate
+  const activeMethod = document.querySelector('.pay-method.active').id;
+  if (activeMethod === 'pm-card') {
+    const name   = document.getElementById('card-name').value.trim();
+    const number = document.getElementById('card-number').value.replace(/\s/g,'');
+    const exp    = document.getElementById('card-exp').value;
+    const cvv    = document.getElementById('card-cvv').value.trim();
+
+    if (!name)            { shakeInput('card-name');   showError('Please enter the name on the card.'); return; }
+    if (number.length < 15){ shakeInput('card-number'); showError('Please enter a valid card number.'); return; }
+    if (exp.length < 4)   { shakeInput('card-exp');    showError('Please enter a valid expiry date.'); return; }
+    if (!cvv || cvv.length < 3){ shakeInput('card-cvv'); showError('Please enter your CVV.'); return; }
+  }
+
+  // Loading state
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  try {
+    // ── PRODUCTION: Use Stripe.js to tokenize + call backend ──
+    // const stripe = Stripe('YOUR_PUBLISHABLE_KEY');
+    // const { paymentMethod, error } = await stripe.createPaymentMethod({
+    //   type: 'card',
+    //   card: cardElement,
+    //   billing_details: { name: document.getElementById('card-name').value },
+    // });
+    // if (error) throw new Error(error.message);
+    //
+    // const result = await fetch('/api/invoices/pay', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     invoice_id: PAGE_ID,
+    //     payment_method_id: paymentMethod.id,
+    //   }),
+    // });
+    // const data = await result.json();
+    // if (!result.ok) throw new Error(data.error);
+
+    // DEMO: Simulate 1.5s payment processing
+    await new Promise(r => setTimeout(r, 1500));
+
+    // Show success
+    const data = DEMO.invoice;
+    document.getElementById('success-amount').textContent = fmt$(data.total);
+    document.getElementById('success-biz').textContent   = data.contractor.name;
+    document.getElementById('r-biz').textContent     = data.contractor.name;
+    document.getElementById('r-invoice').textContent = data.number;
+    document.getElementById('r-amount').textContent  = fmt$(data.total);
+    document.getElementById('r-method').textContent  = 'Visa ••4242';
+    document.getElementById('r-date').textContent    = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    document.getElementById('r-ref').textContent     = 'pi_' + Math.random().toString(36).slice(2,12).toUpperCase();
+
+    showView('success');
+
+  } catch (err) {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    showError(err.message || 'Payment failed. Please try again or use a different card.');
+  }
+}
+
+// ── APPLE PAY (placeholder) ───────────────────────────────
+async function handleApplePay() {
+  // In production: use Stripe PaymentRequest API
+  await new Promise(r => setTimeout(r, 1000));
+  showView('success');
+}
+
+// ── QUOTE HANDLERS ────────────────────────────────────────
+async function handleAcceptQuote() {
+  const btn = document.querySelector('.btn-accept');
+  btn.textContent = 'Accepting...';
+  btn.disabled = true;
+
+  try {
+    // In production: POST /api/quotes/{id}/accept
+    // const res = await fetch(`/api/quotes/${PAGE_ID}/accept`, { method: 'POST' });
+    await new Promise(r => setTimeout(r, 1000));
+
+    // Show invoice payment flow after acceptance
+    document.getElementById('view-quote').style.display = 'none';
+    // Could transition to invoice payment here
+    alert("Quote accepted! You'll receive an invoice when the work is complete.");
+
+  } catch(e) {
+    btn.textContent = 'Accept Quote';
+    btn.disabled = false;
+  }
+}
+
+function handleDeclineQuote() {
+  if (confirm('Decline this quote? You can always request a new one from the contractor.')) {
+    document.querySelector('.quote-banner h3').textContent = 'Quote declined';
+    document.querySelector('.quote-banner p').textContent  = 'The contractor has been notified.';
+    document.querySelector('.btn-accept').style.display  = 'none';
+    document.querySelector('.btn-decline').style.display = 'none';
+  }
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('pay-error');
+  document.getElementById('pay-error-text').textContent = msg;
+  el.classList.add('show');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function hideError() { document.getElementById('pay-error').classList.remove('show'); }
+
+function shakeInput(id) {
+  const el = document.getElementById(id);
+  el.classList.add('error');
+  el.addEventListener('input', () => el.classList.remove('error'), { once: true });
+}
+
+function fmt$(n) {
+  return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatDate(str) {
+  if (!str) return '—';
+  return new Date(str + 'T00:00:00').toLocaleDateString('en-US',{ month:'long', day:'numeric', year:'numeric' });
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── START ─────────────────────────────────────────────────
+initPage();
+
+// Add ?type=quote to URL to see the quote accept view:
+// payment.html?type=quote
+</script>
+</body>
+</html>

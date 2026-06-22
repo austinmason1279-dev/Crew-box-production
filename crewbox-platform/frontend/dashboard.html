@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CrewBox — Contractor Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0F0F0F;--s1:#1A1A1A;--s2:#222;--bd:#2A2A2A;--y:#F5C800;--g:#22C55E;--r:#EF4444;--b:#60A5FA;--or:#F97316;--wh:#FFF;--sl:#8A9BB0;--display:'Barlow Condensed',sans-serif;--body:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--body);background:var(--bg);color:var(--wh);min-height:100vh;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.5)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* TOP BAR */
+.topbar{background:#0A0A0A;border-bottom:1px solid var(--bd);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-family:var(--display);font-size:22px;font-weight:900;letter-spacing:1px;}
+.logo .c{color:var(--wh);}.logo .b{color:var(--y);}
+.biz-name{font-size:13px;color:var(--sl);}
+.live-badge{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--g);}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--g);animation:pulse 2s infinite;}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--y);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:900;color:#111;font-size:16px;}
+
+/* MAIN LAYOUT */
+.main{max-width:1100px;margin:0 auto;padding:24px 20px;}
+.greeting{margin-bottom:22px;}
+.greeting h1{font-family:var(--display);font-size:26px;font-weight:900;text-transform:uppercase;letter-spacing:-.3px;}
+.greeting h1 span{color:var(--y);}
+.greeting p{font-size:13px;color:var(--sl);margin-top:4px;}
+
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:16px 18px;}
+.kpi-label{font-family:var(--mono);font-size:10px;color:var(--sl);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
+.kpi-val{font-family:var(--display);font-size:30px;font-weight:900;line-height:1;letter-spacing:-.5px;}
+.kpi-sub{font-size:11px;color:var(--sl);margin-top:5px;}
+.kv-y{color:var(--y);}.kv-g{color:var(--g);}.kv-r{color:var(--r);}
+
+/* AGENT CARDS */
+.agents-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px;}
+.agent-card{background:var(--s1);border:1px solid rgba(245,200,0,.18);border-radius:10px;padding:16px 14px;cursor:pointer;transition:border-color .2s,transform .15s;position:relative;}
+.agent-card:hover{border-color:rgba(245,200,0,.5);transform:translateY(-2px);}
+.agent-icon{font-size:26px;margin-bottom:10px;}
+.agent-name{font-family:var(--display);font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px;}
+.agent-metric{font-size:11px;color:var(--sl);margin-bottom:10px;}
+.live-corner{position:absolute;top:12px;right:12px;width:7px;height:7px;border-radius:50%;background:var(--g);animation:pulse 2s infinite;}
+
+/* BADGE */
+.badge{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.07em;padding:3px 8px;border-radius:4px;display:inline-block;}
+.badge-live{background:rgba(34,197,94,.1);color:var(--g);border:1px solid rgba(34,197,94,.25);}
+.badge-y{background:rgba(245,200,0,.1);color:var(--y);border:1px solid rgba(245,200,0,.22);}
+.badge-r{background:rgba(239,68,68,.1);color:var(--r);border:1px solid rgba(239,68,68,.22);}
+.badge-b{background:rgba(96,165,250,.1);color:var(--b);border:1px solid rgba(96,165,250,.22);}
+.badge-sl{background:rgba(138,155,176,.08);color:var(--sl);border:1px solid rgba(138,155,176,.18);}
+
+/* TABS */
+.tabs{display:flex;gap:2px;margin-bottom:20px;background:var(--s1);border-radius:8px;padding:4px;width:fit-content;}
+.tab{padding:7px 16px;border-radius:6px;border:none;cursor:pointer;font-family:var(--body);font-size:13px;font-weight:500;background:transparent;color:var(--sl);transition:all .15s;}
+.tab.active{background:rgba(245,200,0,.1);color:var(--y);}
+.tab:hover:not(.active){color:var(--wh);}
+
+/* PANELS */
+.panel{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:20px;animation:fadeIn .2s ease;}
+.panel-title{font-family:var(--display);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+.two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+.col-stack{display:flex;flex-direction:column;gap:16px;}
+
+/* ROWS */
+.row-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--bd);align-items:flex-start;}
+.row-item:last-child{border:none;}
+.row-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.row-main{flex:1;min-width:0;}
+.row-name{font-weight:600;font-size:13px;margin-bottom:2px;}
+.row-sub{font-size:12px;color:var(--sl);line-height:1.5;}
+.row-time{font-family:var(--mono);font-size:10px;color:rgba(138,155,176,.5);}
+.row-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+
+/* INVOICE ROWS */
+.inv-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--bd);}
+.inv-row:last-child{border:none;}
+.inv-num{font-family:var(--mono);font-size:10px;color:var(--sl);}
+.inv-name{font-size:13px;font-weight:600;}
+.inv-overdue{font-size:11px;color:var(--r);margin-top:2px;}
+.inv-amount{font-family:var(--display);font-size:20px;font-weight:900;white-space:nowrap;}
+.btn-remind{background:var(--y);color:#111;border:none;border-radius:5px;padding:5px 10px;font-family:var(--display);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;transition:transform .1s;}
+.btn-remind:hover{transform:scale(1.05);}
+
+/* REVIEW CARDS */
+.review-card{border-radius:8px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--bd);}
+.review-card.attention{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.3);}
+.review-stars{color:var(--y);font-size:14px;}
+.review-text{font-size:13px;color:var(--sl);line-height:1.55;margin:6px 0 10px;}
+.btn-respond{border:none;border-radius:4px;padding:5px 11px;font-family:var(--display);font-weight:700;font-size:11px;cursor:pointer;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s;}
+.modal{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:30px;max-width:420px;width:90%;animation:fadeIn .2s;}
+.modal-icon{font-size:38px;margin-bottom:12px;}
+.modal-title{font-family:var(--display);font-size:24px;font-weight:900;text-transform:uppercase;margin-bottom:5px;}
+.modal-tag{font-family:var(--mono);font-size:10px;color:var(--y);margin-bottom:14px;}
+.modal-desc{font-size:14px;color:var(--sl);line-height:1.65;margin-bottom:20px;}
+.modal-btns{display:flex;gap:10px;}
+.btn-primary{flex:1;background:var(--y);color:#111;border:none;border-radius:7px;padding:12px;font-family:var(--display);font-weight:800;font-size:15px;cursor:pointer;}
+.btn-ghost{flex:1;background:transparent;color:var(--sl);border:1px solid var(--bd);border-radius:7px;padding:12px;font-family:var(--display);font-weight:700;font-size:15px;cursor:pointer;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;padding:12px 20px;border-radius:8px;font-weight:600;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:slideIn .2s ease;}
+
+@media(max-width:768px){
+  .kpi-row,.agents-row{grid-template-columns:1fr 1fr;}
+  .two-col{grid-template-columns:1fr;}
+  .main{padding:16px 12px;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="logo"><span class="c">CREW</span><span class="b">BOX</span></div>
+    <div style="width:1px;height:20px;background:var(--bd)"></div>
+    <div class="biz-name">Mike's HVAC & Cooling</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="live-badge"><div class="pulse-dot"></div>All 5 agents live</div>
+    <div class="avatar">M</div>
+  </div>
+</div>
+
+<div class="main">
+  <!-- GREETING -->
+  <div class="greeting">
+    <h1>Good morning, <span>Mike</span> — your AI crew is running.</h1>
+    <p>Dallas, TX · AI answers on (214) 555-0199 · Forwards from your existing (214) 555-0182</p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">💰 Revenue This Month</div><div class="kpi-val kv-y">$14,800</div><div class="kpi-sub">Net collected</div></div>
+    <div class="kpi"><div class="kpi-label">📞 Calls Handled</div><div class="kpi-val kv-g">47</div><div class="kpi-sub">By Receptionist</div></div>
+    <div class="kpi"><div class="kpi-label">📋 Outstanding</div><div class="kpi-val kv-r">$3,200</div><div class="kpi-sub">Being collected now</div></div>
+    <div class="kpi"><div class="kpi-label">⭐ Google Rating</div><div class="kpi-val kv-y">4.8★</div><div class="kpi-sub">6 new reviews this month</div></div>
+  </div>
+
+  <!-- AGENT CARDS -->
+  <div class="agents-row">
+    <div class="agent-card" onclick="openAgent('receptionist')">
+      <div class="live-corner"></div>
+      <div class="agent-icon">📞</div>
+      <div class="agent-name">Receptionist</div>
+      <div class="agent-metric">4 calls today</div>
+      <span class="badge badge-live">LIVE</span>
+    </div>
+    <div class="agent-card" onclick="openAgent('estimator')">
+      <div class="live-corner"></div>
+      <div class="agent-icon">📋</div>
+      <div class="agent-name">Estimator</div>
+      <div class="agent-metric">2 quotes sent</div>
+      <span class="badge badge-live">LIVE</span>
+    </div>
+    <div class="agent-card" onclick="openAgent('collector')">
+      <div class="live-corner"></div>
+      <div class="agent-icon">💰</div>
+      <div class="agent-name">Collector</div>
+      <div class="agent-metric">$2,100 recovered</div>
+      <span class="badge badge-live">LIVE</span>
+    </div>
+    <div class="agent-card" onclick="openAgent('marketer')">
+      <div class="live-corner"></div>
+      <div class="agent-icon">📱</div>
+      <div class="agent-name">Marketer</div>
+      <div class="agent-metric">Next post: Tue</div>
+      <span class="badge badge-live">LIVE</span>
+    </div>
+    <div class="agent-card" onclick="openAgent('rep')">
+      <div class="live-corner"></div>
+      <div class="agent-icon">⭐</div>
+      <div class="agent-name">The Rep</div>
+      <div class="agent-metric">4.8★ avg rating</div>
+      <span class="badge badge-live">LIVE</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('overview',this)">Overview</button>
+    <button class="tab" onclick="showTab('calls',this)">Calls (47)</button>
+    <button class="tab" onclick="showTab('invoices',this)">Invoices</button>
+    <button class="tab" onclick="showTab('jobs',this)">Jobs</button>
+    <button class="tab" onclick="showTab('reviews',this)">Reviews</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="tab-overview" class="tab-content">
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-title">Recent Calls</div>
+        <div class="row-item">
+          <div class="row-dot" style="background:var(--g)"></div>
+          <div class="row-main"><div class="row-name">Sarah Johnson · (469) 555-0143</div><div class="row-sub">AC not cooling — booked for Thursday 2pm. Customer confirmed.</div><div class="row-time">2 min ago</div></div>
+          <div class="row-right"><span class="badge badge-live">BOOKED</span></div>
+        </div>
+        <div class="row-item">
+          <div class="row-dot" style="background:var(--sl)"></div>
+          <div class="row-main"><div class="row-name">Carlos Mendez · (972) 555-0287</div><div class="row-sub">Needs quote for new unit. Will call back tomorrow.</div><div class="row-time">1 hr ago</div></div>
+          <div class="row-right"><span class="badge badge-sl">CALLBACK</span></div>
+        </div>
+        <div class="row-item">
+          <div class="row-dot" style="background:var(--g)"></div>
+          <div class="row-main"><div class="row-name">Linda Park · (214) 555-0391</div><div class="row-sub">Furnace inspection — booked Monday 10am. Confirmation sent.</div><div class="row-time">3 hrs ago</div></div>
+          <div class="row-right"><span class="badge badge-live">BOOKED</span></div>
+        </div>
+        <div class="row-item">
+          <div class="row-dot" style="background:var(--b)"></div>
+          <div class="row-main"><div class="row-name">Tom Williams · (817) 555-0112</div><div class="row-sub">Emergency — no heat. Transferred to Mike immediately.</div><div class="row-time">Yesterday</div></div>
+          <div class="row-right"><span class="badge badge-b">TRANSFERRED</span></div>
+        </div>
+      </div>
+      <div class="col-stack">
+        <div class="panel">
+          <div class="panel-title">Open Invoices</div>
+          <div class="inv-row">
+            <div style="flex:1"><div class="inv-num">INV-2026-0041</div><div class="inv-name">Sarah Johnson</div></div>
+            <div class="inv-amount kv-y">$1,840</div>
+            <span class="badge badge-y">SENT</span>
+          </div>
+          <div class="inv-row">
+            <div style="flex:1"><div class="inv-num">INV-2026-0039</div><div class="inv-name">Robert Kim</div><div class="inv-overdue">8 days overdue</div></div>
+            <div class="inv-amount kv-r">$3,200</div>
+            <button class="btn-remind" onclick="showToast('Reminder sent to Robert Kim ✓')">Remind</button>
+          </div>
+          <div class="inv-row">
+            <div style="flex:1"><div class="inv-num">INV-2026-0037</div><div class="inv-name">Maria Garcia</div><div class="inv-overdue">15 days overdue</div></div>
+            <div class="inv-amount kv-r">$780</div>
+            <button class="btn-remind" onclick="showToast('Final reminder sent to Maria Garcia ✓')">Remind</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Recent Jobs</div>
+          <div class="inv-row">
+            <div style="flex:1"><div class="inv-name">AC Unit Replacement</div><div style="font-size:11px;color:var(--sl)">The Hendersons · Today</div></div>
+            <div class="inv-amount" style="font-size:16px">$4,800</div>
+            <span class="badge badge-live">DONE</span>
+          </div>
+          <div class="inv-row">
+            <div style="flex:1"><div class="inv-name">HVAC Tune-Up ×2</div><div style="font-size:11px;color:var(--sl)">Apex Properties · Today</div></div>
+            <div class="inv-amount" style="font-size:16px">$320</div>
+            <span class="badge badge-y">ACTIVE</span>
+          </div>
+          <div class="inv-row">
+            <div style="flex:1"><div class="inv-name">New Install — 3 ton</div><div style="font-size:11px;color:var(--sl)">The Nguyens · Pending</div></div>
+            <div class="inv-amount" style="font-size:16px">$6,200</div>
+            <span class="badge badge-sl">QUOTED</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALLS -->
+  <div id="tab-calls" class="tab-content" style="display:none">
+    <div class="panel">
+      <div class="panel-title">All Calls This Month <span style="font-family:var(--mono);font-size:11px;color:var(--y)">47 total · 68% booked</span></div>
+      <div class="row-item"><div class="row-dot" style="background:var(--g)"></div><div class="row-main"><div class="row-name">Sarah Johnson</div><div class="row-sub">AC not cooling — booked Thursday 2pm, confirmation sent via SMS</div><div class="row-time">Today, 8:14am</div></div><div class="row-right"><span class="badge badge-live">BOOKED</span></div></div>
+      <div class="row-item"><div class="row-dot" style="background:var(--sl)"></div><div class="row-main"><div class="row-name">Carlos Mendez</div><div class="row-sub">Needs quote for new unit — AI collected details, callback requested for tomorrow</div><div class="row-time">Today, 7:22am</div></div><div class="row-right"><span class="badge badge-sl">CALLBACK</span></div></div>
+      <div class="row-item"><div class="row-dot" style="background:var(--g)"></div><div class="row-main"><div class="row-name">Linda Park</div><div class="row-sub">Furnace inspection — booked Monday 10am. AI collected full address and problem details.</div><div class="row-time">Yesterday, 4:51pm</div></div><div class="row-right"><span class="badge badge-live">BOOKED</span></div></div>
+      <div class="row-item"><div class="row-dot" style="background:var(--b)"></div><div class="row-main"><div class="row-name">Tom Williams</div><div class="row-sub">Emergency — no heat. AI escalated and transferred to Mike within 30 seconds.</div><div class="row-time">Yesterday, 11:30am</div></div><div class="row-right"><span class="badge badge-b">TRANSFERRED</span></div></div>
+      <div class="row-item"><div class="row-dot" style="background:var(--g)"></div><div class="row-main"><div class="row-name">Jennifer Walsh</div><div class="row-sub">AC tune-up — booked for next Wednesday at 1pm. Annual maintenance plan discussed.</div><div class="row-time">2 days ago</div></div><div class="row-right"><span class="badge badge-live">BOOKED</span></div></div>
+    </div>
+  </div>
+
+  <!-- INVOICES -->
+  <div id="tab-invoices" class="tab-content" style="display:none">
+    <div class="panel">
+      <div class="panel-title">Invoices <button onclick="showToast('New invoice created ✓')" style="background:var(--y);color:#111;border:none;border-radius:5px;padding:7px 14px;font-family:var(--display);font-weight:800;font-size:13px;cursor:pointer;">+ New Invoice</button></div>
+      <div class="inv-row"><div style="flex:1"><div class="inv-num">INV-2026-0041</div><div class="inv-name">Sarah Johnson</div><div style="font-size:11px;color:var(--sl)">Due Jul 14</div></div><div class="inv-amount kv-y">$1,840</div><span class="badge badge-y">SENT</span></div>
+      <div class="inv-row"><div style="flex:1"><div class="inv-num">INV-2026-0039</div><div class="inv-name">Robert Kim</div><div class="inv-overdue">8 days overdue · Reminder #2 queued</div></div><div class="inv-amount kv-r">$3,200</div><button class="btn-remind" onclick="showToast('Firm reminder sent to Robert Kim ✓')">Send Reminder</button></div>
+      <div class="inv-row"><div style="flex:1"><div class="inv-num">INV-2026-0037</div><div class="inv-name">Maria Garcia</div><div class="inv-overdue">15 days overdue · Final reminder scheduled</div></div><div class="inv-amount kv-r">$780</div><button class="btn-remind" onclick="showToast('Final reminder sent to Maria Garcia ✓')">Final Notice</button></div>
+      <div class="inv-row"><div style="flex:1"><div class="inv-num">INV-2026-0035</div><div class="inv-name">The Hendersons</div><div style="font-size:11px;color:var(--g)">Paid Jun 10</div></div><div class="inv-amount kv-g">$4,800</div><span class="badge badge-live">PAID</span></div>
+      <div class="inv-row"><div style="flex:1"><div class="inv-num">INV-2026-0033</div><div class="inv-name">Apex Properties</div><div style="font-size:11px;color:var(--g)">Paid Jun 8</div></div><div class="inv-amount kv-g">$2,100</div><span class="badge badge-live">PAID</span></div>
+    </div>
+  </div>
+
+  <!-- JOBS -->
+  <div id="tab-jobs" class="tab-content" style="display:none">
+    <div class="panel">
+      <div class="panel-title">Jobs</div>
+      <div class="inv-row"><div style="flex:1"><div class="inv-name">AC Unit Replacement</div><div style="font-size:11px;color:var(--sl)">The Hendersons · 123 Oak St, Dallas · Today</div></div><div class="inv-amount" style="font-size:18px">$4,800</div><span class="badge badge-live">DONE</span></div>
+      <div class="inv-row"><div style="flex:1"><div class="inv-name">HVAC Tune-Up ×2</div><div style="font-size:11px;color:var(--sl)">Apex Properties · 456 Commerce St · Today</div></div><div class="inv-amount" style="font-size:18px">$320</div><span class="badge badge-y">ACTIVE</span></div>
+      <div class="inv-row"><div style="flex:1"><div class="inv-name">Ductwork Repair</div><div style="font-size:11px;color:var(--sl)">Lisa Crawford · 789 Pine Ave · Thu</div></div><div class="inv-amount" style="font-size:18px">$1,200</div><span class="badge badge-b">BOOKED</span></div>
+      <div class="inv-row"><div style="flex:1"><div class="inv-name">New Install — 3 ton unit</div><div style="font-size:11px;color:var(--sl)">The Nguyens · Quote sent, awaiting approval</div></div><div class="inv-amount" style="font-size:18px">$6,200</div><span class="badge badge-sl">QUOTED</span></div>
+      <div class="inv-row"><div style="flex:1"><div class="inv-name">Furnace Inspection</div><div style="font-size:11px;color:var(--sl)">Linda Park · Mon 10am</div></div><div class="inv-amount" style="font-size:18px">$189</div><span class="badge badge-b">BOOKED</span></div>
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div id="tab-reviews" class="tab-content" style="display:none">
+    <div class="panel">
+      <div class="panel-title">Reviews & Reputation <span style="font-family:var(--mono);font-size:12px;color:var(--y)">4.8★ avg · 6 this month</span></div>
+      <div class="review-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-weight:600;font-size:13px;">James T.</span><span style="font-family:var(--mono);font-size:10px;color:var(--sl)">2 days ago · Google</span></div>
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Mike's crew was fantastic — on time, professional, and fixed everything quickly. Highly recommend for anyone in Dallas needing HVAC work."</div>
+        <div style="display:flex;gap:8px;align-items:center;"><span class="badge badge-b">GOOGLE</span><span class="badge badge-live">RESPONDED</span></div>
+      </div>
+      <div class="review-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-weight:600;font-size:13px;">Patricia W.</span><span style="font-family:var(--mono);font-size:10px;color:var(--sl)">5 days ago · Google</span></div>
+        <div class="review-stars">★★★★☆</div>
+        <div class="review-text">"Good work overall, very professional technician. Took a bit longer than expected but the job was done right."</div>
+        <div style="display:flex;gap:8px;align-items:center;"><span class="badge badge-b">GOOGLE</span><span class="badge badge-live">RESPONDED</span></div>
+      </div>
+      <div class="review-card attention">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-weight:600;font-size:13px;">Derek M. ⚠</span><span style="font-family:var(--mono);font-size:10px;color:var(--sl)">1 week ago · Google</span></div>
+        <div style="color:var(--r);font-size:14px;">★★☆☆☆</div>
+        <div class="review-text">"Came out twice and the issue still isn't fully resolved. Disappointed — expected better follow-through."</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="badge badge-b">GOOGLE</span>
+          <span class="badge badge-r">NEEDS RESPONSE</span>
+          <button class="btn-respond" style="background:var(--r);color:#fff;" onclick="showToast('Response drafted — awaiting your approval')">Review & Approve Response</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AGENT MODAL -->
+<div id="modal" class="modal-bg" style="display:none" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-icon" id="modal-icon"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-tag" id="modal-tag"></div>
+    <div class="modal-desc" id="modal-desc"></div>
+    <div class="modal-btns">
+      <button class="btn-primary" onclick="showToast('Settings saved ✓');closeModal()">Configure Agent</button>
+      <button class="btn-ghost" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast" style="display:none"></div>
+
+<script>
+const AGENTS = {
+  receptionist: { icon:'📞', name:'The Receptionist', tag:'VOICE + SMS · 24/7', desc:'Answering every inbound call around the clock. Books jobs, qualifies leads, sends confirmation texts, and transfers urgent calls straight to your phone. Running on your AI number (214) 555-0199 — your existing number forwards to it.' },
+  estimator: { icon:'📋', name:'The Estimator', tag:'INSTANT QUOTE ENGINE', desc:'Send a photo from the job site and leave a quick voice note. A professional itemized quote is written, formatted, and texted to the customer in under 60 seconds. Follows up automatically if no response in 24 hours.' },
+  collector: { icon:'💰', name:'The Collector', tag:'INVOICE RECOVERY', desc:'Tracking 3 open invoices totaling $4,980. Sending smart payment reminders on schedule — friendly first, firm second, final third. Never awkward, never aggressive. Just consistent until paid.' },
+  marketer: { icon:'📱', name:'The Marketer', tag:'SOCIAL AUTOPILOT', desc:'Turning your completed job photos into social posts for Google Business and Facebook. Next post scheduled Tuesday at 9am. Writing captions in your voice, scheduling automatically, tracking local reach.' },
+  rep: { icon:'⭐', name:'The Rep', tag:'REPUTATION GUARD', desc:'Monitoring Google reviews and AI-writing responses. Sent 6 review requests to customers this month. One negative review is drafted for your approval — flagged rather than auto-posted. Your current average: 4.8★.' },
+};
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).style.display = 'block';
+  btn.classList.add('active');
+}
+
+function openAgent(type) {
+  const a = AGENTS[type];
+  document.getElementById('modal-icon').textContent = a.icon;
+  document.getElementById('modal-title').textContent = a.name;
+  document.getElementById('modal-tag').textContent = 'STATUS: LIVE · ' + a.tag;
+  document.getElementById('modal-desc').textContent = a.desc;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.cssText = 'display:block;background:var(--g);color:#fff;position:fixed;bottom:24px;right:24px;z-index:999;padding:12px 20px;border-radius:8px;font-weight:600;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:slideIn .2s ease;';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.display = 'none', 3000);
+}
+</script>
+</body>
+</html>

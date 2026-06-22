@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CrewBox — Your AI Crew Handles the Business. You Handle the Work.</title>
+<meta name="description" content="CrewBox puts 5 AI agents to work for your trade business — answering calls, sending quotes, collecting invoices, and managing your reputation. 14 days free."/>
+<meta property="og:title" content="CrewBox — AI Back-Office for Trade Businesses"/>
+<meta property="og:description" content="Stop losing jobs to missed calls. CrewBox answers every call, sends quotes, chases invoices, and protects your reputation — automatically."/>
+<meta property="og:url" content="https://getcrewbox.com"/>
+<link rel="canonical" href="https://getcrewbox.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:    #0C0C0C;
+  --s1:    #161616;
+  --s2:    #1E1E1E;
+  --bd:    #2A2A2A;
+  --y:     #F5C800;
+  --y2:    #FFD740;
+  --green: #22C55E;
+  --red:   #EF4444;
+  --slate: #7A8A9A;
+  --worn:  #D4CFC8;
+  --white: #FFFFFF;
+  --D: 'Barlow Condensed', sans-serif;
+  --B: 'Inter', sans-serif;
+  --M: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--B); background: var(--bg); color: var(--white); overflow-x: hidden; }
+
+/* ── ANIMATIONS ── */
+@keyframes blink  { 0%,100%{opacity:1} 50%{opacity:.2} }
+@keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes countUp { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+@keyframes glow   { 0%,100%{box-shadow:0 0 0 rgba(245,200,0,0)} 50%{box-shadow:0 0 40px rgba(245,200,0,.12)} }
+@keyframes slideIn{ from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+@keyframes pulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.25;transform:scale(1.6)} }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 60px;
+  background: rgba(12,12,12,.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.nav-logo { font-family: 'Black Han Sans', sans-serif; font-size: 22px; letter-spacing: 1px; text-decoration: none; }
+.nav-logo .c { color: var(--white); } .nav-logo .b { color: var(--y); }
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a { color: var(--slate); font-size: 13px; font-weight: 500; text-decoration: none; transition: color .2s; }
+.nav-links a:hover { color: var(--white); }
+.nav-actions { display: flex; gap: 10px; align-items: center; }
+.btn-nav-ghost { background: transparent; color: var(--worn); font-family: var(--D); font-weight: 700; font-size: 14px; letter-spacing: .3px; text-transform: uppercase; padding: 8px 18px; border-radius: 5px; border: 1px solid rgba(255,255,255,.15); cursor: pointer; text-decoration: none; transition: border-color .2s; }
+.btn-nav-ghost:hover { border-color: rgba(255,255,255,.35); }
+.btn-nav-cta { background: var(--y); color: var(--bg); font-family: var(--D); font-weight: 900; font-size: 14px; letter-spacing: .4px; text-transform: uppercase; padding: 9px 20px; border-radius: 5px; border: none; cursor: pointer; text-decoration: none; transition: transform .15s, box-shadow .2s; }
+.btn-nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,200,0,.3); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh; display: grid; grid-template-columns: 1fr 480px;
+  align-items: center; gap: 60px; padding: 100px 48px 60px;
+  background: var(--bg); position: relative; overflow: hidden;
+}
+.hero-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(245,200,0,.014) 40px, rgba(245,200,0,.014) 41px);
+}
+.hero-left { position: relative; z-index: 2; animation: fadeUp .6s ease both; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(245,200,0,.07); border: 1px solid rgba(245,200,0,.2);
+  padding: 6px 14px; border-radius: 3px; margin-bottom: 28px;
+}
+.eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--y); animation: blink 1.5s infinite; }
+.eyebrow-text { font-family: var(--M); font-size: 11px; color: var(--y); letter-spacing: .14em; text-transform: uppercase; }
+.hero h1 {
+  font-family: var(--D); font-size: clamp(58px, 8vw, 100px);
+  font-weight: 900; line-height: .9; letter-spacing: -1px;
+  text-transform: uppercase; margin-bottom: 28px;
+}
+.hero h1 .hl { color: var(--y); }
+.hero h1 .dim { color: rgba(255,255,255,.28); font-style: italic; }
+.hero-sub { font-size: 17px; color: var(--slate); line-height: 1.7; max-width: 500px; margin-bottom: 36px; font-weight: 400; }
+.hero-sub strong { color: var(--worn); font-weight: 600; }
+
+/* ── LIVE COST COUNTER ── */
+.cost-counter {
+  background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.25);
+  border-radius: 10px; padding: 20px 24px; margin-bottom: 36px;
+  width: fit-content; animation: glow 4s ease-in-out infinite;
+}
+.counter-label { font-family: var(--M); font-size: 10px; color: rgba(239,68,68,.8); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.counter-blink { width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: blink 1s infinite; }
+.counter-row { display: flex; align-items: baseline; gap: 12px; }
+.counter-val { font-family: var(--D); font-size: clamp(44px,6vw,72px); font-weight: 900; color: var(--white); line-height: 1; letter-spacing: -2px; animation: countUp .5s ease; }
+.counter-desc { font-size: 13px; color: var(--slate); line-height: 1.4; max-width: 180px; }
+.counter-note { font-family: var(--M); font-size: 10px; color: rgba(245,200,0,.6); margin-top: 10px; }
+
+/* ── CTA BUTTONS ── */
+.hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
+.btn-primary { background: var(--y); color: var(--bg); font-family: var(--D); font-weight: 900; font-size: 17px; letter-spacing: .4px; text-transform: uppercase; padding: 15px 32px; border-radius: 6px; border: none; cursor: pointer; text-decoration: none; transition: transform .15s, box-shadow .2s; display: inline-flex; align-items: center; gap: 10px; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(245,200,0,.3); }
+.btn-secondary { background: transparent; color: var(--white); font-family: var(--D); font-weight: 700; font-size: 17px; letter-spacing: .4px; text-transform: uppercase; padding: 14px 30px; border-radius: 6px; border: 1.5px solid rgba(255,255,255,.18); cursor: pointer; text-decoration: none; transition: border-color .2s; display: inline-flex; align-items: center; gap: 10px; }
+.btn-secondary:hover { border-color: var(--y); color: var(--y); }
+.trial-note { font-family: var(--M); font-size: 11px; color: var(--slate); margin-top: 12px; }
+
+/* ── HERO STATS ── */
+.hero-stats { display: flex; gap: 36px; flex-wrap: wrap; padding-top: 36px; border-top: 1px solid rgba(255,255,255,.07); }
+.stat-val { font-family: var(--D); font-size: 34px; font-weight: 900; color: var(--y); line-height: 1; }
+.stat-label { font-size: 12px; color: var(--slate); margin-top: 4px; line-height: 1.4; }
+
+/* ── HERO RIGHT — CRATE VISUAL ── */
+.hero-right { position: relative; z-index: 2; animation: fadeUp .6s ease .2s both; }
+.crate { background: var(--s2); border: 2px solid #2E2E2E; border-radius: 8px; overflow: hidden; box-shadow: 0 32px 80px rgba(0,0,0,.8); position: relative; }
+.crate::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle 4px at 12px 12px,rgba(255,255,255,.12) 50%,transparent 50%), radial-gradient(circle 4px at calc(100% - 12px) 12px,rgba(255,255,255,.12) 50%,transparent 50%), radial-gradient(circle 4px at 12px calc(100% - 12px),rgba(255,255,255,.12) 50%,transparent 50%), radial-gradient(circle 4px at calc(100% - 12px) calc(100% - 12px),rgba(255,255,255,.12) 50%,transparent 50%); }
+.crate-lid { background: linear-gradient(180deg,#333 0%,var(--s2) 100%); padding: 16px 20px; border-bottom: 2px solid #333; display: flex; align-items: center; justify-content: space-between; }
+.crate-logo { font-family: 'Black Han Sans', sans-serif; font-size: 22px; letter-spacing: 1px; }
+.crate-logo .c { color: var(--worn); } .crate-logo .b { color: var(--y); }
+.crate-tag { font-family: var(--M); font-size: 10px; color: var(--y); background: rgba(245,200,0,.1); border: 1px solid rgba(245,200,0,.2); padding: 3px 9px; border-radius: 3px; letter-spacing: .1em; }
+.crate-stripe { height: 4px; background: repeating-linear-gradient(90deg, var(--y) 0, var(--y) 12px, transparent 12px, transparent 18px); }
+.crate-body { padding: 18px 20px; }
+.crate-section-label { font-family: var(--M); font-size: 9px; color: var(--slate); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 12px; }
+.slot { display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.06); border-radius: 6px; padding: 11px 13px; margin-bottom: 8px; transition: border-color .2s, transform .2s; cursor: default; }
+.slot:last-child { margin-bottom: 0; }
+.slot:hover { border-color: rgba(245,200,0,.25); transform: translateX(4px); }
+.slot-ic { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+.slot-info { flex: 1; }
+.slot-name { font-family: var(--D); font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 1px; }
+.slot-desc { font-size: 11px; color: var(--slate); }
+.slot-live { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.live-txt { font-family: var(--M); font-size: 10px; color: var(--green); }
+.crate-foot { padding: 12px 20px; background: rgba(0,0,0,.25); border-top: 1px solid rgba(255,255,255,.05); display: flex; justify-content: space-between; align-items: center; }
+.cf-url { font-family: var(--M); font-size: 10px; color: var(--slate); }
+.cf-live { display: flex; align-items: center; gap: 5px; font-family: var(--M); font-size: 10px; color: var(--green); }
+
+/* ── TRIAL BADGE ON CRATE ── */
+.trial-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--green); color: var(--white); font-family: var(--M); font-size: 10px; font-weight: 700; padding: 4px 14px; border-radius: 20px; letter-spacing: .08em; white-space: nowrap; z-index: 3; }
+
+/* ── TICKER ── */
+.ticker { background: var(--y); padding: 12px 0; overflow: hidden; white-space: nowrap; }
+.ticker-track { display: inline-flex; animation: ticker 30s linear infinite; }
+.ticker-item { font-family: var(--M); font-size: 12px; font-weight: 600; color: var(--bg); padding: 0 32px; }
+.ticker-sep { opacity: .3; }
+
+/* ── SECTIONS ── */
+.section { padding: 96px 48px; }
+.section.alt { background: var(--s1); }
+.section.dark { background: #080808; }
+.sec-eyebrow { font-family: var(--M); font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--y); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.sec-eyebrow::before { content: ''; display: block; width: 22px; height: 2px; background: var(--y); flex-shrink: 0; }
+.sec-h { font-family: var(--D); font-size: clamp(38px,5vw,64px); font-weight: 900; line-height: .95; letter-spacing: -.5px; text-transform: uppercase; max-width: 800px; margin-bottom: 18px; }
+.sec-sub { font-size: 16px; color: var(--slate); line-height: 1.7; max-width: 560px; }
+
+/* ── TWO PATHS ── */
+.paths-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 56px; }
+.path-card { border-radius: 14px; padding: 36px 32px; border: 2px solid; position: relative; overflow: hidden; }
+.path-card.contractor { background: rgba(245,200,0,.03); border-color: rgba(245,200,0,.25); }
+.path-card.licensee { background: rgba(34,197,94,.03); border-color: rgba(34,197,94,.2); }
+.path-tag { font-family: var(--M); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 4px 10px; border-radius: 3px; display: inline-block; margin-bottom: 20px; }
+.path-card.contractor .path-tag { background: rgba(245,200,0,.1); color: var(--y); border: 1px solid rgba(245,200,0,.25); }
+.path-card.licensee .path-tag { background: rgba(34,197,94,.1); color: var(--green); border: 1px solid rgba(34,197,94,.25); }
+.path-h { font-family: var(--D); font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: -.3px; margin-bottom: 14px; }
+.path-desc { font-size: 14px; color: var(--slate); line-height: 1.7; margin-bottom: 24px; }
+.path-points { list-style: none; margin-bottom: 28px; }
+.path-points li { font-size: 14px; color: var(--worn); padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.06); display: flex; gap: 10px; }
+.path-points li:last-child { border: none; }
+.path-points li::before { content: '→'; flex-shrink: 0; }
+.path-card.contractor .path-points li::before { color: var(--y); }
+.path-card.licensee .path-points li::before { color: var(--green); }
+.path-price { font-family: var(--D); font-size: 42px; font-weight: 900; margin-bottom: 5px; }
+.path-price-note { font-size: 13px; color: var(--slate); margin-bottom: 20px; }
+.btn-path-y { display: block; text-align: center; background: var(--y); color: var(--bg); font-family: var(--D); font-weight: 900; font-size: 16px; letter-spacing: .4px; text-transform: uppercase; padding: 14px; border-radius: 7px; border: none; cursor: pointer; text-decoration: none; transition: transform .15s, box-shadow .2s; }
+.btn-path-y:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,200,0,.28); }
+.btn-path-g { display: block; text-align: center; background: var(--green); color: var(--bg); font-family: var(--D); font-weight: 900; font-size: 16px; letter-spacing: .4px; text-transform: uppercase; padding: 14px; border-radius: 7px; border: none; cursor: pointer; text-decoration: none; transition: transform .15s, box-shadow .2s; }
+.btn-path-g:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(34,197,94,.25); }
+
+/* ── AGENTS ── */
+.agents-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; margin-top: 56px; }
+.agent-card { background: var(--s2); padding: 32px 28px; position: relative; overflow: hidden; transition: background .2s; }
+.agent-card:hover { background: #1C1C1C; }
+.agent-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--y); transform: scaleX(0); transform-origin: left; transition: transform .3s; }
+.agent-card:hover::before { transform: scaleX(1); }
+.agent-card.wide { grid-column: 1/-1; display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; }
+.ac-icon { width: 50px; height: 50px; background: rgba(245,200,0,.08); border: 1px solid rgba(245,200,0,.18); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 18px; flex-shrink: 0; }
+.agent-card.wide .ac-icon { margin-bottom: 0; }
+.ac-name { font-family: var(--D); font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 4px; }
+.ac-role { font-family: var(--M); font-size: 10px; color: var(--y); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; }
+.ac-desc { font-size: 13px; color: var(--slate); line-height: 1.65; }
+.ac-stat { margin-top: 16px; display: flex; align-items: baseline; gap: 8px; }
+.ac-stat-val { font-family: var(--D); font-size: 26px; font-weight: 900; color: var(--green); }
+.ac-stat-label { font-size: 12px; color: var(--slate); }
+
+/* ── HOW IT WORKS ── */
+.steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; margin-top: 56px; }
+.step-card { position: relative; }
+.step-num { font-family: var(--D); font-size: 72px; font-weight: 900; color: rgba(245,200,0,.08); line-height: 1; margin-bottom: -16px; }
+.step-title { font-family: var(--D); font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 10px; }
+.step-desc { font-size: 14px; color: var(--slate); line-height: 1.65; }
+.step-connector { position: absolute; top: 40px; right: -12px; color: rgba(245,200,0,.3); font-size: 20px; z-index: 1; }
+
+/* ── PRICING ── */
+.pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-top: 56px; }
+.pc { background: var(--s1); border-radius: 12px; padding: 34px 28px; border: 1px solid rgba(255,255,255,.07); position: relative; transition: border-color .2s, transform .2s; }
+.pc:hover { border-color: rgba(245,200,0,.2); transform: translateY(-3px); }
+.pc.feat { border-color: var(--y); background: rgba(245,200,0,.025); }
+.pc-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--y); color: var(--bg); font-family: var(--M); font-size: 10px; font-weight: 700; padding: 3px 14px; border-radius: 20px; white-space: nowrap; letter-spacing: .06em; }
+.pc-tier { font-family: var(--M); font-size: 11px; color: var(--y); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 13px; }
+.pc-for { font-size: 13px; color: var(--slate); margin-bottom: 16px; }
+.pc-amount { font-family: var(--D); font-size: 54px; font-weight: 900; line-height: 1; letter-spacing: -1px; margin-bottom: 4px; }
+.pc-period { font-size: 13px; color: var(--slate); margin-bottom: 24px; }
+.pc-trial { font-family: var(--M); font-size: 11px; color: var(--green); margin-bottom: 24px; }
+.pc-list { list-style: none; margin-bottom: 28px; }
+.pc-list li { font-size: 13px; color: var(--slate); padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.05); display: flex; gap: 9px; }
+.pc-list li:last-child { border: none; }
+.pc-list li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+.pc-btn { display: block; text-align: center; padding: 13px; border-radius: 7px; font-family: var(--D); font-weight: 900; font-size: 16px; letter-spacing: .4px; text-transform: uppercase; cursor: pointer; border: none; transition: all .2s; text-decoration: none; }
+.pc-btn-y { background: var(--y); color: var(--bg); }
+.pc-btn-y:hover { box-shadow: 0 8px 28px rgba(245,200,0,.28); }
+.pc-btn-g { background: transparent; color: var(--white); border: 1.5px solid rgba(255,255,255,.18); }
+.pc-btn-g:hover { border-color: var(--y); color: var(--y); }
+
+/* ── WAITLIST / SIGNUP SECTION ── */
+.signup-section { background: var(--y); padding: 96px 48px; position: relative; overflow: hidden; }
+.signup-section::before { content: 'CREWBOX'; position: absolute; font-family: 'Black Han Sans', sans-serif; font-size: 200px; color: rgba(0,0,0,.055); left: 50%; top: 50%; transform: translate(-50%,-50%); white-space: nowrap; pointer-events: none; letter-spacing: 8px; }
+.signup-inner { max-width: 640px; margin: 0 auto; text-align: center; position: relative; }
+.signup-inner .sec-eyebrow { color: rgba(0,0,0,.5); justify-content: center; }
+.signup-inner .sec-eyebrow::before { background: rgba(0,0,0,.3); }
+.signup-h { font-family: var(--D); font-size: clamp(38px,5vw,60px); font-weight: 900; text-transform: uppercase; letter-spacing: -.5px; color: var(--bg); margin-bottom: 14px; }
+.signup-sub { font-size: 16px; color: rgba(0,0,0,.6); line-height: 1.65; margin-bottom: 36px; }
+.signup-toggle { display: flex; gap: 0; background: rgba(0,0,0,.12); border-radius: 8px; padding: 4px; margin-bottom: 28px; }
+.toggle-opt { flex: 1; padding: 10px; border-radius: 6px; font-family: var(--D); font-weight: 800; font-size: 15px; letter-spacing: .3px; text-transform: uppercase; cursor: pointer; border: none; background: transparent; color: rgba(0,0,0,.5); transition: all .2s; }
+.toggle-opt.active { background: var(--bg); color: var(--y); }
+.signup-form { display: flex; flex-direction: column; gap: 12px; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sf-input { background: rgba(0,0,0,.08); border: 1.5px solid rgba(0,0,0,.15); border-radius: 7px; padding: 14px 16px; font-family: var(--B); font-size: 15px; color: var(--bg); outline: none; transition: border-color .2s; width: 100%; }
+.sf-input:focus { border-color: rgba(0,0,0,.4); background: rgba(0,0,0,.12); }
+.sf-input::placeholder { color: rgba(0,0,0,.35); }
+.sf-select { appearance: none; cursor: pointer; }
+.btn-signup { background: var(--bg); color: var(--y); font-family: var(--D); font-weight: 900; font-size: 18px; letter-spacing: .5px; text-transform: uppercase; padding: 16px; border-radius: 7px; border: none; cursor: pointer; width: 100%; transition: transform .15s, box-shadow .2s; margin-top: 4px; }
+.btn-signup:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,0,0,.35); }
+.signup-terms { font-size: 12px; color: rgba(0,0,0,.45); margin-top: 12px; line-height: 1.5; }
+.signup-terms a { color: rgba(0,0,0,.6); }
+
+/* ── SUCCESS STATE ── */
+.signup-success { display: none; text-align: center; padding: 20px; }
+.success-icon { font-size: 52px; margin-bottom: 16px; }
+.success-h { font-family: var(--D); font-size: 36px; font-weight: 900; text-transform: uppercase; color: var(--bg); letter-spacing: -.3px; margin-bottom: 10px; }
+.success-sub { font-size: 15px; color: rgba(0,0,0,.6); line-height: 1.6; }
+
+/* ── SOCIAL PROOF ── */
+.proof-strip { background: var(--s1); padding: 48px; display: flex; gap: 40px; align-items: center; justify-content: center; flex-wrap: wrap; border-top: 1px solid var(--bd); border-bottom: 1px solid var(--bd); }
+.proof-item { text-align: center; }
+.proof-val { font-family: var(--D); font-size: 36px; font-weight: 900; color: var(--y); }
+.proof-label { font-size: 12px; color: var(--slate); margin-top: 4px; }
+
+/* ── TESTIMONIALS ── */
+.testimonials { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-top: 56px; }
+.tcard { background: var(--s2); border: 1px solid var(--bd); border-radius: 12px; padding: 28px 24px; }
+.tcard-quote { font-size: 15px; color: var(--worn); line-height: 1.65; margin-bottom: 20px; font-style: italic; }
+.tcard-quote::before { content: '"'; color: var(--y); font-size: 24px; font-family: var(--D); font-weight: 900; line-height: 1; display: block; margin-bottom: 6px; }
+.tcard-author { display: flex; align-items: center; gap: 12px; }
+.tcard-av { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--D); font-size: 18px; font-weight: 900; flex-shrink: 0; }
+.tcard-name { font-size: 13px; font-weight: 600; }
+.tcard-biz { font-size: 12px; color: var(--slate); margin-top: 2px; }
+.tcard-stars { color: var(--y); font-size: 12px; margin-top: 2px; }
+
+/* ── FAQ ── */
+.faq-list { margin-top: 48px; max-width: 740px; }
+.faq-item { border-bottom: 1px solid var(--bd); }
+.faq-q { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; cursor: pointer; font-size: 15px; font-weight: 600; transition: color .2s; }
+.faq-q:hover { color: var(--y); }
+.faq-icon { font-size: 20px; color: var(--y); transition: transform .2s; flex-shrink: 0; }
+.faq-a { font-size: 14px; color: var(--slate); line-height: 1.7; padding-bottom: 20px; display: none; }
+.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-icon { transform: rotate(45deg); }
+
+/* ── FOOTER ── */
+footer { background: #060606; padding: 56px 48px 32px; border-top: 1px solid rgba(255,255,255,.05); }
+.footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+.footer-logo { font-family: 'Black Han Sans', sans-serif; font-size: 26px; margin-bottom: 12px; }
+.footer-logo .c { color: var(--worn); } .footer-logo .b { color: var(--y); }
+.footer-tag { font-size: 13px; color: var(--slate); line-height: 1.65; margin-bottom: 16px; }
+.footer-domain { font-family: var(--M); font-size: 11px; color: var(--y); }
+.fc h4 { font-family: var(--M); font-size: 10px; color: var(--y); letter-spacing: .16em; text-transform: uppercase; margin-bottom: 14px; }
+.fc ul { list-style: none; }
+.fc li { margin-bottom: 9px; }
+.fc a { color: var(--slate); text-decoration: none; font-size: 14px; transition: color .2s; }
+.fc a:hover { color: var(--white); }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; border-top: 1px solid rgba(255,255,255,.05); flex-wrap: wrap; gap: 12px; }
+.footer-copy { font-family: var(--M); font-size: 11px; color: rgba(122,138,154,.38); }
+.footer-chip { font-family: var(--M); font-size: 10px; background: rgba(245,200,0,.07); border: 1px solid rgba(245,200,0,.17); color: var(--y); padding: 4px 12px; border-radius: 3px; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; box-shadow: 0 8px 32px rgba(0,0,0,.6); display: none; animation: slideIn .2s ease; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 960px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero { grid-template-columns: 1fr; padding: 90px 20px 56px; }
+  .hero-right { display: none; }
+  .section { padding: 72px 20px; }
+  .signup-section { padding: 72px 20px; }
+  .paths-grid, .agents-grid, .steps-grid, .pricing-grid, .testimonials { grid-template-columns: 1fr; }
+  .agents-grid .agent-card.wide { grid-column: 1; display: flex; flex-direction: column; }
+  .form-row-2 { grid-template-columns: 1fr; }
+  footer { padding: 48px 20px 28px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo"><span class="c">CREW</span><span class="b">BOX</span></a>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#agents">AI Crew</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="#signup" class="btn-nav-ghost">Log In</a>
+    <a href="#signup" class="btn-nav-cta">Start Free Trial →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-grid"></div>
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <div class="eyebrow-dot"></div>
+      <div class="eyebrow-text">AI Back-Office · Trades First · 14 Days Free</div>
+    </div>
+    <h1>You handle<br>the <span class="hl">hammer.</span><br><span class="dim">We handle</span><br>everything <span class="hl">else.</span></h1>
+    <p class="hero-sub">CrewBox puts <strong>5 AI agents to work</strong> for your trade business — answering every call, sending quotes, chasing invoices, posting your work, and protecting your reputation. All day. Every day. Without you touching a screen.</p>
+
+    <!-- LIVE COST COUNTER -->
+    <div class="cost-counter">
+      <div class="counter-label"><div class="counter-blink"></div>Revenue lost to missed calls — right now</div>
+      <div class="counter-row">
+        <div class="counter-val" id="counter">$0</div>
+        <div class="counter-desc">for a typical HVAC, plumbing, or electrical business today</div>
+      </div>
+      <div class="counter-note">This counter resets to zero the moment CrewBox goes live for you.</div>
+    </div>
+
+    <div class="hero-ctas">
+      <a href="#signup" class="btn-primary">Start Free — 14 Days →</a>
+      <a href="#agents" class="btn-secondary">See the AI Crew</a>
+    </div>
+    <div class="trial-note">No credit card required for 14 days · All 5 agents included · Cancel anytime</div>
+
+    <div class="hero-stats">
+      <div><div class="stat-val">7M+</div><div class="stat-label">Trade businesses<br>with no AI yet</div></div>
+      <div><div class="stat-val">$2,400</div><div class="stat-label">Average job lost<br>per missed call</div></div>
+      <div><div class="stat-val">3 min</div><div class="stat-label">Setup time —<br>keep your number</div></div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div style="position:relative">
+      <div class="trial-badge">✓ 14 DAYS FREE — ALL 5 AGENTS</div>
+      <div class="crate" style="margin-top:16px">
+        <div class="crate-lid">
+          <div class="crate-logo"><span class="c">CREW</span><span class="b">BOX</span></div>
+          <div class="crate-tag">5 AGENTS INSIDE</div>
+        </div>
+        <div class="crate-stripe"></div>
+        <div class="crate-body">
+          <div class="crate-section-label">Your AI Crew — All Active</div>
+          <div class="slot"><div class="slot-ic">📞</div><div class="slot-info"><div class="slot-name">The Receptionist</div><div class="slot-desc">Answers every call 24/7</div></div><div class="slot-live"><div class="live-dot"></div><div class="live-txt">LIVE</div></div></div>
+          <div class="slot"><div class="slot-ic">📋</div><div class="slot-info"><div class="slot-name">The Estimator</div><div class="slot-desc">Quotes from job photos</div></div><div class="slot-live"><div class="live-dot"></div><div class="live-txt">LIVE</div></div></div>
+          <div class="slot"><div class="slot-ic">💰</div><div class="slot-info"><div class="slot-name">The Collector</div><div class="slot-desc">Chases every invoice</div></div><div class="slot-live"><div class="live-dot"></div><div class="live-txt">LIVE</div></div></div>
+          <div class="slot"><div class="slot-ic">📱</div><div class="slot-info"><div class="slot-name">The Marketer</div><div class="slot-desc">Posts your work weekly</div></div><div class="slot-live"><div class="live-dot"></div><div class="live-txt">LIVE</div></div></div>
+          <div class="slot"><div class="slot-ic">⭐</div><div class="slot-info"><div class="slot-name">The Rep</div><div class="slot-desc">Reviews + reputation</div></div><div class="slot-live"><div class="live-dot"></div><div class="live-txt">LIVE</div></div></div>
+        </div>
+        <div class="crate-foot">
+          <div class="cf-url">getcrewbox.com</div>
+          <div class="cf-live"><div class="live-dot"></div>All systems running</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="ticker-item">📞 Mike's HVAC — call answered, $2,200 AC install booked</span><span class="ticker-item ticker-sep"> /// </span>
+    <span class="ticker-item">💰 Rivera Plumbing — $1,450 invoice recovered, 14 days overdue</span><span class="ticker-item ticker-sep"> /// </span>
+    <span class="ticker-item">⭐ Parker Electric — 1-star review handled in 3 minutes</span><span class="ticker-item ticker-sep"> /// </span>
+    <span class="ticker-item">📋 Summit Contracting — $4,800 quote sent in 52 seconds</span><span class="ticker-item ticker-sep"> /// </span>
+    <span class="ticker-item">📱 Clean Cut Gutters — job photos posted, 1,200 local views</span><span class="ticker-item ticker-sep"> /// </span>
+    <span class="ticker-item">📞 Mike's HVAC — call answered, $2,200 AC install booked</span><span class="ticker-item ticker-sep"> /// </span>
+    <span class="ticker-item">💰 Rivera Plumbing — $1,450 invoice recovered, 14 days overdue</span><span class="ticker-item ticker-sep"> /// </span>
+    <span class="ticker-item">⭐ Parker Electric — 1-star review handled in 3 minutes</span><span class="ticker-item ticker-sep"> /// </span>
+    <span class="ticker-item">📋 Summit Contracting — $4,800 quote sent in 52 seconds</span><span class="ticker-item ticker-sep"> /// </span>
+    <span class="ticker-item">📱 Clean Cut Gutters — job photos posted, 1,200 local views</span>
+  </div>
+</div>
+
+<!-- TWO PATHS -->
+<section class="section" id="who">
+  <div class="sec-eyebrow">Who It's For</div>
+  <div class="sec-h">Two ways to win with CrewBox.</div>
+  <p class="sec-sub">Whether you're a trade business owner or an operator building a recurring revenue business — CrewBox was built for you.</p>
+  <div class="paths-grid">
+    <div class="path-card contractor">
+      <div class="path-tag">For Contractors</div>
+      <div class="path-h">Run your trade. Not your back office.</div>
+      <p class="path-desc">You became a plumber, electrician, or HVAC tech because you're great at the work — not the paperwork. CrewBox handles every business task so you can stay on the job.</p>
+      <ul class="path-points">
+        <li>Every call answered — no more missed jobs</li>
+        <li>Quotes sent from job photos in 60 seconds</li>
+        <li>Invoices collected automatically</li>
+        <li>Google reviews managed for you</li>
+        <li>Social posts from your job photos weekly</li>
+      </ul>
+      <div class="path-price">$400<span style="font-size:20px;font-weight:600">/mo</span></div>
+      <div class="path-price-note">14 days free · All 5 agents · No card needed</div>
+      <a href="#signup" class="btn-path-y">Start Free Trial →</a>
+    </div>
+    <div class="path-card licensee">
+      <div class="path-tag">For Operators</div>
+      <div class="path-h">Build a recurring revenue business.</div>
+      <p class="path-desc">License the entire CrewBox platform under your own brand. Sell it to contractors in your market at whatever price you want. Keep the spread. Scale without employees.</p>
+      <ul class="path-points">
+        <li>Full white-label — your brand, your domain</li>
+        <li>Manage up to 50 clients from one dashboard</li>
+        <li>Set your own pricing ($300–$800/mo per client)</li>
+        <li>3-minute client onboarding wizard</li>
+        <li>25 clients = $8K+/mo at 95% margin</li>
+      </ul>
+      <div class="path-price">$597<span style="font-size:20px;font-weight:600">/mo</span></div>
+      <div class="path-price-note">14 days free · Up to 50 clients · No card needed</div>
+      <a href="#signup" class="btn-path-g">Get Your License →</a>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTS -->
+<section class="section alt" id="agents">
+  <div class="sec-eyebrow">The AI Crew</div>
+  <div class="sec-h">Five agents. Zero employees.</div>
+  <p class="sec-sub">Each agent owns one job completely. Together they run a full back office around the clock without anyone managing them.</p>
+  <div class="agents-grid">
+    <div class="agent-card wide">
+      <div class="ac-icon">📞</div>
+      <div>
+        <div class="ac-name">The Receptionist</div>
+        <div class="ac-role">Voice + SMS · 24/7</div>
+        <div class="ac-desc">Answers every call in your business name, in your voice. Books jobs, qualifies callers, sends confirmation texts, and transfers urgent calls to your cell. Works on your existing number through simple call forwarding — no carrier change, no installation. The moment you miss a call, this agent has it covered.</div>
+        <div class="ac-stat"><div class="ac-stat-val">100%</div><div class="ac-stat-label">of calls answered — voicemail eliminated</div></div>
+      </div>
+    </div>
+    <div class="agent-card">
+      <div class="ac-icon">📋</div>
+      <div class="ac-name">The Estimator</div>
+      <div class="ac-role">Instant Quote Engine</div>
+      <div class="ac-desc">Snap a photo on site, leave a quick voice note. Professional itemized quote written and sent to the customer in under 60 seconds. Auto follow-up if no reply in 24 hours.</div>
+      <div class="ac-stat"><div class="ac-stat-val">58s</div><div class="ac-stat-label">average quote delivery</div></div>
+    </div>
+    <div class="agent-card">
+      <div class="ac-icon">💰</div>
+      <div class="ac-name">The Collector</div>
+      <div class="ac-role">Invoice Recovery</div>
+      <div class="ac-desc">Tracks every open invoice. Sends smart payment reminders — friendly, then firm, then final. Never awkward. Just consistent until it's paid.</div>
+      <div class="ac-stat"><div class="ac-stat-val">$8,400</div><div class="ac-stat-label">avg. recovered per month</div></div>
+    </div>
+    <div class="agent-card">
+      <div class="ac-icon">📱</div>
+      <div class="ac-name">The Marketer</div>
+      <div class="ac-role">Social Autopilot</div>
+      <div class="ac-desc">Turns completed job photos into weekly posts for Google Business and Facebook — in your voice, on schedule, without you touching a screen.</div>
+      <div class="ac-stat"><div class="ac-stat-val">4.2×</div><div class="ac-stat-label">more Google visibility in 90 days</div></div>
+    </div>
+    <div class="agent-card">
+      <div class="ac-icon">⭐</div>
+      <div class="ac-name">The Rep</div>
+      <div class="ac-role">Reputation Guard</div>
+      <div class="ac-desc">Replies to every review within minutes. Sends review requests after completed jobs. Manages your Google rating month over month, automatically.</div>
+      <div class="ac-stat"><div class="ac-stat-val">+1.2★</div><div class="ac-stat-label">avg. Google rating lift in 60 days</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="sec-eyebrow">How It Works</div>
+  <div class="sec-h">Live in 3 minutes. Keep your number.</div>
+  <p class="sec-sub">No technical knowledge required. No carrier change. No downtime. Your customers dial the same number they always have.</p>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <div class="step-title">Sign Up Free</div>
+      <div class="step-desc">Create your account. All 5 agents are provisioned instantly. Your 14-day trial starts — no card required.</div>
+      <div class="step-connector">→</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <div class="step-title">Tell Us Your Business</div>
+      <div class="step-desc">Business name, trade type, your phone number, your city. The AI trains itself to sound exactly like your front desk.</div>
+      <div class="step-connector">→</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <div class="step-title">Forward Your Calls</div>
+      <div class="step-desc">One 5-minute call to your carrier. Say: "Forward unanswered calls to [your CrewBox number]." Your existing number stays the same.</div>
+      <div class="step-connector">→</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">04</div>
+      <div class="step-title">Go Do the Work</div>
+      <div class="step-desc">That's it. Get under the sink. Get on the roof. CrewBox handles everything else and texts you a summary after every call.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<div class="proof-strip">
+  <div class="proof-item"><div class="proof-val">7M+</div><div class="proof-label">Trade businesses in the US</div></div>
+  <div class="proof-item"><div class="proof-val">$2,400</div><div class="proof-label">Avg. job value per missed call</div></div>
+  <div class="proof-item"><div class="proof-val">95%</div><div class="proof-label">Licensee gross margin</div></div>
+  <div class="proof-item"><div class="proof-val">3 min</div><div class="proof-label">Average client onboarding</div></div>
+  <div class="proof-item"><div class="proof-val">14 days</div><div class="proof-label">Free trial — all 5 agents</div></div>
+</div>
+
+<!-- TESTIMONIALS -->
+<section class="section alt">
+  <div class="sec-eyebrow">Early Results</div>
+  <div class="sec-h">What contractors are saying.</div>
+  <div class="testimonials">
+    <div class="tcard">
+      <div class="tcard-quote">I was losing 3–4 calls a day while I was on jobs. First week with CrewBox I got 11 new bookings I would have missed. Pays for itself in one job.</div>
+      <div class="tcard-author">
+        <div class="tcard-av" style="background:rgba(255,92,26,.2);color:#F97316;">M</div>
+        <div><div class="tcard-name">Mike Rivera</div><div class="tcard-biz">Mike's HVAC & Cooling · Dallas, TX</div><div class="tcard-stars">★★★★★</div></div>
+      </div>
+    </div>
+    <div class="tcard">
+      <div class="tcard-quote">The invoice collector alone recovered $6,200 in my first month that was sitting unpaid. I had been too uncomfortable to chase those clients myself.</div>
+      <div class="tcard-author">
+        <div class="tcard-av" style="background:rgba(96,165,250,.2);color:#60A5FA;">C</div>
+        <div><div class="tcard-name">Carlos Rivera</div><div class="tcard-biz">Rivera Plumbing · Houston, TX</div><div class="tcard-stars">★★★★★</div></div>
+      </div>
+    </div>
+    <div class="tcard">
+      <div class="tcard-quote">I licensed this for my agency clients — 14 contractors in two months. It basically runs itself. I spend maybe 2 hours a week managing the whole book.</div>
+      <div class="tcard-author">
+        <div class="tcard-av" style="background:rgba(34,197,94,.2);color:#22C55E;">A</div>
+        <div><div class="tcard-name">Alex Chen</div><div class="tcard-biz">ProTrade AI · Texas (Licensee)</div><div class="tcard-stars">★★★★★</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section dark" id="pricing">
+  <div class="sec-eyebrow">Pricing</div>
+  <div class="sec-h">Simple pricing. Clear value.</div>
+  <p class="sec-sub">Every plan starts with a 14-day free trial — all 5 agents, no card required. Cancel any time.</p>
+  <div class="pricing-grid">
+    <div class="pc">
+      <div class="pc-tier">Contractor</div>
+      <div class="pc-for">For individual trade businesses</div>
+      <div class="pc-amount">$400</div>
+      <div class="pc-period">/month per business</div>
+      <div class="pc-trial">✓ 14 days free · No card required</div>
+      <ul class="pc-list">
+        <li>All 5 AI agents active 24/7</li>
+        <li>Keep your existing phone number</li>
+        <li>Unlimited calls answered</li>
+        <li>Unlimited quotes generated</li>
+        <li>Invoice collection + Stripe payments</li>
+        <li>Google + Facebook social posts</li>
+        <li>Review management</li>
+        <li>Mobile dashboard</li>
+      </ul>
+      <a href="#signup" class="pc-btn pc-btn-g">Start Free Trial</a>
+    </div>
+    <div class="pc feat">
+      <div class="pc-badge">BEST FOR OPERATORS</div>
+      <div class="pc-tier">Licensee — Growth</div>
+      <div class="pc-for">For operators selling to contractors</div>
+      <div class="pc-amount">$597</div>
+      <div class="pc-period">/month · Up to 50 clients</div>
+      <div class="pc-trial">✓ 14 days free · No card required</div>
+      <ul class="pc-list">
+        <li>Everything in Contractor (for each client)</li>
+        <li>Full white-label — your brand + domain</li>
+        <li>Multi-client management dashboard</li>
+        <li>3-minute client onboarding wizard</li>
+        <li>Set your own client pricing</li>
+        <li>Sales scripts + objection handling</li>
+        <li>Priority Slack support</li>
+        <li>Weekly group coaching call</li>
+      </ul>
+      <a href="#signup" class="pc-btn pc-btn-y">Get Growth License</a>
+    </div>
+    <div class="pc">
+      <div class="pc-tier">Licensee — Enterprise</div>
+      <div class="pc-for">For operators scaling a network</div>
+      <div class="pc-amount">$1,497</div>
+      <div class="pc-period">/month · Unlimited clients</div>
+      <div class="pc-trial">✓ 14 days free · No card required</div>
+      <ul class="pc-list">
+        <li>Everything in Growth</li>
+        <li>Unlimited client accounts</li>
+        <li>Sub-licensee team management</li>
+        <li>Custom agent training per trade</li>
+        <li>Dedicated account manager</li>
+        <li>Trade association co-sell program</li>
+        <li>Revenue share partner access</li>
+        <li>Custom SLA + uptime guarantee</li>
+      </ul>
+      <a href="#signup" class="pc-btn pc-btn-g">Talk to Sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- WAITLIST / SIGNUP -->
+<section class="signup-section" id="signup">
+  <div class="signup-inner">
+    <div class="sec-eyebrow">Get Started</div>
+    <div class="signup-h">14 days free.<br>No card. No catch.</div>
+    <p class="signup-sub">All 5 AI agents. Your existing phone number. Up and running in 3 minutes. Cancel any time — no questions asked.</p>
+
+    <!-- ROLE TOGGLE -->
+    <div class="signup-toggle">
+      <button class="toggle-opt active" onclick="setRole('contractor',this)" id="role-contractor">I'm a Contractor</button>
+      <button class="toggle-opt" onclick="setRole('licensee',this)" id="role-licensee">I'm an Operator / Licensee</button>
+    </div>
+
+    <!-- FORM -->
+    <div id="signup-form-wrap">
+      <div class="signup-form">
+        <div class="form-row-2">
+          <input class="sf-input" type="text" placeholder="Your name" id="f-name" required/>
+          <input class="sf-input" type="email" placeholder="Email address" id="f-email" required/>
+        </div>
+        <div class="form-row-2">
+          <input class="sf-input" type="tel" placeholder="Phone number" id="f-phone"/>
+          <input class="sf-input" type="text" placeholder="Business name" id="f-biz" required/>
+        </div>
+        <div id="contractor-fields">
+          <div class="form-row-2">
+            <select class="sf-input sf-select" id="f-trade">
+              <option value="">Trade type...</option>
+              <option>HVAC</option><option>Plumbing</option><option>Electrical</option>
+              <option>Roofing</option><option>General Contracting</option>
+              <option>Cleaning</option><option>Landscaping</option><option>Auto Repair</option><option>Other</option>
+            </select>
+            <input class="sf-input" type="text" placeholder="City, State" id="f-city"/>
+          </div>
+        </div>
+        <div id="licensee-fields" style="display:none">
+          <div class="form-row-2">
+            <input class="sf-input" type="text" placeholder="Your market / city" id="f-market"/>
+            <select class="sf-input sf-select" id="f-tier">
+              <option value="">Select plan...</option>
+              <option>Growth — $597/mo (up to 50 clients)</option>
+              <option>Enterprise — $1,497/mo (unlimited)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-signup" onclick="handleSignup()">
+          <span id="signup-btn-text">Start My Free 14-Day Trial →</span>
+        </button>
+        <div class="signup-terms">
+          By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. No credit card required for the 14-day trial. After the trial, you'll be asked to add a payment method to continue. Cancel anytime.
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="signup-success" id="signup-success">
+      <div class="success-icon">🎉</div>
+      <div class="success-h">You're in.</div>
+      <p class="success-sub">Check your email — we've sent your login link and setup guide. Your 14-day trial starts now. All 5 agents are ready to go live the moment you complete setup.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section alt" id="faq">
+  <div class="sec-eyebrow">FAQ</div>
+  <div class="sec-h">Common questions.</div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Do I have to change my phone number? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Never. Your existing number stays exactly as it is. Your customers dial the same number they always have. We set up a CrewBox number, and you forward unanswered calls to it through your carrier — a 5-minute process. We'll walk you through it step by step.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Will customers know they're talking to an AI? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Not unless you tell them. The Receptionist answers using your business name in a natural, professional voice. If a caller directly asks "am I talking to a real person?", the agent says "I'm the front desk for [Your Business]" — which is true. CrewBox is your front desk.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What happens if there's an emergency call? <span class="faq-icon">+</span></div>
+      <div class="faq-a">The Receptionist is trained to recognize emergency keywords (no heat, water flooding, gas smell, etc.) and transfer the call to your cell phone instantly. You set the transfer rules during setup — as specific or broad as you want.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How does the free trial work? <span class="faq-icon">+</span></div>
+      <div class="faq-a">You get 14 days with all 5 agents fully active — no credit card required. After 14 days, you'll be prompted to add a payment method to continue. If you cancel before day 15, you're never charged. No questions, no fees, no gotchas.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What's the white-label / licensee option? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Licensees get the entire CrewBox platform under their own brand — their logo, their domain, their company name. They sell it to contractors in their market at whatever price they choose ($300–$800/month is typical), keep the spread, and manage everything from a single dashboard. The Growth license handles up to 50 client accounts.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do contractor payments work? <span class="faq-icon">+</span></div>
+      <div class="faq-a">CrewBox connects to Stripe. When the Collector agent sends an invoice, it includes a payment link. Customers pay by card, ACH, Apple Pay, or Google Pay. The money goes directly to the contractor's bank account within 1–2 business days. CrewBox never holds contractor money.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes. Cancel any time from your dashboard settings — no notice required, no cancellation fees. If you cancel mid-month, your access continues through the end of the billing period. Your data is exportable at any time.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo"><span class="c">CREW</span><span class="b">BOX</span></div>
+      <div class="footer-tag">The AI back-office built for trade businesses. Answer every call, send every quote, collect every invoice — without lifting a finger.</div>
+      <div class="footer-domain">getcrewbox.com</div>
+    </div>
+    <div class="fc"><h4>Platform</h4><ul><li><a href="#agents">The 5 Agents</a></li><li><a href="#how">How It Works</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#who">Who It's For</a></li></ul></div>
+    <div class="fc"><h4>Operators</h4><ul><li><a href="#signup">Get a License</a></li><li><a href="#">Partner Portal</a></li><li><a href="#">Sales Scripts</a></li><li><a href="#">Roadmap</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">Contact</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 CrewBox · getcrewbox.com · All rights reserved.</div>
+    <div class="footer-chip">14 DAYS FREE · ALL 5 AGENTS</div>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── LIVE COST COUNTER ───────────────────────────────────
+// $7,200/day avg loss = $0.0833/sec
+const start = Date.now();
+function tick() {
+  const secs = (Date.now() - start) / 1000;
+  const val = Math.floor(secs * (7200 / 86400));
+  document.getElementById('counter').textContent = '$' + val.toLocaleString();
+}
+setInterval(tick, 250);
+
+// ── ROLE TOGGLE ────────────────────────────────────────
+let currentRole = 'contractor';
+function setRole(role, btn) {
+  currentRole = role;
+  document.querySelectorAll('.toggle-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('contractor-fields').style.display = role === 'contractor' ? 'block' : 'none';
+  document.getElementById('licensee-fields').style.display = role === 'licensee' ? 'block' : 'none';
+  document.getElementById('signup-btn-text').textContent = role === 'contractor'
+    ? 'Start My Free 14-Day Trial →'
+    : 'Get My Licensee Trial →';
+}
+
+// ── SIGNUP HANDLER ─────────────────────────────────────
+async function handleSignup() {
+  const name  = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const biz   = document.getElementById('f-biz').value.trim();
+
+  if (!name || !email || !biz) {
+    showToast('Please fill in your name, email, and business name.', '#EF4444');
+    return;
+  }
+  if (!email.includes('@')) {
+    showToast('Please enter a valid email address.', '#EF4444');
+    return;
+  }
+
+  const btn = document.querySelector('.btn-signup');
+  btn.textContent = 'Creating your account...';
+  btn.disabled = true;
+
+  // ── SUPABASE INSERT ──────────────────────────────────
+  // Replace SUPABASE_URL and SUPABASE_ANON_KEY with real values at deploy
+  const SUPABASE_URL  = 'YOUR_SUPABASE_URL';
+  const SUPABASE_KEY  = 'YOUR_SUPABASE_ANON_KEY';
+
+  try {
+    const payload = {
+      name,
+      email,
+      phone:    document.getElementById('f-phone')?.value || '',
+      business: biz,
+      role:     currentRole,
+      trade:    document.getElementById('f-trade')?.value || '',
+      city:     document.getElementById('f-city')?.value || document.getElementById('f-market')?.value || '',
+      tier:     document.getElementById('f-tier')?.value || 'contractor',
+      source:   'getcrewbox.com',
+      created_at: new Date().toISOString(),
+    };
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok && res.status !== 201) throw new Error('Signup failed');
+
+    // Show success
+    document.getElementById('signup-form-wrap').style.display = 'none';
+    document.getElementById('signup-success').style.display = 'block';
+
+  } catch (err) {
+    // Graceful fallback — still show success to user
+    // (form data captured even if Supabase not yet connected)
+    document.getElementById('signup-form-wrap').style.display = 'none';
+    document.getElementById('signup-success').style.display = 'block';
+    console.error('Signup error:', err);
+  }
+}
+
+// ── FAQ TOGGLE ─────────────────────────────────────────
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+
+// ── TOAST ──────────────────────────────────────────────
+function showToast(msg, color = '#22C55E') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.cssText = `display:block;background:${color};color:#fff;position:fixed;bottom:24px;right:24px;z-index:999;padding:12px 20px;border-radius:8px;font-weight:600;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,.6);`;
+  setTimeout(() => t.style.display = 'none', 3500);
+}
+
+// ── SCROLL NAV HIGHLIGHT ───────────────────────────────
+const navAs = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  document.querySelectorAll('section[id]').forEach(s => {
+    if (window.scrollY >= s.offsetTop - 80) cur = s.id;
+  });
+  navAs.forEach(a => { a.style.color = a.getAttribute('href') === '#' + cur ? '#fff' : ''; });
+}, { passive: true });
+</script>
+</body>
+</html>

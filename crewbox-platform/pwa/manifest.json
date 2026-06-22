@@ -1,0 +1,146 @@
+{
+  "name": "CrewBox — AI Crew for Your Business",
+  "short_name": "CrewBox",
+  "description": "Your AI back-office. Calls answered, quotes sent, invoices collected — automatically.",
+  "start_url": "/my-business?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0C0C0C",
+  "theme_color": "#F5C800",
+  "lang": "en-US",
+  "categories": ["business", "productivity", "utilities"],
+  "iarc_rating_id": "",
+
+  "icons": [
+    {
+      "src": "/pwa/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+
+  "screenshots": [
+    {
+      "src": "/pwa/screenshots/dashboard-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "CrewBox Dashboard — calls, invoices, and agent status at a glance"
+    },
+    {
+      "src": "/pwa/screenshots/dashboard-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "CrewBox Licensee Portal — manage your full book of business"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "My Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your calls, jobs, and invoices",
+      "url": "/my-business?source=shortcut",
+      "icons": [{ "src": "/pwa/icons/shortcut-dashboard.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Recent Calls",
+      "short_name": "Calls",
+      "description": "See what the AI answered while you were working",
+      "url": "/my-business?tab=calls&source=shortcut",
+      "icons": [{ "src": "/pwa/icons/shortcut-calls.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Open Invoices",
+      "short_name": "Invoices",
+      "description": "Check outstanding and overdue invoices",
+      "url": "/my-business?tab=invoices&source=shortcut",
+      "icons": [{ "src": "/pwa/icons/shortcut-invoices.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "New Quote",
+      "short_name": "Quote",
+      "description": "Generate a quote from a job photo",
+      "url": "/my-business?action=new-quote&source=shortcut",
+      "icons": [{ "src": "/pwa/icons/shortcut-quote.png", "sizes": "96x96" }]
+    }
+  ],
+
+  "prefer_related_applications": false,
+
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://app.getcrewbox.com/manifest.json"
+    }
+  ],
+
+  "protocol_handlers": [
+    {
+      "protocol": "web+crewbox",
+      "url": "/handle?type=%s"
+    }
+  ],
+
+  "share_target": {
+    "action": "/my-business/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "photos",
+          "accept": ["image/jpeg", "image/png", "image/webp", "application/pdf"]
+        }
+      ]
+    }
+  }
+}

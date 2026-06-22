@@ -1,0 +1,130 @@
+<!--
+  ============================================================
+  CREWBOX PWA — ICON SOURCE + INTEGRATION GUIDE
+  File: pwa/icons/icon-source.svg
+  
+  This SVG is the master icon for CrewBox.
+  Generate all 8 PNG sizes from this file using:
+  
+  Option A (free, online):
+    → Go to realfavicongenerator.net
+    → Upload this SVG
+    → Download all sizes
+    → Place in /pwa/icons/
+  
+  Option B (command line, if you have Node):
+    npm install -g sharp-cli
+    sharp icon-source.svg -o icon-72.png  -w 72  -h 72
+    sharp icon-source.svg -o icon-96.png  -w 96  -h 96
+    sharp icon-source.svg -o icon-128.png -w 128 -h 128
+    sharp icon-source.svg -o icon-144.png -w 144 -h 144
+    sharp icon-source.svg -o icon-152.png -w 152 -h 152
+    sharp icon-source.svg -o icon-192.png -w 192 -h 192
+    sharp icon-source.svg -o icon-384.png -w 384 -h 384
+    sharp icon-source.svg -o icon-512.png -w 512 -h 512
+  
+  Option C (Vercel — easiest):
+    Put icon-source.svg in /public/pwa/icons/
+    Use @vercel/og or a build script to generate sizes
+  ============================================================
+-->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background: Concrete black, rounded for maskable -->
+  <rect width="512" height="512" rx="112" fill="#111111"/>
+
+  <!-- Yellow accent stripe (job-site caution tape style) -->
+  <rect x="0" y="340" width="512" height="8" fill="#F5C800" opacity="0.15"/>
+
+  <!-- CREW text -->
+  <text
+    x="58"
+    y="228"
+    font-family="'Black Han Sans', 'Arial Black', sans-serif"
+    font-size="148"
+    font-weight="900"
+    fill="#FFFFFF"
+    letter-spacing="2"
+  >CREW</text>
+
+  <!-- BOX text in yellow -->
+  <text
+    x="58"
+    y="380"
+    font-family="'Black Han Sans', 'Arial Black', sans-serif"
+    font-size="148"
+    font-weight="900"
+    fill="#F5C800"
+    letter-spacing="2"
+  >BOX</text>
+
+  <!-- Small dot indicator (live status) -->
+  <circle cx="448" cy="80" r="24" fill="#22C55E" opacity="0.9"/>
+  <circle cx="448" cy="80" r="12" fill="#22C55E"/>
+</svg>
+
+
+<!--
+  ============================================================
+  ADD TO EVERY DASHBOARD HTML PAGE
+  
+  Add these 3 things to the <head> of:
+    - dashboard.html
+    - licensee-portal.html
+    - auth.html
+    - setup-wizard.html
+    - payment.html
+    - offline.html
+  
+  PASTE THIS INTO EVERY <head> SECTION:
+  ============================================================
+
+  <!-- PWA: Manifest -->
+  <link rel="manifest" href="/pwa/manifest.json"/>
+
+  <!-- PWA: iOS meta tags (Safari doesn't read manifest fully) -->
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="CrewBox"/>
+  <link rel="apple-touch-icon" href="/pwa/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/pwa/icons/icon-152.png"/>
+  <link rel="apple-touch-icon" sizes="144x144" href="/pwa/icons/icon-144.png"/>
+
+  <!-- PWA: Splash screens for iOS (optional but polished) -->
+  <link rel="apple-touch-startup-image" href="/pwa/splash/splash-1125x2436.png"
+    media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)"/>
+
+  <!-- PWA: Android Chrome theme -->
+  <meta name="theme-color" content="#F5C800" media="(prefers-color-scheme: light)"/>
+  <meta name="theme-color" content="#0C0C0C" media="(prefers-color-scheme: dark)"/>
+
+  <!-- PWA: Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/pwa/icons/icon-96.png"/>
+  <link rel="shortcut icon" href="/pwa/icons/icon-96.png"/>
+
+  <!-- PWA: Viewport (critical for mobile app feel) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,
+    viewport-fit=cover, user-scalable=no"/>
+
+  ============================================================
+  ADD THIS BEFORE </body> IN EVERY DASHBOARD PAGE:
+  ============================================================
+
+  <!-- PWA Install & Notifications -->
+  <script src="/pwa/pwa-install.js" defer></script>
+
+  ============================================================
+  OPTIONAL: Add VAPID key for push notifications
+  Get your VAPID keys by running in terminal:
+    npx web-push generate-vapid-keys
+  Then add to server .env:
+    VAPID_PUBLIC_KEY=XXXXX
+    VAPID_PRIVATE_KEY=XXXXX
+  And add to your HTML before the pwa-install.js script:
+  ============================================================
+
+  <script>
+    window.CREWBOX_VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY';
+    window.CREWBOX_APP_URL = 'https://app.getcrewbox.com';
+  </script>
+-->

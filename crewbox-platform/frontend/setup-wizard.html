@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CrewBox Setup — Get Your AI Crew Running</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:    #0C0C0C;
+  --s1:    #161616;
+  --s2:    #1E1E1E;
+  --s3:    #262626;
+  --bd:    #2C2C2C;
+  --bd2:   #383838;
+  --y:     #F5C800;
+  --y2:    #FFD740;
+  --green: #22C55E;
+  --red:   #EF4444;
+  --orange:#F97316;
+  --blue:  #60A5FA;
+  --navy:  #1E3A5F;
+  --slate: #7A8A9A;
+  --worn:  #C8C2BB;
+  --white: #FFFFFF;
+  --D: 'Barlow Condensed', sans-serif;
+  --B: 'Inter', sans-serif;
+  --M: 'JetBrains Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:var(--B);background:var(--bg);color:var(--white);overflow:hidden;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp  {from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn  {from{opacity:0}to{opacity:1}}
+@keyframes spin    {to{transform:rotate(360deg)}}
+@keyframes shake   {0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+@keyframes pulse   {0%,100%{opacity:1;transform:scale(1)}50%{opacity:.25;transform:scale(1.8)}}
+@keyframes agentIn {0%{opacity:0;transform:translateX(-12px) scale(.95)}100%{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes livePop {0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes checkDraw{from{stroke-dashoffset:30}to{stroke-dashoffset:0}}
+@keyframes glow    {0%,100%{box-shadow:0 0 0 rgba(34,197,94,0)}50%{box-shadow:0 0 24px rgba(34,197,94,.25)}}
+
+/* ── SHELL ── */
+.shell{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  background:var(--s1);
+  border-right:1px solid var(--bd);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.sb-top{
+  padding:24px 24px 20px;
+  border-bottom:1px solid var(--bd);
+  flex-shrink:0;
+}
+.sb-logo{font-family:'Black Han Sans',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:4px;text-decoration:none;display:block;}
+.sb-logo .c{color:var(--white);}.sb-logo .b{color:var(--y);}
+.sb-title{font-size:12px;color:var(--slate);}
+
+/* Steps list */
+.sb-steps{flex:1;padding:20px 16px;overflow-y:auto;}
+.sb-step{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:14px 12px;border-radius:8px;
+  cursor:pointer;transition:background .15s;
+  margin-bottom:2px;position:relative;
+}
+.sb-step:hover:not(.active){background:rgba(255,255,255,.03);}
+.sb-step.active{background:rgba(245,200,0,.07);border:1px solid rgba(245,200,0,.15);}
+.sb-step.done{cursor:default;}
+/* Connector line between steps */
+.sb-step:not(:last-child)::after{
+  content:'';position:absolute;
+  left:22px;bottom:-14px;
+  width:2px;height:14px;
+  background:var(--bd);
+  z-index:0;
+}
+.sb-step.done:not(:last-child)::after{background:var(--green);}
+.sb-step.active:not(:last-child)::after{background:var(--bd);}
+
+/* Step indicator dot */
+.step-dot{
+  width:22px;height:22px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;
+  margin-top:1px;position:relative;z-index:1;
+  transition:all .25s;
+}
+.step-dot.waiting{background:var(--bd2);color:var(--slate);}
+.step-dot.active{background:var(--y);color:var(--bg);}
+.step-dot.done{background:var(--green);color:var(--white);}
+
+.step-info{}
+.step-label{
+  font-family:var(--D);font-size:14px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.3px;
+  color:var(--slate);margin-bottom:2px;transition:color .2s;
+}
+.sb-step.active .step-label{color:var(--y);}
+.sb-step.done .step-label{color:var(--white);}
+.step-sub{font-size:11px;color:rgba(122,138,154,.6);line-height:1.4;}
+.sb-step.done .step-sub{color:var(--green);font-weight:500;}
+
+/* Sidebar footer */
+.sb-foot{
+  padding:16px 20px;
+  border-top:1px solid var(--bd);
+  flex-shrink:0;
+}
+.sb-biz-card{
+  background:var(--s2);border:1px solid rgba(245,200,0,.12);
+  border-radius:8px;padding:12px 14px;
+}
+.sb-biz-name{font-family:var(--D);font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;}
+.sb-biz-meta{font-size:11px;color:var(--slate);}
+.sb-help{
+  margin-top:10px;font-size:11px;color:var(--slate);
+  display:flex;align-items:center;gap:5px;
+}
+.sb-help a{color:var(--slate);text-decoration:underline;}
+
+/* ── MAIN CONTENT ── */
+.main{
+  display:flex;flex-direction:column;
+  overflow:hidden;background:var(--bg);
+}
+
+/* Top progress bar */
+.progress-bar{
+  height:3px;background:var(--bd);flex-shrink:0;
+}
+.progress-fill{
+  height:100%;background:var(--y);
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+
+/* Step content area */
+.step-content{
+  flex:1;overflow-y:auto;
+  padding:40px 48px;
+}
+
+/* Step header */
+.step-eyebrow{
+  font-family:var(--M);font-size:10px;color:var(--slate);
+  letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;
+}
+.step-h{
+  font-family:var(--D);font-size:clamp(28px,4vw,42px);
+  font-weight:900;text-transform:uppercase;letter-spacing:-.3px;
+  margin-bottom:8px;line-height:1;
+}
+.step-desc{
+  font-size:15px;color:var(--slate);line-height:1.65;
+  max-width:560px;margin-bottom:32px;
+}
+.step-desc strong{color:var(--worn);}
+
+/* Screen switcher */
+.wiz-screen{display:none;}
+.wiz-screen.active{display:block;animation:fadeUp .25s ease both;}
+
+/* ── FORM ELEMENTS ── */
+.field{margin-bottom:16px;}
+.field-label{
+  font-family:var(--M);font-size:10px;color:var(--slate);
+  letter-spacing:.12em;text-transform:uppercase;
+  display:block;margin-bottom:7px;
+}
+.field-input{
+  width:100%;background:var(--s2);border:1px solid var(--bd);
+  border-radius:7px;padding:13px 14px;
+  font-family:var(--B);font-size:14px;color:var(--white);
+  outline:none;transition:border-color .2s;-webkit-appearance:none;
+}
+.field-input:focus{border-color:rgba(245,200,0,.5);}
+.field-input::placeholder{color:rgba(122,138,154,.4);}
+.field-input.error{border-color:rgba(239,68,68,.5);animation:shake .3s ease;}
+.field-input.success{border-color:rgba(34,197,94,.4);}
+.field-select{appearance:none;cursor:pointer;}
+.field-note{font-size:12px;color:var(--slate);margin-top:6px;line-height:1.5;}
+.field-error{font-size:12px;color:var(--red);margin-top:5px;display:none;}
+.field-error.show{display:block;}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* ── STEP 1: BUSINESS INFO ── */
+.trade-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  margin-bottom:20px;
+}
+.trade-opt{
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:8px;padding:14px 10px;text-align:center;
+  cursor:pointer;transition:all .15s;
+}
+.trade-opt:hover{border-color:var(--bd2);}
+.trade-opt.selected{border-color:var(--y);background:rgba(245,200,0,.06);}
+.trade-opt-ic{font-size:22px;margin-bottom:5px;}
+.trade-opt-label{font-size:12px;font-weight:500;color:var(--slate);}
+.trade-opt.selected .trade-opt-label{color:var(--y);}
+
+/* ── STEP 2: PHONE SETUP ── */
+.phone-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+.phone-opt{
+  background:var(--s2);border:1.5px solid var(--bd);
+  border-radius:10px;padding:18px 20px;cursor:pointer;
+  transition:all .2s;display:flex;gap:16px;align-items:flex-start;
+}
+.phone-opt:hover{border-color:var(--bd2);}
+.phone-opt.selected{border-color:rgba(245,200,0,.4);background:rgba(245,200,0,.04);}
+.phone-opt-radio{
+  width:20px;height:20px;border-radius:50%;
+  border:2px solid var(--bd2);flex-shrink:0;margin-top:2px;
+  position:relative;transition:all .2s;
+}
+.phone-opt.selected .phone-opt-radio{
+  border-color:var(--y);background:var(--y);
+}
+.phone-opt-radio::after{
+  content:'';position:absolute;inset:4px;
+  border-radius:50%;background:var(--bg);
+  opacity:0;transition:opacity .2s;
+}
+.phone-opt.selected .phone-opt-radio::after{opacity:1;}
+.phone-opt-title{
+  font-family:var(--D);font-size:17px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px;
+}
+.phone-opt-desc{font-size:13px;color:var(--slate);line-height:1.5;}
+.phone-opt-tag{
+  font-family:var(--M);font-size:10px;font-weight:600;
+  padding:2px 8px;border-radius:3px;display:inline-block;margin-top:6px;
+}
+.tag-rec{background:rgba(34,197,94,.1);color:var(--green);}
+.tag-adv{background:rgba(122,138,154,.1);color:var(--slate);}
+
+/* Call forward instructions */
+.forward-box{
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:10px;padding:20px 22px;margin-top:16px;
+}
+.forward-box-title{
+  font-family:var(--D);font-size:16px;font-weight:800;
+  text-transform:uppercase;margin-bottom:12px;
+}
+.carrier-tabs{display:flex;gap:2px;background:var(--s3);border-radius:6px;padding:3px;margin-bottom:14px;}
+.carrier-tab{
+  flex:1;padding:7px;border-radius:5px;font-size:12px;font-weight:500;
+  cursor:pointer;border:none;background:transparent;color:var(--slate);text-align:center;
+}
+.carrier-tab.active{background:var(--s2);color:var(--white);}
+.carrier-instruction{
+  background:rgba(0,0,0,.35);border-radius:7px;padding:14px 16px;
+  font-size:13px;color:var(--worn);line-height:1.65;
+}
+.carrier-instruction code{
+  font-family:var(--M);font-size:12px;
+  background:rgba(245,200,0,.1);color:var(--y);
+  padding:2px 6px;border-radius:3px;
+}
+.ai-number-display{
+  font-family:var(--M);font-size:18px;font-weight:600;
+  color:var(--y);background:rgba(245,200,0,.08);
+  border:1px solid rgba(245,200,0,.2);
+  border-radius:6px;padding:10px 14px;margin-bottom:12px;
+  display:inline-block;
+}
+
+/* ── STEP 3: STRIPE CONNECT ── */
+.stripe-hero{
+  background:linear-gradient(135deg,var(--navy) 0%,#162d4e 100%);
+  border-radius:12px;padding:28px;margin-bottom:24px;
+  position:relative;overflow:hidden;
+}
+.stripe-hero::before{
+  content:'';position:absolute;right:-30px;top:-30px;
+  width:160px;height:160px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.stripe-hero::after{
+  content:'';position:absolute;right:30px;bottom:-40px;
+  width:100px;height:100px;border-radius:50%;
+  background:rgba(255,255,255,.03);
+}
+.stripe-hero-label{
+  font-family:var(--M);font-size:10px;color:rgba(255,255,255,.5);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;
+}
+.stripe-hero-h{
+  font-family:var(--D);font-size:26px;font-weight:900;
+  text-transform:uppercase;letter-spacing:-.2px;margin-bottom:6px;
+}
+.stripe-hero-sub{font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;}
+.stripe-secure-badges{
+  display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;
+}
+.stripe-badge{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.07);border-radius:4px;
+  padding:5px 10px;font-size:11px;color:rgba(255,255,255,.7);
+}
+
+.stripe-steps{display:flex;flex-direction:column;gap:0;margin-bottom:24px;}
+.stripe-step{
+  display:flex;gap:14px;padding:14px 0;
+  border-bottom:1px solid var(--bd);align-items:flex-start;
+}
+.stripe-step:last-child{border:none;}
+.stripe-step-ic{
+  width:32px;height:32px;border-radius:8px;
+  background:rgba(245,200,0,.08);border:1px solid rgba(245,200,0,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+}
+.stripe-step-title{
+  font-family:var(--D);font-size:15px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.2px;margin-bottom:3px;
+}
+.stripe-step-desc{font-size:13px;color:var(--slate);line-height:1.55;}
+
+.btn-stripe-connect{
+  width:100%;background:var(--navy);color:var(--white);
+  font-family:var(--D);font-weight:900;font-size:18px;
+  letter-spacing:.4px;text-transform:uppercase;
+  padding:16px;border-radius:8px;border:none;cursor:pointer;
+  transition:background .15s,transform .15s,box-shadow .2s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-bottom:10px;
+}
+.btn-stripe-connect:hover{
+  background:#162d4e;transform:translateY(-1px);
+  box-shadow:0 8px 28px rgba(30,58,95,.5);
+}
+.stripe-skip{
+  width:100%;background:transparent;color:var(--slate);
+  border:1px solid var(--bd);border-radius:7px;padding:12px;
+  font-family:var(--B);font-size:13px;font-weight:500;cursor:pointer;
+  transition:all .2s;
+}
+.stripe-skip:hover{border-color:var(--bd2);color:var(--worn);}
+.stripe-skip-note{
+  font-size:11px;color:var(--slate);text-align:center;margin-top:8px;line-height:1.5;
+}
+
+/* Stripe connected state */
+.stripe-connected{
+  background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+  border-radius:10px;padding:20px;margin-bottom:20px;
+  display:flex;align-items:center;gap:16px;
+}
+.stripe-connected-ic{font-size:28px;flex-shrink:0;}
+.stripe-connected-title{
+  font-family:var(--D);font-size:18px;font-weight:900;
+  text-transform:uppercase;color:var(--green);margin-bottom:3px;
+}
+.stripe-connected-sub{font-size:13px;color:var(--slate);}
+
+/* ── STEP 4: DOCUMENTS ── */
+.doc-upload-area{
+  border:2px dashed var(--bd2);border-radius:10px;
+  padding:36px;text-align:center;cursor:pointer;
+  transition:border-color .2s,background .2s;
+  margin-bottom:16px;
+  position:relative;
+}
+.doc-upload-area:hover{border-color:var(--y);background:rgba(245,200,0,.02);}
+.doc-upload-area.drag-over{border-color:var(--y);background:rgba(245,200,0,.05);}
+.doc-upload-ic{font-size:32px;margin-bottom:10px;}
+.doc-upload-title{
+  font-family:var(--D);font-size:16px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px;
+}
+.doc-upload-sub{font-size:13px;color:var(--slate);}
+.doc-upload-input{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;
+}
+.doc-types{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+.doc-type{
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:8px;padding:14px;display:flex;gap:10px;align-items:center;
+}
+.doc-type-ic{font-size:18px;flex-shrink:0;}
+.doc-type-label{font-size:13px;font-weight:500;}
+.doc-type-sub{font-size:11px;color:var(--slate);margin-top:2px;}
+.doc-type-status{
+  margin-left:auto;font-family:var(--M);font-size:10px;
+  padding:3px 7px;border-radius:3px;flex-shrink:0;
+}
+.dst-optional{background:rgba(122,138,154,.08);color:var(--slate);}
+.dst-uploaded{background:rgba(34,197,94,.1);color:var(--green);}
+.dst-required{background:rgba(249,115,22,.1);color:var(--orange);}
+
+/* Uploaded files list */
+.uploaded-files{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+.uploaded-file{
+  display:flex;align-items:center;gap:10px;
+  background:var(--s2);border:1px solid rgba(34,197,94,.2);
+  border-radius:6px;padding:10px 12px;
+}
+.uf-icon{font-size:16px;flex-shrink:0;}
+.uf-name{font-size:13px;color:var(--worn);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.uf-size{font-family:var(--M);font-size:10px;color:var(--slate);}
+.uf-remove{background:none;border:none;color:var(--slate);cursor:pointer;font-size:16px;padding:0;transition:color .15s;}
+.uf-remove:hover{color:var(--red);}
+
+/* ── STEP 5: GO LIVE ── */
+.golive-screen{text-align:center;padding:20px 0;}
+.golive-title{
+  font-family:var(--D);font-size:clamp(40px,6vw,64px);
+  font-weight:900;text-transform:uppercase;letter-spacing:-.5px;
+  color:var(--green);margin-bottom:8px;line-height:1;
+}
+.golive-sub{
+  font-size:15px;color:var(--slate);line-height:1.65;
+  max-width:480px;margin:0 auto 36px;
+}
+/* The 5 agent cards animating in — the signature element */
+.agent-launch-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:10px;margin-bottom:32px;
+}
+.agent-launch-card{
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:10px;padding:16px 10px;text-align:center;
+  opacity:0;
+}
+.agent-launch-card.live{
+  background:rgba(34,197,94,.06);
+  border-color:rgba(34,197,94,.25);
+  animation:agentIn .4s ease forwards, glow 2s ease-in-out .4s infinite;
+}
+.alc-ic{font-size:26px;margin-bottom:8px;}
+.alc-name{
+  font-family:var(--D);font-size:13px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.2px;color:var(--white);margin-bottom:5px;
+}
+.alc-status{
+  font-family:var(--M);font-size:9px;color:var(--green);
+  opacity:0;transition:opacity .3s;
+}
+.agent-launch-card.live .alc-status{opacity:1;}
+.alc-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--green);margin:0 auto 6px;
+  opacity:0;
+}
+.agent-launch-card.live .alc-dot{
+  opacity:1;animation:pulse 2s infinite;
+}
+
+/* Setup summary */
+.setup-summary{
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:10px;padding:20px 22px;
+  margin-bottom:24px;text-align:left;
+}
+.ss-title{
+  font-family:var(--D);font-size:14px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.3px;
+  margin-bottom:14px;color:var(--worn);
+}
+.ss-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 0;border-bottom:1px solid var(--bd);
+  font-size:13px;
+}
+.ss-row:last-child{border:none;}
+.ss-check{font-size:14px;flex-shrink:0;}
+.ss-label{color:var(--slate);min-width:120px;flex-shrink:0;}
+.ss-value{color:var(--worn);font-weight:500;}
+.ss-value.warn{color:var(--orange);}
+
+.phone-forward-reminder{
+  background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.2);
+  border-radius:8px;padding:14px 16px;margin-bottom:20px;
+  font-size:13px;color:var(--worn);line-height:1.6;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.pfr-ic{font-size:18px;flex-shrink:0;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  padding:20px 48px;border-top:1px solid var(--bd);
+  display:flex;justify-content:space-between;align-items:center;
+  flex-shrink:0;background:var(--s1);
+}
+.btn-back{
+  background:transparent;color:var(--slate);
+  border:1px solid var(--bd);border-radius:7px;
+  padding:11px 24px;font-family:var(--D);font-weight:700;
+  font-size:15px;letter-spacing:.3px;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+}
+.btn-back:hover{color:var(--white);border-color:var(--bd2);}
+.btn-back:disabled{opacity:0;pointer-events:none;}
+.btn-next{
+  background:var(--y);color:var(--bg);
+  border:none;border-radius:7px;
+  padding:12px 32px;font-family:var(--D);font-weight:900;
+  font-size:16px;letter-spacing:.4px;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:8px;
+}
+.btn-next:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,200,0,.28);}
+.btn-next:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-next .spinner{
+  width:15px;height:15px;border:2px solid rgba(0,0,0,.25);
+  border-top-color:var(--bg);border-radius:50%;
+  animation:spin .7s linear infinite;display:none;
+}
+.btn-next.loading .spinner{display:block;}
+.btn-next.loading .btn-next-text{opacity:.7;}
+.step-counter{font-family:var(--M);font-size:11px;color:var(--slate);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  body{overflow:auto;}
+  .shell{grid-template-columns:1fr;height:auto;min-height:100vh;}
+  .sidebar{display:none;}
+  .step-content{padding:28px 20px;}
+  .bottom-nav{padding:16px 20px;}
+  .trade-grid{grid-template-columns:repeat(2,1fr);}
+  .form-2col{grid-template-columns:1fr;}
+  .agent-launch-grid{grid-template-columns:repeat(3,1fr);}
+  .doc-types{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+    <div class="sb-top">
+      <a href="/" class="sb-logo"><span class="c">CREW</span><span class="b">BOX</span></a>
+      <div class="sb-title">Setup wizard</div>
+    </div>
+
+    <div class="sb-steps">
+      <div class="sb-step active" id="nav-1" onclick="goToStep(1)">
+        <div class="step-dot active" id="dot-1">1</div>
+        <div class="step-info">
+          <div class="step-label">Business Info</div>
+          <div class="step-sub" id="sub-1">Name, trade, location</div>
+        </div>
+      </div>
+      <div class="sb-step" id="nav-2" onclick="goToStep(2)">
+        <div class="step-dot waiting" id="dot-2">2</div>
+        <div class="step-info">
+          <div class="step-label">Phone Setup</div>
+          <div class="step-sub" id="sub-2">Connect your number</div>
+        </div>
+      </div>
+      <div class="sb-step" id="nav-3" onclick="goToStep(3)">
+        <div class="step-dot waiting" id="dot-3">3</div>
+        <div class="step-info">
+          <div class="step-label">Connect Bank</div>
+          <div class="step-sub" id="sub-3">Accept card payments</div>
+        </div>
+      </div>
+      <div class="sb-step" id="nav-4" onclick="goToStep(4)">
+        <div class="step-dot waiting" id="dot-4">4</div>
+        <div class="step-info">
+          <div class="step-label">Documents</div>
+          <div class="step-sub" id="sub-4">License, insurance</div>
+        </div>
+      </div>
+      <div class="sb-step" id="nav-5" onclick="goToStep(5)">
+        <div class="step-dot waiting" id="dot-5">5</div>
+        <div class="step-info">
+          <div class="step-label">Go Live</div>
+          <div class="step-sub" id="sub-5">Launch your AI crew</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sb-foot">
+      <div class="sb-biz-card">
+        <div class="sb-biz-name" id="sb-biz">Your Business</div>
+        <div class="sb-biz-meta" id="sb-meta">Setting up...</div>
+      </div>
+      <div class="sb-help">
+        Need help? <a href="#">Chat with support</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+
+    <!-- Progress bar -->
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:20%"></div>
+    </div>
+
+    <div class="step-content">
+
+      <!-- ═══ STEP 1: BUSINESS INFO ═══ -->
+      <div class="wiz-screen active" id="screen-1">
+        <div class="step-eyebrow">Step 1 of 5</div>
+        <div class="step-h">Tell us about your business</div>
+        <div class="step-desc">This trains your AI receptionist to answer calls in <strong>your business name</strong> and book the right kind of jobs.</div>
+
+        <div class="form-2col" style="margin-bottom:16px">
+          <div class="field">
+            <label class="field-label">Business name</label>
+            <input class="field-input" type="text" id="biz-name" placeholder="Mike's HVAC & Cooling" autocomplete="organization"/>
+            <div class="field-error" id="err-biz-name">Please enter your business name.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Owner name</label>
+            <input class="field-input" type="text" id="owner-name" placeholder="Mike Rivera" autocomplete="name"/>
+          </div>
+        </div>
+
+        <div class="form-2col" style="margin-bottom:20px">
+          <div class="field">
+            <label class="field-label">Business phone</label>
+            <input class="field-input" type="tel" id="biz-phone" placeholder="(214) 555-0182" autocomplete="tel"/>
+            <div class="field-note">Your existing number — customers keep calling this.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">City & State</label>
+            <input class="field-input" type="text" id="biz-city" placeholder="Dallas, TX"/>
+          </div>
+        </div>
+
+        <div class="field-label" style="margin-bottom:10px">What's your trade?</div>
+        <div class="trade-grid" id="trade-grid">
+          <div class="trade-opt selected" onclick="selectTrade(this,'hvac')"><div class="trade-opt-ic">❄️</div><div class="trade-opt-label">HVAC</div></div>
+          <div class="trade-opt" onclick="selectTrade(this,'plumbing')"><div class="trade-opt-ic">🔧</div><div class="trade-opt-label">Plumbing</div></div>
+          <div class="trade-opt" onclick="selectTrade(this,'electrical')"><div class="trade-opt-ic">⚡</div><div class="trade-opt-label">Electrical</div></div>
+          <div class="trade-opt" onclick="selectTrade(this,'roofing')"><div class="trade-opt-ic">🏠</div><div class="trade-opt-label">Roofing</div></div>
+          <div class="trade-opt" onclick="selectTrade(this,'general')"><div class="trade-opt-ic">🏗️</div><div class="trade-opt-label">General Contractor</div></div>
+          <div class="trade-opt" onclick="selectTrade(this,'other')"><div class="trade-opt-ic">🛠️</div><div class="trade-opt-label">Other</div></div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Special instructions for your AI receptionist <span style="color:rgba(122,138,154,.6);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+          <input class="field-input" type="text" id="special-instructions" placeholder="e.g. We don't do weekends. Always mention our 10-year warranty."/>
+          <div class="field-note">The AI will follow these guidelines on every call.</div>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 2: PHONE SETUP ═══ -->
+      <div class="wiz-screen" id="screen-2">
+        <div class="step-eyebrow">Step 2 of 5</div>
+        <div class="step-h">Connect your phone</div>
+        <div class="step-desc">Your customers keep calling the same number they always have. <strong>Nothing changes for them.</strong> We just make sure every call gets answered.</div>
+
+        <div class="phone-opts" id="phone-opts">
+          <div class="phone-opt selected" onclick="selectPhone(this,'forward')">
+            <div class="phone-opt-radio"></div>
+            <div>
+              <div class="phone-opt-title">Forward unanswered calls ← Recommended</div>
+              <div class="phone-opt-desc">Your number stays exactly as it is. One 5-minute call to your carrier sets this up. Customers call your existing number. CrewBox answers when you can't.</div>
+              <span class="phone-opt-tag tag-rec">5 minutes · Zero downtime</span>
+            </div>
+          </div>
+          <div class="phone-opt" onclick="selectPhone(this,'port')">
+            <div class="phone-opt-radio"></div>
+            <div>
+              <div class="phone-opt-title">Port my number to CrewBox</div>
+              <div class="phone-opt-desc">Move your existing number fully into CrewBox via Twilio. AI owns the line completely. Best after you've tested it for 30 days.</div>
+              <span class="phone-opt-tag tag-adv">7–10 days · Requires carrier authorization</span>
+            </div>
+          </div>
+          <div class="phone-opt" onclick="selectPhone(this,'new')">
+            <div class="phone-opt-radio"></div>
+            <div>
+              <div class="phone-opt-title">Get a new AI number</div>
+              <div class="phone-opt-desc">Fresh local number for AI only. Keep your personal cell separate. Great for testing before you commit your main number.</div>
+              <span class="phone-opt-tag tag-rec">Instant · Any area code</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Call forward instructions (shown when forward selected) -->
+        <div class="forward-box" id="forward-instructions">
+          <div class="forward-box-title">Your AI number</div>
+          <div class="ai-number-display" id="ai-number">(214) 555-0199</div>
+          <div style="font-size:12px;color:var(--slate);margin-bottom:14px">Forward unanswered calls to this number. Pick your carrier:</div>
+
+          <div class="carrier-tabs">
+            <div class="carrier-tab active" onclick="setCarrier(this,'att')">AT&T</div>
+            <div class="carrier-tab" onclick="setCarrier(this,'verizon')">Verizon</div>
+            <div class="carrier-tab" onclick="setCarrier(this,'tmobile')">T-Mobile</div>
+            <div class="carrier-tab" onclick="setCarrier(this,'other')">Other</div>
+          </div>
+
+          <div class="carrier-instruction" id="carrier-instruction">
+            Call <strong>611</strong> from your phone (free). Say: <em>"I'd like to set up conditional call forwarding when I don't answer."</em> Give them this number: <code id="forward-number">(214) 555-0199</code>. Takes about 5 minutes.
+          </div>
+
+          <div style="margin-top:12px;font-size:12px;color:var(--slate)">
+            Or dial this shortcode directly from your phone:<br>
+            <code style="font-family:var(--M);font-size:13px;background:rgba(245,200,0,.08);color:var(--y);padding:6px 10px;border-radius:4px;display:inline-block;margin-top:6px;" id="carrier-code">
+              **61*12145550199# (then press Call)
+            </code>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 3: STRIPE CONNECT ═══ -->
+      <div class="wiz-screen" id="screen-3">
+        <div class="step-eyebrow">Step 3 of 5</div>
+        <div class="step-h">Connect your bank</div>
+        <div class="step-desc">So your customers can pay invoices by card, bank transfer, or Apple Pay — and the money goes straight to your bank account in 1–2 days.</div>
+
+        <!-- Not yet connected -->
+        <div id="stripe-unconnected">
+          <div class="stripe-hero">
+            <div class="stripe-hero-label">Powered by Stripe — the same payments platform used by Amazon, Shopify, and Lyft</div>
+            <div class="stripe-hero-h">Bank-level security. Your money, your account.</div>
+            <div class="stripe-hero-sub">CrewBox never touches your money. Stripe routes payments directly from your customers to your bank account. We just create the invoices.</div>
+            <div class="stripe-secure-badges">
+              <div class="stripe-badge">🔒 256-bit SSL</div>
+              <div class="stripe-badge">✓ PCI DSS Level 1</div>
+              <div class="stripe-badge">🏦 Direct bank deposit</div>
+              <div class="stripe-badge">📋 Auto 1099</div>
+            </div>
+          </div>
+
+          <div class="stripe-steps">
+            <div class="stripe-step">
+              <div class="stripe-step-ic">👤</div>
+              <div>
+                <div class="stripe-step-title">Verify your identity</div>
+                <div class="stripe-step-desc">Legal name and last 4 of SSN. Takes 90 seconds. Required by US banking law (not by us).</div>
+              </div>
+            </div>
+            <div class="stripe-step">
+              <div class="stripe-step-ic">🏦</div>
+              <div>
+                <div class="stripe-step-title">Add your bank account</div>
+                <div class="stripe-step-desc">Routing + account number, or connect via Plaid instantly. Your bank info stays with Stripe — never with CrewBox.</div>
+              </div>
+            </div>
+            <div class="stripe-step">
+              <div class="stripe-step-ic">✅</div>
+              <div>
+                <div class="stripe-step-title">Done — you can accept payments</div>
+                <div class="stripe-step-desc">Stripe sends payouts to your bank automatically every 2 days. No action needed after setup.</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-stripe-connect" onclick="handleStripeConnect()">
+            <span style="font-size:18px">🏦</span>
+            <span>Connect Bank Account via Stripe →</span>
+          </button>
+          <button class="stripe-skip" onclick="skipStripe()">Skip for now — set up later</button>
+          <div class="stripe-skip-note">You can still use CrewBox without payments connected. You just won't be able to send invoices until you complete this step.</div>
+        </div>
+
+        <!-- Already connected -->
+        <div id="stripe-connected" style="display:none">
+          <div class="stripe-connected">
+            <div class="stripe-connected-ic">✅</div>
+            <div>
+              <div class="stripe-connected-title">Bank account connected</div>
+              <div class="stripe-connected-sub">You can accept card, bank transfer, and Apple Pay payments. Payouts go to your bank every 2 business days.</div>
+            </div>
+          </div>
+          <div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:16px 18px">
+            <div style="font-family:var(--M);font-size:10px;color:var(--slate);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px">What customers can pay with</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span style="background:var(--s3);border:1px solid var(--bd);border-radius:4px;padding:5px 10px;font-size:12px">💳 Visa / Mastercard</span>
+              <span style="background:var(--s3);border:1px solid var(--bd);border-radius:4px;padding:5px 10px;font-size:12px">💳 Amex / Discover</span>
+              <span style="background:var(--s3);border:1px solid var(--bd);border-radius:4px;padding:5px 10px;font-size:12px">🏦 ACH Bank Transfer</span>
+              <span style="background:var(--s3);border:1px solid var(--bd);border-radius:4px;padding:5px 10px;font-size:12px"> Apple Pay</span>
+              <span style="background:var(--s3);border:1px solid var(--bd);border-radius:4px;padding:5px 10px;font-size:12px">🤖 Google Pay</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 4: DOCUMENTS ═══ -->
+      <div class="wiz-screen" id="screen-4">
+        <div class="step-eyebrow">Step 4 of 5</div>
+        <div class="step-h">Upload your documents</div>
+        <div class="step-desc">Store your license and insurance in CrewBox so customers can verify your credentials — and we can alert you before they expire. <strong>All documents are encrypted and private.</strong></div>
+
+        <div class="doc-types" id="doc-type-status">
+          <div class="doc-type"><div class="doc-type-ic">📜</div><div><div class="doc-type-label">Contractor License</div><div class="doc-type-sub">Required in most states</div></div><span class="doc-type-status dst-required" id="dst-license">Required</span></div>
+          <div class="doc-type"><div class="doc-type-ic">🛡️</div><div><div class="doc-type-label">Insurance Certificate</div><div class="doc-type-sub">General liability</div></div><span class="doc-type-status dst-required" id="dst-insurance">Required</span></div>
+          <div class="doc-type"><div class="doc-type-ic">📋</div><div><div class="doc-type-label">Business Registration</div><div class="doc-type-sub">LLC or DBA paperwork</div></div><span class="doc-type-status dst-optional" id="dst-registration">Optional</span></div>
+          <div class="doc-type"><div class="doc-type-ic">🏦</div><div><div class="doc-type-label">W-9 Form</div><div class="doc-type-sub">For tax reporting</div></div><span class="doc-type-status dst-optional" id="dst-w9">Optional</span></div>
+        </div>
+
+        <div class="doc-upload-area" id="drop-zone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <input type="file" class="doc-upload-input" id="file-input" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="handleFiles(this.files)"/>
+          <div class="doc-upload-ic">📁</div>
+          <div class="doc-upload-title">Drop files here or click to browse</div>
+          <div class="doc-upload-sub">PDF, JPG, PNG · Up to 50MB per file · All files encrypted at rest</div>
+        </div>
+
+        <div class="uploaded-files" id="uploaded-files"></div>
+
+        <div style="background:rgba(245,200,0,.05);border:1px solid rgba(245,200,0,.12);border-radius:8px;padding:14px 16px;font-size:13px;color:var(--worn);line-height:1.6;margin-top:12px">
+          <strong style="color:var(--y)">Don't have them handy?</strong> You can skip this step and upload later from your dashboard. We'll send you a reminder before your license or insurance expires.
+        </div>
+      </div>
+
+      <!-- ═══ STEP 5: GO LIVE ═══ -->
+      <div class="wiz-screen" id="screen-5">
+        <div class="golive-screen">
+          <div id="golive-pre">
+            <div class="step-eyebrow">Step 5 of 5</div>
+            <div class="step-h" style="color:var(--white);margin-bottom:16px">Review and launch</div>
+
+            <!-- Setup summary -->
+            <div class="setup-summary" id="setup-summary">
+              <div class="ss-title">Your setup</div>
+              <div class="ss-row"><span class="ss-check">✅</span><span class="ss-label">Business</span><span class="ss-value" id="ss-biz">—</span></div>
+              <div class="ss-row"><span class="ss-check" id="ss-phone-check">✅</span><span class="ss-label">Phone</span><span class="ss-value" id="ss-phone">—</span></div>
+              <div class="ss-row"><span class="ss-check" id="ss-stripe-check">✅</span><span class="ss-label">Payments</span><span class="ss-value" id="ss-stripe">—</span></div>
+              <div class="ss-row"><span class="ss-check" id="ss-docs-check">✅</span><span class="ss-label">Documents</span><span class="ss-value" id="ss-docs">—</span></div>
+            </div>
+
+            <!-- Call forward reminder if they chose that option -->
+            <div class="phone-forward-reminder" id="forward-reminder" style="display:none">
+              <div class="pfr-ic">📞</div>
+              <div>
+                <strong>One last thing:</strong> Call your carrier to set up call forwarding to <strong id="forward-reminder-number" style="color:var(--y)"></strong>. Your AI receptionist won't answer calls until you do this step.
+                <div style="margin-top:6px"><a href="#" onclick="goto(2)" style="color:var(--orange);font-size:12px">View the instructions again →</a></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Launch explosion (shown after clicking Go Live) -->
+          <div id="golive-post" style="display:none">
+            <div class="golive-title" id="golive-title">Launching...</div>
+            <div class="golive-sub" id="golive-sub">Your AI crew is clocking in for the first time.</div>
+
+            <div class="agent-launch-grid" id="agent-launch-grid">
+              <div class="agent-launch-card" id="alc-receptionist">
+                <div class="alc-dot"></div>
+                <div class="alc-ic">📞</div>
+                <div class="alc-name">Receptionist</div>
+                <div class="alc-status">LIVE</div>
+              </div>
+              <div class="agent-launch-card" id="alc-estimator">
+                <div class="alc-dot"></div>
+                <div class="alc-ic">📋</div>
+                <div class="alc-name">Estimator</div>
+                <div class="alc-status">LIVE</div>
+              </div>
+              <div class="agent-launch-card" id="alc-collector">
+                <div class="alc-dot"></div>
+                <div class="alc-ic">💰</div>
+                <div class="alc-name">Collector</div>
+                <div class="alc-status">LIVE</div>
+              </div>
+              <div class="agent-launch-card" id="alc-marketer">
+                <div class="alc-dot"></div>
+                <div class="alc-ic">📱</div>
+                <div class="alc-name">Marketer</div>
+                <div class="alc-status">LIVE</div>
+              </div>
+              <div class="agent-launch-card" id="alc-rep">
+                <div class="alc-dot"></div>
+                <div class="alc-ic">⭐</div>
+                <div class="alc-name">Rep</div>
+                <div class="alc-status">LIVE</div>
+              </div>
+            </div>
+
+            <div id="golive-final" style="display:none">
+              <div class="golive-title">You're Live.</div>
+              <div class="golive-sub">
+                All 5 agents are running for <strong style="color:var(--white)" id="gl-biz-name"></strong>.
+                The next call that comes in will be answered by your AI receptionist.
+              </div>
+              <a href="/my-business" class="btn-next" style="display:inline-flex;margin-top:8px;text-decoration:none">
+                Go to Your Dashboard →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /step-content -->
+
+    <!-- ── BOTTOM NAV ── -->
+    <div class="bottom-nav">
+      <button class="btn-back" id="btn-back" onclick="prevStep()" disabled>← Back</button>
+      <div class="step-counter" id="step-counter">Step 1 of 5</div>
+      <button class="btn-next" id="btn-next" onclick="nextStep()">
+        <div class="spinner"></div>
+        <span class="btn-next-text" id="btn-next-text">Next Step →</span>
+      </button>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── STATE ──────────────────────────────────────────────────
+let currentStep = 1;
+const TOTAL_STEPS = 5;
+
+const state = {
+  bizName: '', ownerName: '', phone: '', city: '', trade: 'hvac', instructions: '',
+  phoneMethod: 'forward',
+  aiNumber: '(214) 555-0199',
+  stripeConnected: false,
+  stripeSkipped: false,
+  files: [],
+  docsUploaded: 0,
+};
+
+// ── NAVIGATION ─────────────────────────────────────────────
+function nextStep() {
+  if (!validateCurrentStep()) return;
+
+  // Update state from current step inputs
+  captureStepData(currentStep);
+
+  if (currentStep === 5) {
+    handleGoLive();
+    return;
+  }
+
+  goToStep(currentStep + 1);
+}
+
+function prevStep() { if (currentStep > 1) goToStep(currentStep - 1); }
+
+function goToStep(n) {
+  if (n < 1 || n > TOTAL_STEPS) return;
+
+  // Don't allow skipping ahead past locked steps
+  if (n > currentStep + 1) return;
+
+  // Deactivate current
+  document.getElementById(`screen-${currentStep}`).classList.remove('active');
+  updateSidebarStep(currentStep, 'done');
+
+  currentStep = n;
+
+  // Activate new
+  document.getElementById(`screen-${currentStep}`).classList.add('active');
+  updateSidebarStep(currentStep, 'active');
+  updateProgressBar();
+  updateBottomNav();
+
+  // Scroll to top of content
+  document.querySelector('.step-content').scrollTop = 0;
+
+  // Step-specific setup
+  if (currentStep === 5) populateReviewStep();
+}
+
+function updateSidebarStep(n, state) {
+  const nav = document.getElementById(`nav-${n}`);
+  const dot = document.getElementById(`dot-${n}`);
+  nav.className = `sb-step ${state}`;
+  dot.className = `step-dot ${state}`;
+  if (state === 'done') dot.innerHTML = '✓';
+  else dot.textContent = n;
+}
+
+function updateProgressBar() {
+  const pct = (currentStep / TOTAL_STEPS) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function updateBottomNav() {
+  const backBtn = document.getElementById('btn-back');
+  const nextBtn = document.getElementById('btn-next');
+  const counter = document.getElementById('step-counter');
+  const nextText = document.getElementById('btn-next-text');
+
+  backBtn.disabled = currentStep === 1;
+  counter.textContent = `Step ${currentStep} of ${TOTAL_STEPS}`;
+  nextText.textContent = currentStep === 5 ? 'Launch My Crew →' : 'Next Step →';
+
+  // Hide nav on go-live post screen
+  const isLaunching = document.getElementById('golive-post').style.display !== 'none';
+  document.querySelector('.bottom-nav').style.display = isLaunching ? 'none' : 'flex';
+}
+
+// ── VALIDATION ─────────────────────────────────────────────
+function validateCurrentStep() {
+  if (currentStep === 1) {
+    const name = document.getElementById('biz-name').value.trim();
+    if (!name) {
+      shakeField('biz-name');
+      document.getElementById('err-biz-name').classList.add('show');
+      return false;
+    }
+    document.getElementById('err-biz-name').classList.remove('show');
+  }
+  return true;
+}
+
+// ── DATA CAPTURE ───────────────────────────────────────────
+function captureStepData(step) {
+  if (step === 1) {
+    state.bizName    = document.getElementById('biz-name').value.trim();
+    state.ownerName  = document.getElementById('owner-name').value.trim();
+    state.phone      = document.getElementById('biz-phone').value.trim();
+    state.city       = document.getElementById('biz-city').value.trim();
+    state.instructions = document.getElementById('special-instructions').value.trim();
+
+    // Update sidebar biz card
+    document.getElementById('sb-biz').textContent  = state.bizName || 'Your Business';
+    document.getElementById('sb-meta').textContent = state.city || 'Setting up...';
+    document.getElementById('sub-1').textContent   = state.bizName || 'Name, trade, location';
+
+    // Update AI number area code to match their phone
+    if (state.phone) {
+      const ac = state.phone.replace(/\D/g,'').slice(0,3);
+      if (ac.length === 3) {
+        state.aiNumber = `(${ac}) 555-0199`;
+        document.getElementById('ai-number').textContent = state.aiNumber;
+        document.getElementById('forward-number').textContent = state.aiNumber;
+        document.getElementById('carrier-code').textContent = `**61*${state.aiNumber.replace(/\D/g,'')}# (then press Call)`;
+        if (document.getElementById('forward-reminder-number'))
+          document.getElementById('forward-reminder-number').textContent = state.aiNumber;
+      }
+    }
+  }
+  if (step === 2) {
+    document.getElementById('sub-2').textContent = state.phoneMethod === 'forward' ? 'Call forward set up' :
+      state.phoneMethod === 'port' ? 'Number porting requested' : 'New AI number assigned';
+  }
+  if (step === 3) {
+    document.getElementById('sub-3').textContent = state.stripeConnected ? 'Bank connected ✓' : state.stripeSkipped ? 'Skipped — set up later' : 'Accept card payments';
+  }
+  if (step === 4) {
+    document.getElementById('sub-4').textContent = state.files.length ? `${state.files.length} file${state.files.length > 1 ? 's' : ''} uploaded` : 'License, insurance';
+  }
+}
+
+// ── TRADE SELECTOR ─────────────────────────────────────────
+function selectTrade(el, trade) {
+  document.querySelectorAll('.trade-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  state.trade = trade;
+}
+
+// ── PHONE METHOD ───────────────────────────────────────────
+function selectPhone(el, method) {
+  document.querySelectorAll('.phone-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  state.phoneMethod = method;
+
+  const fwd = document.getElementById('forward-instructions');
+  fwd.style.display = method === 'forward' ? 'block' : 'none';
+}
+
+const CARRIER_DATA = {
+  att:     { instruction: 'Call <strong>611</strong> from your phone. Say: <em>"I\'d like to set up conditional call forwarding when I don\'t answer."</em> Give them: <code id="forward-number"></code>', code: '**61*{NUM}#' },
+  verizon: { instruction: 'Go to <strong>My Verizon app → Account → Manage → Call Forwarding</strong>. Or dial <strong>*71</strong> then your CrewBox number from your phone.', code: '*71{NUM}' },
+  tmobile: { instruction: 'Dial <code>**004*{NUM}#</code> directly from your phone and press Call. This activates forwarding when you don\'t answer. Takes 10 seconds.', code: '**004*{NUM}#' },
+  other:   { instruction: 'Call your carrier\'s customer service. Say: <em>"I\'d like to set up conditional call forwarding to another number when I don\'t answer."</em> Give them your CrewBox number: <code id="forward-number"></code>', code: 'Call your carrier' },
+};
+
+function setCarrier(btn, carrier) {
+  document.querySelectorAll('.carrier-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const num = state.aiNumber;
+  const numDigits = num.replace(/\D/g,'');
+  const data = CARRIER_DATA[carrier];
+  document.getElementById('carrier-instruction').innerHTML = data.instruction.replace(/{NUM}/g, num);
+  document.getElementById('carrier-code').textContent = data.code.replace(/{NUM}/g, numDigits);
+  // Re-inject forward number span if missing
+  const fn = document.getElementById('forward-number');
+  if (fn) fn.textContent = num;
+}
+
+// ── STRIPE CONNECT ─────────────────────────────────────────
+async function handleStripeConnect() {
+  const btn = document.querySelector('.btn-stripe-connect');
+  btn.textContent = 'Opening Stripe...';
+  btn.disabled = true;
+
+  try {
+    // PRODUCTION:
+    // const res = await fetch('/api/stripe/onboarding-link', {
+    //   method: 'POST',
+    //   headers: { 'Authorization': `Bearer ${token}` },
+    // });
+    // const { url } = await res.json();
+    // window.location.href = url;
+    // (Stripe redirects back to /setup?stripe=complete)
+
+    // DEMO: Simulate redirect + return
+    await new Promise(r => setTimeout(r, 1200));
+    simulateStripeReturn();
+
+  } catch(e) {
+    btn.textContent = 'Connect Bank Account via Stripe →';
+    btn.disabled = false;
+  }
+}
+
+function simulateStripeReturn() {
+  // Called when Stripe redirects back with ?stripe=complete
+  state.stripeConnected = true;
+  document.getElementById('stripe-unconnected').style.display = 'none';
+  document.getElementById('stripe-connected').style.display  = 'block';
+  document.getElementById('sub-3').textContent = 'Bank connected ✓';
+}
+
+function skipStripe() {
+  state.stripeSkipped = true;
+  document.getElementById('sub-3').textContent = 'Set up later';
+  goToStep(4);
+}
+
+// Check if returning from Stripe (URL param)
+if (new URLSearchParams(location.search).get('stripe') === 'complete') {
+  simulateStripeReturn();
+}
+
+// ── DOCUMENT UPLOAD ────────────────────────────────────────
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.add('drag-over');
+}
+function handleDragLeave(e) {
+  document.getElementById('drop-zone').classList.remove('drag-over');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag-over');
+  handleFiles(e.dataTransfer.files);
+}
+function handleFiles(files) {
+  Array.from(files).forEach(file => {
+    state.files.push(file);
+    renderUploadedFile(file);
+  });
+  updateDocTypeStatus();
+}
+function renderUploadedFile(file) {
+  const container = document.getElementById('uploaded-files');
+  const div = document.createElement('div');
+  div.className = 'uploaded-file';
+  div.innerHTML = `
+    <div class="uf-icon">${file.name.endsWith('.pdf') ? '📄' : '🖼️'}</div>
+    <div class="uf-name">${escHtml(file.name)}</div>
+    <div class="uf-size">${formatBytes(file.size)}</div>
+    <button class="uf-remove" onclick="removeFile(this,'${escHtml(file.name)}')" aria-label="Remove">×</button>`;
+  container.appendChild(div);
+}
+function removeFile(btn, name) {
+  state.files = state.files.filter(f => f.name !== name);
+  btn.closest('.uploaded-file').remove();
+  updateDocTypeStatus();
+}
+function updateDocTypeStatus() {
+  const names = state.files.map(f => f.name.toLowerCase());
+  const hasLicense = names.some(n => n.includes('license') || n.includes('cert') || n.includes('lic'));
+  const hasInsurance = names.some(n => n.includes('insur') || n.includes('coi') || n.includes('liability'));
+  setDocStatus('dst-license',  hasLicense  ? 'dst-uploaded' : 'dst-required', hasLicense  ? 'Uploaded ✓' : 'Required');
+  setDocStatus('dst-insurance',hasInsurance? 'dst-uploaded' : 'dst-required', hasInsurance? 'Uploaded ✓' : 'Required');
+  state.docsUploaded = state.files.length;
+}
+function setDocStatus(id, cls, text) {
+  const el = document.getElementById(id);
+  el.className = `doc-type-status ${cls}`;
+  el.textContent = text;
+}
+
+// ── GO LIVE ────────────────────────────────────────────────
+async function handleGoLive() {
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.classList.add('loading');
+  nextBtn.disabled = true;
+
+  // Small delay for UX
+  await new Promise(r => setTimeout(r, 600));
+
+  // Hide pre-launch content, show animation
+  document.getElementById('golive-pre').style.display = 'none';
+  document.getElementById('golive-post').style.display = 'block';
+  document.getElementById('golive-title').textContent = 'Launching...';
+  document.getElementById('golive-sub').textContent = 'Your AI crew is clocking in for the first time.';
+  document.querySelector('.bottom-nav').style.display = 'none';
+
+  // PRODUCTION: Call backend to activate all agents
+  // await fetch('/api/contractors/go-live', {
+  //   method: 'POST',
+  //   headers: { 'Authorization': `Bearer ${token}` },
+  // });
+
+  // Animate agents coming online one by one — the signature moment
+  const agents = ['receptionist','estimator','collector','marketer','rep'];
+  for (let i = 0; i < agents.length; i++) {
+    await new Promise(r => setTimeout(r, 500));
+    const card = document.getElementById(`alc-${agents[i]}`);
+    card.classList.add('live');
+  }
+
+  // Final success state
+  await new Promise(r => setTimeout(r, 800));
+  document.getElementById('gl-biz-name').textContent = state.bizName || 'your business';
+  document.getElementById('golive-title').style.display = 'none';
+  document.getElementById('golive-sub').style.display   = 'none';
+  document.getElementById('golive-final').style.display = 'block';
+  document.getElementById('sub-5').textContent = 'All agents live ✓';
+  updateSidebarStep(5, 'done');
+  document.getElementById('dot-5').innerHTML = '✓';
+}
+
+// ── REVIEW STEP SETUP ──────────────────────────────────────
+function populateReviewStep() {
+  document.getElementById('ss-biz').textContent   = state.bizName || '—';
+  document.getElementById('ss-phone').textContent = state.phoneMethod === 'forward' ? `Forward to ${state.aiNumber}` :
+    state.phoneMethod === 'port' ? 'Number porting requested' : `New number: ${state.aiNumber}`;
+  document.getElementById('ss-stripe').textContent = state.stripeConnected ? 'Bank connected ✓' : 'Not connected — invoicing disabled';
+  document.getElementById('ss-docs').textContent  = state.files.length ? `${state.files.length} file${state.files.length > 1 ? 's' : ''} uploaded` : 'None uploaded — add later';
+
+  // Warning states
+  if (!state.stripeConnected) {
+    document.getElementById('ss-stripe-check').textContent = '⚠️';
+    document.getElementById('ss-stripe').classList.add('warn');
+  }
+  if (!state.files.length) {
+    document.getElementById('ss-docs-check').textContent = '⚠️';
+    document.getElementById('ss-docs').classList.add('warn');
+  }
+
+  // Call forward reminder
+  if (state.phoneMethod === 'forward') {
+    document.getElementById('forward-reminder').style.display = 'flex';
+    document.getElementById('forward-reminder-number').textContent = state.aiNumber;
+  }
+}
+
+// ── HELPERS ────────────────────────────────────────────────
+function shakeField(id) {
+  const el = document.getElementById(id);
+  el.classList.add('error');
+  el.addEventListener('input', () => el.classList.remove('error'), { once: true });
+}
+function formatBytes(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1048576) return `${Math.round(bytes/1024)} KB`;
+  return `${(bytes/1048576).toFixed(1)} MB`;
+}
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function goto(n) { goToStep(n); }
+
+// ── INIT ───────────────────────────────────────────────────
+updateProgressBar();
+updateBottomNav();
+
+// Handle returning from Stripe on a different step
+const urlStep = new URLSearchParams(location.search).get('step');
+if (urlStep) goToStep(parseInt(urlStep));
+
+// Auto-focus first input
+setTimeout(() => { document.getElementById('biz-name')?.focus(); }, 100);
+</script>
+</body>
+</html>
