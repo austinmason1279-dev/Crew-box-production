@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "crewbox-platform/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "crewbox-platform/**/*.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "crewbox-platform/server.js"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "crewbox-platform/frontend/dashboard.html"
+    },
+    {
+      "src": "/setup",
+      "dest": "crewbox-platform/frontend/setup-wizard.html"
+    },
+    {
+      "src": "/partner",
+      "dest": "crewbox-platform/frontend/licensee-portal.html"
+    },
+    {
+      "src": "/auth",
+      "dest": "crewbox-platform/landing/auth.html"
+    },
+    {
+      "src": "/",
+      "dest": "crewbox-platform/landing/getcrewbox.com.html"
+    }
+  ]
+}
