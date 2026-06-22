@@ -1,12 +1,15 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "crewbox-platform/server.js",
-      "use": "@vercel/node"
+  "functions": {
+    "crewbox-platform/server.js": {
+      "runtime": "nodejs20.x"
     }
-  ],
+  },
   "routes": [
+    {
+      "src": "/health",
+      "dest": "crewbox-platform/server.js"
+    },
     {
       "src": "/(.*)",
       "dest": "crewbox-platform/server.js"
