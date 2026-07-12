@@ -891,10 +891,17 @@ async function handleSignUp() {
       body: JSON.stringify({ name, email, phone, business: biz, role, trade, city, source: 'auth_signup' }),
     });
 
-    // Show verification screen
-    document.getElementById('verify-email-display').textContent = email;
-    goto('screen-verify');
-    startResendCountdown();
+    // If confirmation is disabled, Supabase returns a session immediately
+    if (data.session && data.session.access_token) {
+      localStorage.setItem('crewbox_access_token', data.session.access_token);
+      localStorage.setItem('crewbox_user', JSON.stringify(data.user));
+      const userRole = data.user?.user_metadata?.role || 'contractor';
+      window.location.href = userRole === 'licensee' ? '/partner' : '/dashboard';
+    } else {
+      document.getElementById('verify-email-display').textContent = email;
+      goto('screen-verify');
+      startResendCountdown();
+    }
 
   } catch (err) {
     setLoading('signup-btn', false);
