@@ -711,9 +711,29 @@ body { font-family: var(--B); background: var(--bg); color: var(--white); overfl
 
 <script>
 // ── SUPABASE CONFIG ───────────────────────────────────
-// Replace with real values at deploy time
+// NOTE: The anon key is designed to be public and is safe to ship in
+// client-side code ONLY because Row Level Security (RLS) must be enabled
+// on every table in the Supabase dashboard. Never put the service_role
+// key in this file.
 const SUPABASE_URL = 'https://kcusnqoxwgvhsnydcyyv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjdXNucW94d2d2aHNueWRjeXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MDUzMzQsImV4cCI6MjA5NzA4MTMzNH0.cWt19zab-EFrwKsl2A_3VfoCV6pgycGIgWiqJUwlv2Q';
+
+// ── DASHBOARD ROUTES ──────────────────────────────────
+// Single source of truth for post-login destinations.
+// ⚠️ CONFIRM THESE: the original code used '/dashboard' in one place and
+// '/my-business' in another for contractors. Set the correct paths here.
+const DASH_PATHS = {
+  contractor: '/dashboard',
+  licensee:   '/partner',
+};
+function dashPathFor(role) {
+  return DASH_PATHS[role] || DASH_PATHS.contractor;
+}
+function getUserRole(user) {
+  // Signup writes role into user_metadata; app_metadata is the fallback
+  // in case it is ever set server-side.
+  return user?.user_metadata?.role || user?.app_metadata?.role || 'contractor';
+}
 function goto(screenId) {
   document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active'));
   const screen = document.getElementById(screenId);
@@ -805,16 +825,20 @@ async function handleSignIn() {
     });
     const data = await res.json();
 
-    if (data.error) throw new Error(data.error_description || data.error);
+    // Supabase error shapes vary: {error, error_description} or {error_code, msg}
+    if (!res.ok || data.error || data.error_code) {
+      throw new Error(data.msg || data.error_description || data.error || 'Sign-in failed');
+    }
 
-    // Store session
+    // Store session (consistent keys across sign-in and sign-up)
     localStorage.setItem('crewbox_access_token', data.access_token);
     localStorage.setItem('crewbox_refresh_token', data.refresh_token);
+    localStorage.setItem('crewbox_user', JSON.stringify(data.user || {}));
 
-    // Determine role from user metadata
-    const role = data.user?.app_metadata?.role || 'contractor';
+    // Determine role — FIX: signup stores role in user_metadata, not app_metadata
+    const role = getUserRole(data.user);
     const name = data.user?.user_metadata?.name || 'there';
-    const dashPath = role === 'licensee' ? '/partner' : '/my-business';
+    const dashPath = dashPathFor(role);
 
     // Show success
     document.getElementById('success-msg').textContent =
@@ -826,7 +850,7 @@ async function handleSignIn() {
   } catch (err) {
     setLoading('signin-btn', false);
     showError('signin-error', 'signin-error-text',
-      err.message.includes('Invalid') ? 'Incorrect email or password. Try again or reset your password.'
+      /invalid/i.test(err.message) ? 'Incorrect email or password. Try again or reset your password.'
       : 'Something went wrong. Please try again.');
     shakeInput('si-email');
     shakeInput('si-password');
@@ -875,26 +899,37 @@ async function handleSignUp() {
     });
     const data = await res.json();
 
-    if (data.error) throw new Error(data.error_description || data.error);
+    // Supabase error shapes vary: {error, error_description} or {error_code, msg}
+    if (!res.ok || data.error || data.error_code) {
+      throw new Error(data.msg || data.error_description || data.error || 'Signup failed');
+    }
 
-    // Also write to waitlist table
-    await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify({ name, email, phone, business: biz, role, trade, city, source: 'auth_signup' }),
-    });
+    // Also write to waitlist table.
+    // FIX: isolated in its own try/catch — if this write fails, the account
+    // was still created successfully and the user must NOT see an error
+    // (previously a failure here showed "Something went wrong" and retrying
+    // produced a confusing "already registered" message).
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({ name, email, phone, business: biz, role, trade, city, source: 'auth_signup' }),
+      });
+    } catch (waitlistErr) {
+      console.warn('Waitlist write failed (non-fatal):', waitlistErr);
+    }
 
     // If confirmation is disabled, Supabase returns a session immediately
     if (data.session && data.session.access_token) {
       localStorage.setItem('crewbox_access_token', data.session.access_token);
-      localStorage.setItem('crewbox_user', JSON.stringify(data.user));
-      const userRole = data.user?.user_metadata?.role || 'contractor';
-      window.location.href = userRole === 'licensee' ? '/partner' : '/dashboard';
+      localStorage.setItem('crewbox_refresh_token', data.session.refresh_token || '');
+      localStorage.setItem('crewbox_user', JSON.stringify(data.user || {}));
+      window.location.href = dashPathFor(getUserRole(data.user));
     } else {
       document.getElementById('verify-email-display').textContent = email;
       goto('screen-verify');
@@ -903,7 +938,7 @@ async function handleSignUp() {
 
   } catch (err) {
     setLoading('signup-btn', false);
-    const msg = err.message.includes('already registered')
+    const msg = /already (registered|exists|been registered)/i.test(err.message)
       ? 'This email is already registered. Try signing in instead.'
       : err.message || 'Something went wrong. Please try again.';
     showError('signup-error', 'signup-error-text', msg);
@@ -1024,11 +1059,27 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ── CHECK FOR EXISTING SESSION ────────────────────────
-(function checkSession() {
+// FIX: previously an empty stub. Now validates the stored token with
+// Supabase; redirects returning users with a valid session, and clears
+// stale/expired tokens so they don't linger in localStorage.
+(async function checkSession() {
   const token = localStorage.getItem('crewbox_access_token');
   if (!token) return;
-  // Could validate token here — for now just redirect
-  // In production: verify with Supabase /auth/v1/user
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('Session invalid or expired');
+    const user = await res.json();
+    if (!user || !user.id) throw new Error('Session invalid');
+    // Valid session — send them straight to their dashboard
+    window.location.href = dashPathFor(getUserRole(user));
+  } catch (e) {
+    // Stale token — clean up and let them sign in normally
+    localStorage.removeItem('crewbox_access_token');
+    localStorage.removeItem('crewbox_refresh_token');
+    localStorage.removeItem('crewbox_user');
+  }
 })();
 </script>
 </body>
