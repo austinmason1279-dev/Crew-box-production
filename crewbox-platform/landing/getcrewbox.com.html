@@ -7,8 +7,8 @@
 <meta name="description" content="CrewBox puts 5 AI agents to work for your trade business — answering calls, sending quotes, collecting invoices, and managing your reputation. 14 days free."/>
 <meta property="og:title" content="CrewBox — AI Back-Office for Trade Businesses"/>
 <meta property="og:description" content="Stop losing jobs to missed calls. CrewBox answers every call, sends quotes, chases invoices, and protects your reputation — automatically."/>
-<meta property="og:url" content="https://getcrewbox.com"/>
-<link rel="canonical" href="https://getcrewbox.com"/>
+<meta property="og:url" content="https://getcrewbox.net"/>
+<link rel="canonical" href="https://getcrewbox.net"/>
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -205,7 +205,7 @@ nav {
 .step-connector { position: absolute; top: 40px; right: -12px; color: rgba(245,200,0,.3); font-size: 20px; z-index: 1; }
 
 /* ── PRICING ── */
-.pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-top: 56px; }
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 20px; margin: 56px auto 0; max-width: 760px; }
 .pc { background: var(--s1); border-radius: 12px; padding: 34px 28px; border: 1px solid rgba(255,255,255,.07); position: relative; transition: border-color .2s, transform .2s; }
 .pc:hover { border-color: rgba(245,200,0,.2); transform: translateY(-3px); }
 .pc.feat { border-color: var(--y); background: rgba(245,200,0,.025); }
@@ -384,7 +384,7 @@ footer { background: #060606; padding: 56px 48px 32px; border-top: 1px solid rgb
           <div class="slot"><div class="slot-ic">⭐</div><div class="slot-info"><div class="slot-name">The Rep</div><div class="slot-desc">Reviews + reputation</div></div><div class="slot-live"><div class="live-dot"></div><div class="live-txt">LIVE</div></div></div>
         </div>
         <div class="crate-foot">
-          <div class="cf-url">getcrewbox.com</div>
+          <div class="cf-url">getcrewbox.net</div>
           <div class="cf-live"><div class="live-dot"></div>All systems running</div>
         </div>
       </div>
@@ -411,38 +411,23 @@ footer { background: #060606; padding: 56px 48px 32px; border-top: 1px solid rgb
 <!-- TWO PATHS -->
 <section class="section" id="who">
   <div class="sec-eyebrow">Who It's For</div>
-  <div class="sec-h">Two ways to win with CrewBox.</div>
-  <p class="sec-sub">Whether you're a trade business owner or an operator building a recurring revenue business — CrewBox was built for you.</p>
-  <div class="paths-grid">
+  <div class="sec-h">Built for trade business owners.</div>
+  <p class="sec-sub">You became a plumber, electrician, HVAC tech, or roofer because you're great at the work — not the paperwork. CrewBox runs the back office so you can stay on the job.</p>
+  <div style="max-width:520px;margin:0 auto;">
     <div class="path-card contractor">
       <div class="path-tag">For Contractors</div>
       <div class="path-h">Run your trade. Not your back office.</div>
-      <p class="path-desc">You became a plumber, electrician, or HVAC tech because you're great at the work — not the paperwork. CrewBox handles every business task so you can stay on the job.</p>
+      <p class="path-desc">Start with the Receptionist — the agent that pays for itself fastest. It answers every call, books the job to your calendar, and drops every new lead into your CRM while you're up on the roof.</p>
       <ul class="path-points">
-        <li>Every call answered — no more missed jobs</li>
-        <li>Quotes sent from job photos in 60 seconds</li>
-        <li>Invoices collected automatically</li>
-        <li>Google reviews managed for you</li>
-        <li>Social posts from your job photos weekly</li>
+        <li>Every call answered, 24/7 — no more missed jobs</li>
+        <li>Books the appointment straight to your calendar</li>
+        <li>Texts every caller back instantly</li>
+        <li>New leads added to your CRM automatically</li>
+        <li>Keeps your existing phone number</li>
       </ul>
-      <div class="path-price">$400<span style="font-size:20px;font-weight:600">/mo</span></div>
-      <div class="path-price-note">14 days free · All 5 agents · No card needed</div>
+      <div class="path-price">$189<span style="font-size:20px;font-weight:600">/mo</span></div>
+      <div class="path-price-note">Founding Receptionist rate · 14 days free · <a href="#pricing" style="color:var(--y);text-decoration:none;">Want all 5 agents? →</a></div>
       <a href="#signup" class="btn-path-y">Start Free Trial →</a>
-    </div>
-    <div class="path-card licensee">
-      <div class="path-tag">For Operators</div>
-      <div class="path-h">Build a recurring revenue business.</div>
-      <p class="path-desc">License the entire CrewBox platform under your own brand. Sell it to contractors in your market at whatever price you want. Keep the spread. Scale without employees.</p>
-      <ul class="path-points">
-        <li>Full white-label — your brand, your domain</li>
-        <li>Manage up to 50 clients from one dashboard</li>
-        <li>Set your own pricing ($300–$800/mo per client)</li>
-        <li>3-minute client onboarding wizard</li>
-        <li>25 clients = $8K+/mo at 95% margin</li>
-      </ul>
-      <div class="path-price">$597<span style="font-size:20px;font-weight:600">/mo</span></div>
-      <div class="path-price-note">14 days free · Up to 50 clients · No card needed</div>
-      <a href="#signup" class="btn-path-g">Get Your License →</a>
     </div>
   </div>
 </section>
@@ -529,8 +514,7 @@ footer { background: #060606; padding: 56px 48px 32px; border-top: 1px solid rgb
 <div class="proof-strip">
   <div class="proof-item"><div class="proof-val">7M+</div><div class="proof-label">Trade businesses in the US</div></div>
   <div class="proof-item"><div class="proof-val">$2,400</div><div class="proof-label">Avg. job value per missed call</div></div>
-  <div class="proof-item"><div class="proof-val">95%</div><div class="proof-label">Licensee gross margin</div></div>
-  <div class="proof-item"><div class="proof-val">3 min</div><div class="proof-label">Average client onboarding</div></div>
+  <div class="proof-item"><div class="proof-val">3 min</div><div class="proof-label">Setup time — keep your number</div></div>
   <div class="proof-item"><div class="proof-val">14 days</div><div class="proof-label">Free trial — all 5 agents</div></div>
 </div>
 
@@ -553,13 +537,6 @@ footer { background: #060606; padding: 56px 48px 32px; border-top: 1px solid rgb
         <div><div class="tcard-name">Carlos Rivera</div><div class="tcard-biz">Rivera Plumbing · Houston, TX</div><div class="tcard-stars">★★★★★</div></div>
       </div>
     </div>
-    <div class="tcard">
-      <div class="tcard-quote">I licensed this for my agency clients — 14 contractors in two months. It basically runs itself. I spend maybe 2 hours a week managing the whole book.</div>
-      <div class="tcard-author">
-        <div class="tcard-av" style="background:rgba(34,197,94,.2);color:#22C55E;">A</div>
-        <div><div class="tcard-name">Alex Chen</div><div class="tcard-biz">ProTrade AI · Texas (Licensee)</div><div class="tcard-stars">★★★★★</div></div>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -567,62 +544,40 @@ footer { background: #060606; padding: 56px 48px 32px; border-top: 1px solid rgb
 <section class="section dark" id="pricing">
   <div class="sec-eyebrow">Pricing</div>
   <div class="sec-h">Simple pricing. Clear value.</div>
-  <p class="sec-sub">Every plan starts with a 14-day free trial — all 5 agents, no card required. Cancel any time.</p>
+  <p class="sec-sub">Every plan starts with a 14-day free trial — no card required. Cancel any time.</p>
   <div class="pricing-grid">
+    <div class="pc feat">
+      <div class="pc-badge">⚡ FOUNDING RATE</div>
+      <div class="pc-tier">The Receptionist</div>
+      <div class="pc-for">Never miss a call — the fastest way to stop losing jobs</div>
+      <div class="pc-amount"><span style="font-size:26px;font-weight:600;color:var(--slate);text-decoration:line-through;margin-right:8px;">$400</span>$189</div>
+      <div class="pc-period">/month · locked in while you stay</div>
+      <div class="pc-trial">✓ 14 days free · No card required</div>
+      <ul class="pc-list">
+        <li>24/7 AI receptionist on your existing number</li>
+        <li>Unlimited calls answered</li>
+        <li>Books appointments to your calendar</li>
+        <li>Instant text-back to every caller</li>
+        <li>New leads added to your CRM automatically</li>
+        <li>Mobile dashboard</li>
+      </ul>
+      <a href="#signup" class="pc-btn pc-btn-y">Start Free Trial</a>
+    </div>
     <div class="pc">
-      <div class="pc-tier">Contractor</div>
-      <div class="pc-for">For individual trade businesses</div>
+      <div class="pc-tier">The Full Crew</div>
+      <div class="pc-for">All 5 agents — your whole back office, automated</div>
       <div class="pc-amount">$400</div>
       <div class="pc-period">/month per business</div>
       <div class="pc-trial">✓ 14 days free · No card required</div>
       <ul class="pc-list">
-        <li>All 5 AI agents active 24/7</li>
-        <li>Keep your existing phone number</li>
-        <li>Unlimited calls answered</li>
-        <li>Unlimited quotes generated</li>
-        <li>Invoice collection + Stripe payments</li>
-        <li>Google + Facebook social posts</li>
-        <li>Review management</li>
-        <li>Mobile dashboard</li>
+        <li>Everything in The Receptionist</li>
+        <li>Estimator — quotes from job photos</li>
+        <li>Collector — chases every unpaid invoice</li>
+        <li>Marketer — posts your jobs weekly</li>
+        <li>Rep — manages reviews &amp; reputation</li>
+        <li>Invoice payments via Stripe</li>
       </ul>
       <a href="#signup" class="pc-btn pc-btn-g">Start Free Trial</a>
-    </div>
-    <div class="pc feat">
-      <div class="pc-badge">BEST FOR OPERATORS</div>
-      <div class="pc-tier">Licensee — Growth</div>
-      <div class="pc-for">For operators selling to contractors</div>
-      <div class="pc-amount">$597</div>
-      <div class="pc-period">/month · Up to 50 clients</div>
-      <div class="pc-trial">✓ 14 days free · No card required</div>
-      <ul class="pc-list">
-        <li>Everything in Contractor (for each client)</li>
-        <li>Full white-label — your brand + domain</li>
-        <li>Multi-client management dashboard</li>
-        <li>3-minute client onboarding wizard</li>
-        <li>Set your own client pricing</li>
-        <li>Sales scripts + objection handling</li>
-        <li>Priority Slack support</li>
-        <li>Weekly group coaching call</li>
-      </ul>
-      <a href="#signup" class="pc-btn pc-btn-y">Get Growth License</a>
-    </div>
-    <div class="pc">
-      <div class="pc-tier">Licensee — Enterprise</div>
-      <div class="pc-for">For operators scaling a network</div>
-      <div class="pc-amount">$1,497</div>
-      <div class="pc-period">/month · Unlimited clients</div>
-      <div class="pc-trial">✓ 14 days free · No card required</div>
-      <ul class="pc-list">
-        <li>Everything in Growth</li>
-        <li>Unlimited client accounts</li>
-        <li>Sub-licensee team management</li>
-        <li>Custom agent training per trade</li>
-        <li>Dedicated account manager</li>
-        <li>Trade association co-sell program</li>
-        <li>Revenue share partner access</li>
-        <li>Custom SLA + uptime guarantee</li>
-      </ul>
-      <a href="#signup" class="pc-btn pc-btn-g">Talk to Sales</a>
     </div>
   </div>
 </section>
@@ -633,12 +588,6 @@ footer { background: #060606; padding: 56px 48px 32px; border-top: 1px solid rgb
     <div class="sec-eyebrow">Get Started</div>
     <div class="signup-h">14 days free.<br>No card. No catch.</div>
     <p class="signup-sub">All 5 AI agents. Your existing phone number. Up and running in 3 minutes. Cancel any time — no questions asked.</p>
-
-    <!-- ROLE TOGGLE -->
-    <div class="signup-toggle">
-      <button class="toggle-opt active" onclick="setRole('contractor',this)" id="role-contractor">I'm a Contractor</button>
-      <button class="toggle-opt" onclick="setRole('licensee',this)" id="role-licensee">I'm an Operator / Licensee</button>
-    </div>
 
     <!-- FORM -->
     <div id="signup-form-wrap">
@@ -660,16 +609,6 @@ footer { background: #060606; padding: 56px 48px 32px; border-top: 1px solid rgb
               <option>Cleaning</option><option>Landscaping</option><option>Auto Repair</option><option>Other</option>
             </select>
             <input class="sf-input" type="text" placeholder="City, State" id="f-city"/>
-          </div>
-        </div>
-        <div id="licensee-fields" style="display:none">
-          <div class="form-row-2">
-            <input class="sf-input" type="text" placeholder="Your market / city" id="f-market"/>
-            <select class="sf-input sf-select" id="f-tier">
-              <option value="">Select plan...</option>
-              <option>Growth — $597/mo (up to 50 clients)</option>
-              <option>Enterprise — $1,497/mo (unlimited)</option>
-            </select>
           </div>
         </div>
         <button class="btn-signup" onclick="handleSignup()">
@@ -712,10 +651,6 @@ footer { background: #060606; padding: 56px 48px 32px; border-top: 1px solid rgb
       <div class="faq-a">You get 14 days with all 5 agents fully active — no credit card required. After 14 days, you'll be prompted to add a payment method to continue. If you cancel before day 15, you're never charged. No questions, no fees, no gotchas.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">What's the white-label / licensee option? <span class="faq-icon">+</span></div>
-      <div class="faq-a">Licensees get the entire CrewBox platform under their own brand — their logo, their domain, their company name. They sell it to contractors in their market at whatever price they choose ($300–$800/month is typical), keep the spread, and manage everything from a single dashboard. The Growth license handles up to 50 client accounts.</div>
-    </div>
-    <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">How do contractor payments work? <span class="faq-icon">+</span></div>
       <div class="faq-a">CrewBox connects to Stripe. When the Collector agent sends an invoice, it includes a payment link. Customers pay by card, ACH, Apple Pay, or Google Pay. The money goes directly to the contractor's bank account within 1–2 business days. CrewBox never holds contractor money.</div>
     </div>
@@ -732,14 +667,13 @@ footer { background: #060606; padding: 56px 48px 32px; border-top: 1px solid rgb
     <div>
       <div class="footer-logo"><span class="c">CREW</span><span class="b">BOX</span></div>
       <div class="footer-tag">The AI back-office built for trade businesses. Answer every call, send every quote, collect every invoice — without lifting a finger.</div>
-      <div class="footer-domain">getcrewbox.com</div>
+      <div class="footer-domain">getcrewbox.net</div>
     </div>
     <div class="fc"><h4>Platform</h4><ul><li><a href="#agents">The 5 Agents</a></li><li><a href="#how">How It Works</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#who">Who It's For</a></li></ul></div>
-    <div class="fc"><h4>Operators</h4><ul><li><a href="#signup">Get a License</a></li><li><a href="#">Partner Portal</a></li><li><a href="#">Sales Scripts</a></li><li><a href="#">Roadmap</a></li></ul></div>
     <div class="fc"><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">Contact</a></li></ul></div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-copy">© 2026 CrewBox · getcrewbox.com · All rights reserved.</div>
+    <div class="footer-copy">© 2026 CrewBox · getcrewbox.net · All rights reserved.</div>
     <div class="footer-chip">14 DAYS FREE · ALL 5 AGENTS</div>
   </div>
 </footer>
@@ -758,18 +692,8 @@ function tick() {
 }
 setInterval(tick, 250);
 
-// ── ROLE TOGGLE ────────────────────────────────────────
-let currentRole = 'contractor';
-function setRole(role, btn) {
-  currentRole = role;
-  document.querySelectorAll('.toggle-opt').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('contractor-fields').style.display = role === 'contractor' ? 'block' : 'none';
-  document.getElementById('licensee-fields').style.display = role === 'licensee' ? 'block' : 'none';
-  document.getElementById('signup-btn-text').textContent = role === 'contractor'
-    ? 'Start My Free 14-Day Trial →'
-    : 'Get My Licensee Trial →';
-}
+// ── SIGNUP ROLE (contractor only) ──────────────────────
+const currentRole = 'contractor';
 
 // ── SIGNUP HANDLER ─────────────────────────────────────
 async function handleSignup() {
@@ -790,10 +714,12 @@ async function handleSignup() {
   btn.textContent = 'Creating your account...';
   btn.disabled = true;
 
-  // ── SUPABASE INSERT ──────────────────────────────────
-  // Replace SUPABASE_URL and SUPABASE_ANON_KEY with real values at deploy
-  const SUPABASE_URL  = 'YOUR_SUPABASE_URL';
-  const SUPABASE_KEY  = 'YOUR_SUPABASE_ANON_KEY';
+  // ── SUPABASE LEAD CAPTURE ────────────────────────────
+  // URL is pre-filled for your project. You only need to paste ONE value below:
+  // the PUBLIC "anon" key from Supabase -> Project Settings -> API -> Project API keys.
+  // This key is SAFE to ship in the browser. NEVER paste the service_role key here.
+  const SUPABASE_URL  = 'https://kcusnqoxwgvhsnydcyyv.supabase.co';
+  const SUPABASE_KEY  = 'PASTE_YOUR_ANON_PUBLIC_KEY_HERE';
 
   try {
     const payload = {
@@ -805,7 +731,7 @@ async function handleSignup() {
       trade:    document.getElementById('f-trade')?.value || '',
       city:     document.getElementById('f-city')?.value || document.getElementById('f-market')?.value || '',
       tier:     document.getElementById('f-tier')?.value || 'contractor',
-      source:   'getcrewbox.com',
+      source:   'getcrewbox.net',
       created_at: new Date().toISOString(),
     };
 
@@ -827,11 +753,11 @@ async function handleSignup() {
     document.getElementById('signup-success').style.display = 'block';
 
   } catch (err) {
-    // Graceful fallback — still show success to user
-    // (form data captured even if Supabase not yet connected)
-    document.getElementById('signup-form-wrap').style.display = 'none';
-    document.getElementById('signup-success').style.display = 'block';
+    // Fail loudly — do NOT fake success. Let the person retry.
     console.error('Signup error:', err);
+    showToast('Something went wrong saving your info. Please try again.', '#EF4444');
+    btn.textContent = 'Start My Free 14-Day Trial →';
+    btn.disabled = false;
   }
 }
 
