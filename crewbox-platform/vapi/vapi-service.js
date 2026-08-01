@@ -489,23 +489,25 @@ export async function handleCheckServiceArea(contractorId, zipCode) {
 // ============================================================
 
 export async function handleCallEnded(vapiPayload) {
-  const {
-    call,
-    artifact: { transcript, recordingUrl, structuredData },
-    analysis: { summary, successEvaluation },
-  } = vapiPayload;
+  const { call, artifact = {}, analysis = {} } = vapiPayload.message || {};
+  const { transcript, recordingUrl, structuredData } = artifact;
+  const { summary, successEvaluation } = analysis;
 
-  const contractorId = call.metadata?.contractor_id;
+  const contractorId = call?.metadata?.contractor_id;
   if (!contractorId) throw new Error('No contractor_id in call metadata');
 
-  const { data: contractor } = await supabase
+  const { data: contractor, error: contractorError } = await supabase
     .from('contractors')
     .select('business_name, owner_phone, owner_name')
     .eq('id', contractorId)
     .single();
 
+  if (contractorError || !contractor) {
+    throw new Error(`Failed to load contractor ${contractorId}: ${contractorError?.message || 'not found'}`);
+  }
+
   // 1. Save complete call record
-  const { data: callRecord } = await supabase
+  const { data: callRecord, error: callRecordError } = await supabase
     .from('calls')
     .upsert({
       contractor_id: contractorId,
@@ -530,6 +532,10 @@ export async function handleCallEnded(vapiPayload) {
     .select()
     .single();
 
+  if (callRecordError || !callRecord) {
+    throw new Error(`Failed to save call record: ${callRecordError?.message || 'unknown error'}`);
+  }
+
   // 2. Send confirmation SMS to customer (if appointment booked)
   if (structuredData?.appointment_booked && structuredData?.caller_phone) {
     const apptText = structuredData.preferred_date && structuredData.preferred_time
@@ -552,7 +558,7 @@ export async function handleCallEnded(vapiPayload) {
   });
 
   // 4. Log activity
-  await supabase.from('activity_log').insert({
+  const { error: activityLogError } = await supabase.from('activity_log').insert({
     contractor_id: contractorId,
     agent: 'receptionist',
     action: 'call_completed',
@@ -565,6 +571,10 @@ export async function handleCallEnded(vapiPayload) {
       outcome: callRecord.outcome,
     },
   });
+
+  if (activityLogError) {
+    console.error(`Failed to log activity for call ${callRecord.id}:`, activityLogError.message);
+  }
 
   return { success: true, callId: callRecord.id };
 }
