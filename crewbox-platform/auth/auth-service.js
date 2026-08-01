@@ -234,7 +234,7 @@ export async function loginUser(email, password) {
 // ============================================================
 
 export async function requireAuth(request, allowedRoles = ['platform_admin', 'licensee', 'contractor']) {
-  const authHeader = request.headers.get('authorization');
+  const authHeader = request.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     throw new Error('Missing authorization header');
   }
