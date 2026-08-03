@@ -188,6 +188,124 @@ export async function createContractorAccount({
 }
 
 // ============================================================
+// CONTRACTOR SELF-SIGNUP
+// Contractor creates their own account directly (no licensee invite)
+// Attaches to the platform's own "CrewBox Direct" licensee record
+// ============================================================
+
+const DIRECT_LICENSEE_SLUG = 'crewbox-direct';
+
+export async function signupContractor({
+  name,
+  email,
+  password,
+  phone,
+  businessName,
+  tradeType,
+  city,
+  state,
+}) {
+  if (!name || !email || !password || !businessName || !phone || !tradeType) {
+    throw new Error('Missing required signup fields');
+  }
+  if (password.length < 8) {
+    throw new Error('Password must be at least 8 characters');
+  }
+
+  // 1. Look up the platform's direct-signup licensee bucket
+  const { data: directLicensee, error: licenseeError } = await supabase
+    .from('licensees')
+    .select('id')
+    .eq('slug', DIRECT_LICENSEE_SLUG)
+    .single();
+
+  if (licenseeError || !directLicensee) {
+    throw new Error('Direct signup is not configured yet — missing CrewBox Direct licensee record');
+  }
+
+  // 2. Create the Supabase Auth user
+  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      name,
+      role: 'contractor',
+      business_name: businessName,
+    },
+  });
+
+  if (authError) throw new Error(authError.message || 'Failed to create account');
+
+  const authUserId = authData.user.id;
+
+  try {
+    // 3. Create the contractor record
+    const { data: contractor, error: contractorError } = await supabase
+      .from('contractors')
+      .insert({
+        licensee_id: directLicensee.id,
+        auth_user_id: authUserId,
+        business_name: businessName,
+        owner_name: name,
+        owner_email: email,
+        owner_phone: phone,
+        trade_type: tradeType,
+        address_city: city,
+        address_state: state,
+        onboarding_complete: false,
+        onboarding_step: 1,
+      })
+      .select()
+      .single();
+
+    if (contractorError || !contractor) {
+      throw new Error(contractorError?.message || 'Failed to create contractor record');
+    }
+
+    // 4. Create default agent configs
+    const agentTypes = ['receptionist', 'estimator', 'collector', 'marketer', 'rep'];
+    const { error: agentError } = await supabase.from('agent_configs').insert(
+      agentTypes.map(type => ({
+        contractor_id: contractor.id,
+        agent_type: type,
+        status: 'configuring',
+        settings: getDefaultAgentSettings(type),
+      }))
+    );
+
+    if (agentError) throw new Error(agentError.message || 'Failed to create agent configs');
+
+    // 5. Set JWT claims so RLS + client-side role checks work
+    await setUserClaims(authUserId, {
+      role: 'contractor',
+      contractor_id: contractor.id,
+      licensee_id: directLicensee.id,
+    });
+
+    // 6. Sign the new user in immediately
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) throw new Error(signInError.message || 'Account created but sign-in failed');
+
+    return {
+      session: signInData.session,
+      user: signInData.user,
+      role: 'contractor',
+      contractorId: contractor.id,
+    };
+
+  } catch (err) {
+    // Roll back the orphaned auth user so retrying signup with the same email works
+    await supabase.auth.admin.deleteUser(authUserId).catch(() => {});
+    throw err;
+  }
+}
+
+// ============================================================
 // SET JWT CLAIMS
 // Custom claims are injected into every token
 // RLS policies read these to enforce tenant isolation

@@ -43,7 +43,7 @@ import {
   sendInvoiceReminders,
   getContractorFinancialSummary,
 } from '../../stripe/stripe-service.js';
-import { requireAuth, requireLicensee, updateOnboardingStep, getOnboardingStatus } from '../../auth/auth-service.js';
+import { requireAuth, requireLicensee, updateOnboardingStep, getOnboardingStatus, signupContractor } from '../../auth/auth-service.js';
 import { listContractorDocuments, checkExpiringDocuments } from '../../storage/storage-service.js';
 
 const router = express.Router();
@@ -236,6 +236,21 @@ router.post('/webhooks/stripe',
 // ============================================================
 // CONTRACTOR ONBOARDING API
 // ============================================================
+
+/**
+ * POST /api/auth/contractor-signup
+ * Contractor self-signup — no licensee invite required
+ */
+router.post('/auth/contractor-signup', async (req, res) => {
+  try {
+    const { name, email, password, phone, businessName, tradeType, city, state } = req.body;
+    const result = await signupContractor({ name, email, password, phone, businessName, tradeType, city, state });
+    res.json(result);
+  } catch (err) {
+    console.error('Contractor signup error:', err);
+    res.status(400).json({ error: err.message });
+  }
+});
 
 /**
  * POST /api/contractors/onboard

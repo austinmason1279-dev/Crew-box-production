@@ -567,8 +567,12 @@ body { font-family: var(--B); background: var(--bg); color: var(--white); overfl
             </select>
           </div>
           <div class="field">
-            <label class="field-label">City & State</label>
-            <input class="field-input" type="text" id="su-city" placeholder="Dallas, TX"/>
+            <label class="field-label">City</label>
+            <input class="field-input" type="text" id="su-city" placeholder="Dallas"/>
+          </div>
+          <div class="field">
+            <label class="field-label">State</label>
+            <input class="field-input" type="text" id="su-state" placeholder="TX" maxlength="2" style="text-transform:uppercase"/>
           </div>
         </div>
 
@@ -716,7 +720,7 @@ body { font-family: var(--B); background: var(--bg); color: var(--white); overfl
 // on every table in the Supabase dashboard. Never put the service_role
 // key in this file.
 const SUPABASE_URL = 'https://kcusnqoxwgvhsnydcyyv.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjdXNucW94d2d2aHNueWRjeXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MDUzMzQsImV4cCI6MjA5NzA4MTMzNH0.cWt19zab-EFrwKsl2A_3VfoCV6pgycGIgWiqJUwlv2Q';
+const SUPABASE_ANON_KEY = 'sb_publishable_EMG2XRYvZuLewxU71Hi3JQ_WVZ9Y2cp';
 
 // ── DASHBOARD ROUTES ──────────────────────────────────
 // Single source of truth for post-login destinations.
@@ -864,15 +868,27 @@ async function handleSignUp() {
   const phone = document.getElementById('su-phone').value.trim();
   const biz   = document.getElementById('su-biz').value.trim();
   const pw    = document.getElementById('su-password').value;
+  const trade = document.getElementById('su-trade')?.value || '';
+  const city  = document.getElementById('su-city')?.value.trim() || '';
+  const state = document.getElementById('su-state')?.value.trim().toUpperCase() || '';
 
   hideError('signup-error');
 
+  if (currentSignupRole !== 'contractor') {
+    showError('signup-error', 'signup-error-text', 'Operator signup is coming soon — check back shortly.');
+    return;
+  }
+
   // Validate
   const errs = [];
-  if (!name)                      { errs.push('Full name'); shakeInput('su-name'); }
-  if (!validateEmail(email))      { errs.push('Valid email'); shakeInput('su-email'); }
-  if (!biz)                       { errs.push('Business name'); shakeInput('su-biz'); }
-  if (pw.length < 8)              { errs.push('Password (8+ chars)'); shakeInput('su-password'); document.getElementById('su-pw-error').classList.add('show'); }
+  if (!name)                 { errs.push('Full name'); shakeInput('su-name'); }
+  if (!validateEmail(email)) { errs.push('Valid email'); shakeInput('su-email'); }
+  if (!validatePhone(phone)) { errs.push('Phone number'); shakeInput('su-phone'); }
+  if (!biz)                  { errs.push('Business name'); shakeInput('su-biz'); }
+  if (!trade)                { errs.push('Trade type'); shakeInput('su-trade'); }
+  if (!city)                 { errs.push('City'); shakeInput('su-city'); }
+  if (!state)                { errs.push('State'); shakeInput('su-state'); }
+  if (pw.length < 8)         { errs.push('Password (8+ chars)'); shakeInput('su-password'); document.getElementById('su-pw-error').classList.add('show'); }
 
   if (errs.length) {
     showError('signup-error', 'signup-error-text', `Please fill in: ${errs.join(', ')}.`);
@@ -882,59 +898,31 @@ async function handleSignUp() {
   setLoading('signup-btn', true);
 
   try {
-    const role = currentSignupRole;
-    const trade = document.getElementById('su-trade')?.value || '';
-    const city = document.getElementById('su-city')?.value || document.getElementById('su-market')?.value || '';
-    const plan = document.getElementById('su-plan')?.value || 'contractor';
-
-    // Supabase Auth signUp
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+    const res = await fetch('/api/auth/contractor-signup', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email,
-        password: pw,
-        data: { name, phone, business_name: biz, role, trade, city, plan },
+        name, email, password: pw, phone,
+        businessName: biz, tradeType: trade, city, state,
       }),
     });
     const data = await res.json();
 
-    // Supabase error shapes vary: {error, error_description} or {error_code, msg}
-    if (!res.ok || data.error || data.error_code) {
-      throw new Error(data.msg || data.error_description || data.error || 'Signup failed');
+    if (!res.ok || data.error) {
+      throw new Error(data.error || 'Signup failed');
     }
 
-    // Also write to waitlist table.
-    // FIX: isolated in its own try/catch — if this write fails, the account
-    // was still created successfully and the user must NOT see an error
-    // (previously a failure here showed "Something went wrong" and retrying
-    // produced a confusing "already registered" message).
-    try {
-      await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'Prefer': 'return=minimal',
-        },
-        body: JSON.stringify({ name, email, phone, business: biz, role, trade, city, source: 'auth_signup' }),
-      });
-    } catch (waitlistErr) {
-      console.warn('Waitlist write failed (non-fatal):', waitlistErr);
-    }
+    // Store session (same keys as sign-in)
+    localStorage.setItem('crewbox_access_token', data.session.access_token);
+    localStorage.setItem('crewbox_refresh_token', data.session.refresh_token);
+    localStorage.setItem('crewbox_user', JSON.stringify(data.user || {}));
 
-    // If confirmation is disabled, Supabase returns a session immediately
-    if (data.session && data.session.access_token) {
-      localStorage.setItem('crewbox_access_token', data.session.access_token);
-      localStorage.setItem('crewbox_refresh_token', data.session.refresh_token || '');
-      localStorage.setItem('crewbox_user', JSON.stringify(data.user || {}));
-      window.location.href = dashPathFor(getUserRole(data.user));
-    } else {
-      document.getElementById('verify-email-display').textContent = email;
-      goto('screen-verify');
-      startResendCountdown();
-    }
+    const dashPath = dashPathFor(data.role);
+    document.getElementById('success-msg').textContent =
+      `Welcome, ${name.split(' ')[0]}! Your AI crew is being set up.`;
+    document.getElementById('dashboard-link').href = dashPath;
+    goto('screen-success');
+    startRedirect(dashPath);
 
   } catch (err) {
     setLoading('signup-btn', false);
