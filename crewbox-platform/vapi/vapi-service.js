@@ -13,11 +13,11 @@
 //   6. Contractor gets instant text summary
 // ============================================================
 
-import Vapi from '@vapi-ai/server-sdk';
+import { VapiClient } from '@vapi-ai/server-sdk';
 import { createClient } from '@supabase/supabase-js';
 import twilio from 'twilio';
 
-const vapi = new Vapi({ token: process.env.VAPI_API_KEY });
+const vapi = new VapiClient({ token: process.env.VAPI_API_KEY });
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
