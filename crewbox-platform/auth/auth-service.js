@@ -12,6 +12,7 @@
 // ============================================================
 
 import { createClient } from '@supabase/supabase-js';
+import { sendContractorWelcome } from '../email/service/email-service.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -282,6 +283,13 @@ export async function signupContractor({
       contractor_id: contractor.id,
       licensee_id: directLicensee.id,
     });
+
+    // Best-effort welcome email — a failed send must not fail signup
+    try {
+      await sendContractorWelcome(contractor.id);
+    } catch (emailErr) {
+      console.error(`Failed to send welcome email for contractor ${contractor.id}:`, emailErr.message);
+    }
 
     // 6. Sign the new user in immediately
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
