@@ -608,7 +608,11 @@ footer { background: #060606; padding: 56px 48px 32px; border-top: 1px solid rgb
               <option>Roofing</option><option>General Contracting</option>
               <option>Cleaning</option><option>Landscaping</option><option>Auto Repair</option><option>Other</option>
             </select>
-            <input class="sf-input" type="text" placeholder="City, State" id="f-city"/>
+            <input class="sf-input" type="text" placeholder="City" id="f-city" required/>
+          </div>
+          <div class="form-row-2">
+            <input class="sf-input" type="text" placeholder="State (e.g. TX)" id="f-state" maxlength="2" style="text-transform:uppercase" required/>
+            <input class="sf-input" type="password" placeholder="Password (min. 8 characters)" id="f-password" minlength="8" required/>
           </div>
         </div>
         <button class="btn-signup" onclick="handleSignup()">
@@ -697,16 +701,25 @@ const currentRole = 'contractor';
 
 // ── SIGNUP HANDLER ─────────────────────────────────────
 async function handleSignup() {
-  const name  = document.getElementById('f-name').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const biz   = document.getElementById('f-biz').value.trim();
+  const name     = document.getElementById('f-name').value.trim();
+  const email    = document.getElementById('f-email').value.trim();
+  const biz      = document.getElementById('f-biz').value.trim();
+  const phone    = document.getElementById('f-phone')?.value.trim() || '';
+  const trade    = document.getElementById('f-trade')?.value || '';
+  const city     = document.getElementById('f-city')?.value.trim() || '';
+  const state    = document.getElementById('f-state')?.value.trim().toUpperCase() || '';
+  const password = document.getElementById('f-password')?.value || '';
 
-  if (!name || !email || !biz) {
-    showToast('Please fill in your name, email, and business name.', '#EF4444');
+  if (!name || !email || !biz || !phone || !trade || !city || !state) {
+    showToast('Please fill in all required fields.', '#EF4444');
     return;
   }
   if (!email.includes('@')) {
     showToast('Please enter a valid email address.', '#EF4444');
+    return;
+  }
+  if (password.length < 8) {
+    showToast('Password must be at least 8 characters.', '#EF4444');
     return;
   }
 
@@ -714,39 +727,26 @@ async function handleSignup() {
   btn.textContent = 'Creating your account...';
   btn.disabled = true;
 
-  // ── SUPABASE LEAD CAPTURE ────────────────────────────
-  // URL is pre-filled for your project. You only need to paste ONE value below:
-  // the PUBLIC "anon" key from Supabase -> Project Settings -> API -> Project API keys.
-  // This key is SAFE to ship in the browser. NEVER paste the service_role key here.
-  const SUPABASE_URL  = 'https://kcusnqoxwgvhsnydcyyv.supabase.co';
-  const SUPABASE_KEY  = 'PASTE_YOUR_ANON_PUBLIC_KEY_HERE';
-
   try {
-    const payload = {
-      name,
-      email,
-      phone:    document.getElementById('f-phone')?.value || '',
-      business: biz,
-      role:     currentRole,
-      trade:    document.getElementById('f-trade')?.value || '',
-      city:     document.getElementById('f-city')?.value || document.getElementById('f-market')?.value || '',
-      tier:     document.getElementById('f-tier')?.value || 'contractor',
-      source:   'getcrewbox.net',
-      created_at: new Date().toISOString(),
-    };
-
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+    const res = await fetch('/api/auth/contractor-signup', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+        phone,
+        businessName: biz,
+        tradeType: trade,
+        city,
+        state,
+      }),
     });
+    const data = await res.json();
 
-    if (!res.ok && res.status !== 201) throw new Error('Signup failed');
+    if (!res.ok || data.error) {
+      throw new Error(data.error || 'Signup failed');
+    }
 
     // Show success
     document.getElementById('signup-form-wrap').style.display = 'none';
@@ -755,7 +755,7 @@ async function handleSignup() {
   } catch (err) {
     // Fail loudly — do NOT fake success. Let the person retry.
     console.error('Signup error:', err);
-    showToast('Something went wrong saving your info. Please try again.', '#EF4444');
+    showToast(err.message || 'Something went wrong. Please try again.', '#EF4444');
     btn.textContent = 'Start My Free 14-Day Trial →';
     btn.disabled = false;
   }
