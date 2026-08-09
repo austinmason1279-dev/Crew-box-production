@@ -96,7 +96,7 @@ function emailShell(content, footer, primaryColor = '#F5C800', brandName = 'Crew
 
 export function contractorWelcomeTemplate({
   ownerName, businessName, trade, aiPhone,
-  setupUrl, dashUrl, brandName, primaryColor,
+  setupUrl, dashUrl, signInUrl, brandName, primaryColor,
 }) {
   const content = `
     <div style="${BASE.body_p}">
@@ -138,6 +138,7 @@ export function contractorWelcomeTemplate({
         <a href="${escHtml(setupUrl)}" style="${BASE.btn(primaryColor)}">Complete My Setup →</a>
       </div>
       <p style="font-size:13px;color:#9CA3AF;text-align:center;">Or go straight to your <a href="${escHtml(dashUrl)}" style="color:${primaryColor};">dashboard</a>.</p>
+      <p style="font-size:13px;color:#9CA3AF;text-align:center;">You can log in anytime at <a href="${escHtml(signInUrl)}" style="color:${primaryColor};">${escHtml(signInUrl)}</a> using the email and password you signed up with.</p>
     </div>`;
 
   return emailShell(content,

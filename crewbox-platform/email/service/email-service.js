@@ -116,7 +116,8 @@ export async function sendContractorWelcome(contractorId) {
     trade:        contractor.trade_type,
     aiPhone:      contractor.ai_phone_number,
     setupUrl:     `${getAppUrl(contractor.licensees)}/setup`,
-    dashUrl:      `${getAppUrl(contractor.licensees)}/my-business`,
+    dashUrl:      `${getAppUrl(contractor.licensees)}/dashboard`,
+    signInUrl:    `${getAppUrl(contractor.licensees)}/auth`,
     brandName:    contractor.licensees?.brand_name || 'CrewBox',
     primaryColor: contractor.licensees?.brand_primary_color || '#F5C800',
   });
@@ -587,7 +588,7 @@ async function getFromAddress(licenseeId) {
 
 function getAppUrl(licensee) {
   if (licensee?.custom_domain) return `https://${licensee.custom_domain}`;
-  return process.env.APP_URL || 'https://app.getcrewbox.com';
+  return process.env.APP_URL || 'https://getcrewbox.net';
 }
 
 async function logEmail(contractorId, licenseeId, type, to, subject, status, resendId, entityId, entityType) {
