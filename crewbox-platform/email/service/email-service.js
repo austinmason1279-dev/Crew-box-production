@@ -112,6 +112,11 @@ export async function sendContractorWelcome(contractorId) {
     console.error(`[CrewBox Email] Contractor lookup failed for ${contractorId}:`, contractorError.message);
   }
 
+  console.log('[CrewBox Email DEBUG] contractor is', contractor === null ? 'null' : typeof contractor);
+  console.log('[CrewBox Email DEBUG] owner_email =', contractor?.owner_email);
+  console.log('[CrewBox Email DEBUG] id =', contractor?.id, 'licensee_id =', contractor?.licensee_id);
+  console.log('[CrewBox Email DEBUG] contractorError present =', !!contractorError, contractorError ? contractorError.message : '');
+
   if (!contractor?.owner_email) return { skipped: true, reason: 'No email address' };
 
   const html = contractorWelcomeTemplate({
