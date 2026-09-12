@@ -99,7 +99,7 @@ async function sendEmail({
 // ============================================================
 
 export async function sendContractorWelcome(contractorId) {
-  const { data: contractor } = await supabase
+  const { data: contractor, error: contractorError } = await supabase
     .from('contractors')
     .select(`
       *,
@@ -107,6 +107,10 @@ export async function sendContractorWelcome(contractorId) {
     `)
     .eq('id', contractorId)
     .single();
+
+  if (contractorError) {
+    console.error(`[CrewBox Email] Contractor lookup failed for ${contractorId}:`, contractorError.message);
+  }
 
   if (!contractor?.owner_email) return { skipped: true, reason: 'No email address' };
 
