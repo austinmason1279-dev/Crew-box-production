@@ -216,7 +216,7 @@ export async function signupContractor({
   // 1. Look up the platform's direct-signup licensee bucket
   const { data: directLicensee, error: licenseeError } = await supabase
     .from('licensees')
-    .select('id')
+    .select('id, brand_name, brand_primary_color, custom_domain')
     .eq('slug', DIRECT_LICENSEE_SLUG)
     .single();
 
@@ -286,7 +286,7 @@ export async function signupContractor({
 
     // Best-effort welcome email — a failed send must not fail signup
     try {
-      await sendContractorWelcome(contractor.id);
+      await sendContractorWelcome({ ...contractor, licensees: directLicensee });
     } catch (emailErr) {
       console.error(`Failed to send welcome email for contractor ${contractor.id}:`, emailErr.message);
     }

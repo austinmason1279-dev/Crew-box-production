@@ -66,25 +66,17 @@ async function sendEmail({
   const fromAddress = await getFromAddress(licenseeId);
 
   try {
-    let result;
-    try {
-      result = await resend.emails.send({
-        from:    fromAddress,
-        to:      Array.isArray(to) ? to : [to],
-        subject,
-        html,
-        text:    text || stripHtml(html),
-        headers: {
-          'X-CrewBox-Type':       emailType,
-          'X-CrewBox-Contractor': contractorId || '',
-        },
-      });
-    } catch (sendErr) {
-      console.error('[CrewBox Email DEBUG] resend send failed:', sendErr);
-      throw sendErr;
-    }
-
-    console.log('[CrewBox Email DEBUG] resend send succeeded, id:', result?.id, result);
+    const result = await resend.emails.send({
+      from:    fromAddress,
+      to:      Array.isArray(to) ? to : [to],
+      subject,
+      html,
+      text:    text || stripHtml(html),
+      headers: {
+        'X-CrewBox-Type':       emailType,
+        'X-CrewBox-Contractor': contractorId || '',
+      },
+    });
 
     // Log successful send
     await logEmail(contractorId, licenseeId, emailType, to, subject, 'sent', result.id, relatedEntityId, relatedEntityType);
@@ -106,28 +98,30 @@ async function sendEmail({
 // Sent when licensee adds a new contractor
 // ============================================================
 
-export async function sendContractorWelcome(contractorId) {
-  const { data: contractor, error: contractorError } = await supabase
-    .from('contractors')
-    .select(`
-      *,
-      licensees ( brand_name, brand_primary_color, custom_domain, owner_email )
-    `)
-    .eq('id', contractorId)
-    .single();
+export async function sendContractorWelcome(contractorOrId) {
+  // Prefer an already-loaded contractor (with .licensees embedded) so we
+  // don't re-hit the DB on the hot signup path — that second lookup is what
+  // was intermittently timing out and silently skipping the send.
+  let contractor = (contractorOrId && typeof contractorOrId === 'object') ? contractorOrId : null;
 
-  if (contractorError) {
-    console.error(`[CrewBox Email] Contractor lookup failed for ${contractorId}:`, contractorError.message);
+  if (!contractor?.owner_email) {
+    const contractorId = contractor?.id || contractorOrId;
+    const { data, error: contractorError } = await supabase
+      .from('contractors')
+      .select(`
+        *,
+        licensees ( brand_name, brand_primary_color, custom_domain, owner_email )
+      `)
+      .eq('id', contractorId)
+      .single();
+
+    if (contractorError) {
+      console.error(`[CrewBox Email] Contractor lookup failed for ${contractorId}:`, contractorError.message);
+    }
+    contractor = data;
   }
 
-  console.log('[CrewBox Email DEBUG] contractor is', contractor === null ? 'null' : typeof contractor);
-  console.log('[CrewBox Email DEBUG] owner_email =', contractor?.owner_email);
-  console.log('[CrewBox Email DEBUG] id =', contractor?.id, 'licensee_id =', contractor?.licensee_id);
-  console.log('[CrewBox Email DEBUG] contractorError present =', !!contractorError, contractorError ? contractorError.message : '');
-
   if (!contractor?.owner_email) return { skipped: true, reason: 'No email address' };
-
-  console.log('[CrewBox Email DEBUG] passed skip check, building template');
 
   const html = contractorWelcomeTemplate({
     ownerName:    contractor.owner_name,
@@ -141,16 +135,14 @@ export async function sendContractorWelcome(contractorId) {
     primaryColor: contractor.licensees?.brand_primary_color || '#F5C800',
   });
 
-  console.log('[CrewBox Email DEBUG] template built, calling resend');
-
   return sendEmail({
     to:          contractor.owner_email,
     subject:     `Welcome to ${contractor.licensees?.brand_name || 'CrewBox'} — Your AI crew is ready`,
     html,
-    contractorId,
+    contractorId: contractor.id,
     licenseeId:  contractor.licensee_id,
     emailType:   'contractor_welcome',
-    relatedEntityId:   contractorId,
+    relatedEntityId:   contractor.id,
     relatedEntityType: 'contractor',
   });
 }
