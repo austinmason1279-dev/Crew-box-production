@@ -66,17 +66,25 @@ async function sendEmail({
   const fromAddress = await getFromAddress(licenseeId);
 
   try {
-    const result = await resend.emails.send({
-      from:    fromAddress,
-      to:      Array.isArray(to) ? to : [to],
-      subject,
-      html,
-      text:    text || stripHtml(html),
-      headers: {
-        'X-CrewBox-Type':       emailType,
-        'X-CrewBox-Contractor': contractorId || '',
-      },
-    });
+    let result;
+    try {
+      result = await resend.emails.send({
+        from:    fromAddress,
+        to:      Array.isArray(to) ? to : [to],
+        subject,
+        html,
+        text:    text || stripHtml(html),
+        headers: {
+          'X-CrewBox-Type':       emailType,
+          'X-CrewBox-Contractor': contractorId || '',
+        },
+      });
+    } catch (sendErr) {
+      console.error('[CrewBox Email DEBUG] resend send failed:', sendErr);
+      throw sendErr;
+    }
+
+    console.log('[CrewBox Email DEBUG] resend send succeeded, id:', result?.id, result);
 
     // Log successful send
     await logEmail(contractorId, licenseeId, emailType, to, subject, 'sent', result.id, relatedEntityId, relatedEntityType);
@@ -119,6 +127,8 @@ export async function sendContractorWelcome(contractorId) {
 
   if (!contractor?.owner_email) return { skipped: true, reason: 'No email address' };
 
+  console.log('[CrewBox Email DEBUG] passed skip check, building template');
+
   const html = contractorWelcomeTemplate({
     ownerName:    contractor.owner_name,
     businessName: contractor.business_name,
@@ -130,6 +140,8 @@ export async function sendContractorWelcome(contractorId) {
     brandName:    contractor.licensees?.brand_name || 'CrewBox',
     primaryColor: contractor.licensees?.brand_primary_color || '#F5C800',
   });
+
+  console.log('[CrewBox Email DEBUG] template built, calling resend');
 
   return sendEmail({
     to:          contractor.owner_email,
