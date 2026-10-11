@@ -586,17 +586,24 @@ export async function processEmailReminders() {
 async function getFromAddress(licenseeId) {
   if (!licenseeId) return DEFAULT_FROM;
 
-  const { data: licensee } = await supabase
-    .from('licensees')
-    .select('brand_name, custom_domain')
-    .eq('id', licenseeId)
-    .single();
+  try {
+    const { data: licensee } = await supabase
+      .from('licensees')
+      .select('brand_name, custom_domain')
+      .eq('id', licenseeId)
+      .single();
 
-  if (!licensee) return DEFAULT_FROM;
+    if (!licensee) return DEFAULT_FROM;
 
-  const domain   = licensee.custom_domain || 'getcrewbox.com';
-  const brand    = licensee.brand_name    || 'CrewBox';
-  return `${brand} <noreply@${domain}>`;
+    const domain = licensee.custom_domain || 'getcrewbox.com';
+    const brand  = licensee.brand_name    || 'CrewBox';
+    return `${brand} <noreply@${domain}>`;
+  } catch (err) {
+    // A branding lookup failure (e.g. a transient DB timeout) must not
+    // block the actual send — fall back to the default sender.
+    console.error(`[CrewBox Email] getFromAddress failed for licensee ${licenseeId}:`, err.message);
+    return DEFAULT_FROM;
+  }
 }
 
 function getAppUrl(licensee) {
