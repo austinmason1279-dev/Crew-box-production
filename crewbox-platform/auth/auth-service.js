@@ -406,6 +406,55 @@ export const requirePlatformAdmin = (req) =>
   requireAuth(req, ['platform_admin']);
 
 // ============================================================
+// OWNERSHIP CHECKS
+// requireAuth only proves WHO the caller is. Any route that takes
+// a contractor/licensee id from the URL or body must also prove
+// the caller is allowed to act on that specific record.
+// ============================================================
+
+function accessError(status, message) {
+  return Object.assign(new Error(message), { status });
+}
+
+/**
+ * Throws 403 unless `user` may act on `contractorId`:
+ *   platform_admin → any contractor
+ *   contractor     → only their own record
+ *   licensee       → only contractors under their licensee account
+ */
+export async function assertContractorAccess(user, contractorId) {
+  if (!contractorId) throw accessError(400, 'Missing contractor id');
+
+  if (user.role === 'platform_admin') return;
+  if (user.role === 'contractor' && user.contractorId === contractorId) return;
+
+  if (user.role === 'licensee' && user.licenseeId) {
+    const { data: contractor } = await supabase
+      .from('contractors')
+      .select('licensee_id')
+      .eq('id', contractorId)
+      .single();
+    if (contractor?.licensee_id === user.licenseeId) return;
+  }
+
+  throw accessError(403, 'Access denied — this account cannot access that contractor');
+}
+
+/** requireAuth + assertContractorAccess in one call. Returns the user. */
+export async function requireContractorAccess(request, contractorId, allowedRoles) {
+  const user = await requireAuth(request, allowedRoles);
+  await assertContractorAccess(user, contractorId);
+  return user;
+}
+
+/** Throws 403 unless `user` is that licensee (or a platform admin). */
+export function assertLicenseeAccess(user, licenseeId) {
+  if (user.role === 'platform_admin') return;
+  if (user.role === 'licensee' && user.licenseeId && user.licenseeId === licenseeId) return;
+  throw accessError(403, 'Access denied — this account cannot access that licensee');
+}
+
+// ============================================================
 // ONBOARDING PROGRESS TRACKING
 // ============================================================
 

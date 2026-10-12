@@ -43,7 +43,10 @@ import {
   sendInvoiceReminders,
   getContractorFinancialSummary,
 } from '../../stripe/stripe-service.js';
-import { requireAuth, requireLicensee, updateOnboardingStep, getOnboardingStatus, signupContractor } from '../../auth/auth-service.js';
+import {
+  requireAuth, requireLicensee, updateOnboardingStep, getOnboardingStatus, signupContractor,
+  requireContractorAccess, assertContractorAccess, assertLicenseeAccess,
+} from '../../auth/auth-service.js';
 import { listContractorDocuments, checkExpiringDocuments } from '../../storage/storage-service.js';
 
 const router = express.Router();
@@ -339,11 +342,11 @@ router.post('/contractors/onboard', async (req, res) => {
  */
 router.get('/contractors/:id/onboarding-status', async (req, res) => {
   try {
-    const user = await requireAuth(req);
+    await requireContractorAccess(req, req.params.id);
     const status = await getOnboardingStatus(req.params.id);
     res.json(status);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(err.status || 500).json({ error: err.message });
   }
 });
 
@@ -365,6 +368,7 @@ router.post('/quotes/generate',
         customerName, customerPhone, customerEmail,
         serviceAddress, voiceNoteTranscript,
       } = req.body;
+      await assertContractorAccess(user, contractorId);
 
       const photos = req.files || [];
       if (!photos.length) return res.status(400).json({ error: 'At least one photo required' });
@@ -385,7 +389,7 @@ router.post('/quotes/generate',
       res.json(result);
     } catch (err) {
       console.error('Quote generation error:', err);
-      res.status(500).json({ error: err.message });
+      res.status(err.status || 500).json({ error: err.message });
     }
   }
 );
@@ -400,10 +404,13 @@ router.post('/quotes/:id/send', async (req, res) => {
     const { customerPhone, customerEmail } = req.body;
 
     const { data: quote } = await supabase.from('quotes').select('contractor_id').eq('id', req.params.id).single();
+    if (!quote) return res.status(404).json({ error: 'Quote not found' });
+    await assertContractorAccess(user, quote.contractor_id);
+
     const result = await sendQuote(req.params.id, quote.contractor_id, customerPhone, customerEmail);
     res.json(result);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(err.status || 500).json({ error: err.message });
   }
 });
 
@@ -449,8 +456,8 @@ router.post('/quotes/:id/accept', async (req, res) => {
  */
 router.get('/contractors/:id/dashboard', async (req, res) => {
   try {
-    const user = await requireAuth(req);
     const contractorId = req.params.id;
+    await requireContractorAccess(req, contractorId);
 
     const [
       financial,
@@ -481,7 +488,7 @@ router.get('/contractors/:id/dashboard', async (req, res) => {
       agents: agentStatuses.data || [],
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(err.status || 500).json({ error: err.message });
   }
 });
 
@@ -493,6 +500,7 @@ router.get('/licensees/:id/dashboard', async (req, res) => {
   try {
     const user = await requireLicensee(req);
     const licenseeId = req.params.id;
+    assertLicenseeAccess(user, licenseeId);
 
     const [stats, recentActivity, contractors] = await Promise.all([
       supabase.from('licensee_dashboard_stats').select('*').eq('licensee_id', licenseeId).single(),
@@ -515,7 +523,7 @@ router.get('/licensees/:id/dashboard', async (req, res) => {
       contractors: contractors.data || [],
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(err.status || 500).json({ error: err.message });
   }
 });
 
