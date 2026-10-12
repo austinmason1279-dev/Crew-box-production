@@ -451,6 +451,53 @@ export function licenseeWelcomeTemplate({
     '#F5C800', 'CrewBox');
 }
 
+// ============================================================
+// 9. NEW LEAD ALERT (internal)
+// Sent to the CrewBox team when a contractor signs up
+// ============================================================
+
+export function newLeadAlertTemplate({
+  ownerName, phone, email, businessName, trade, city, state, signedUpAt,
+}) {
+  const telHref  = `tel:${String(phone || '').replace(/[^\d+]/g, '')}`;
+  const location = [city, state].filter(Boolean).join(', ');
+  const row = (label, value, last = false) => `
+        <tr>
+          <td style="padding:10px 0;font-size:13px;color:#6B7280;${last ? '' : 'border-bottom:1px solid #E5E7EB;'}width:38%;vertical-align:top;">${label}</td>
+          <td style="padding:10px 0;font-size:15px;font-weight:600;color:#1A1A1A;${last ? '' : 'border-bottom:1px solid #E5E7EB;'}word-break:break-word;">${value || '—'}</td>
+        </tr>`;
+
+  const content = `
+    <div style="${BASE.body_p}">
+      <p style="font-size:13px;color:#6B7280;margin:0 0 4px;">New contractor signup — call them fast</p>
+      <h1 style="${BASE.h1}">${escHtml(businessName)}</h1>
+      <p style="${BASE.p}">${escHtml(ownerName)} · ${escHtml(trade)}${location ? ` · ${escHtml(location)}` : ''}</p>
+
+      <div style="background:#F9FAFB;border-radius:10px;padding:20px;margin:20px 0;text-align:center;">
+        <div style="font-size:12px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Phone</div>
+        <a href="${escHtml(telHref)}" style="font-size:30px;font-weight:900;color:#1A1A1A;text-decoration:none;font-family:monospace;">${escHtml(phone)}</a>
+        <div style="margin-top:16px;">
+          <a href="${escHtml(telHref)}" style="${BASE.btn('#F5C800')};color:#111;">Call ${escHtml(String(ownerName || '').split(' ')[0])} →</a>
+        </div>
+      </div>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+        ${row('Name', escHtml(ownerName))}
+        ${row('Phone', `<a href="${escHtml(telHref)}" style="color:#1A1A1A;">${escHtml(phone)}</a>`)}
+        ${row('Email', `<a href="mailto:${escHtml(email)}" style="color:#1A1A1A;">${escHtml(email)}</a>`)}
+        ${row('Business', escHtml(businessName))}
+        ${row('Trade', escHtml(trade))}
+        ${row('City', escHtml(city))}
+        ${row('State', escHtml(state))}
+        ${row('Signed up', escHtml(signedUpAt), true)}
+      </table>
+    </div>`;
+
+  return emailShell(content,
+    `<p style="${BASE.foot_p}">Internal alert · New contractor signup</p>`,
+    '#F5C800', 'CrewBox');
+}
+
 // ── HELPER ────────────────────────────────────────────────
 function escHtml(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

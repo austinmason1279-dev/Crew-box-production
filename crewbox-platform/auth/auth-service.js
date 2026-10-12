@@ -12,7 +12,7 @@
 // ============================================================
 
 import { createClient } from '@supabase/supabase-js';
-import { sendContractorWelcome } from '../email/service/email-service.js';
+import { sendContractorWelcome, sendNewLeadAlert } from '../email/service/email-service.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -289,6 +289,14 @@ export async function signupContractor({
       await sendContractorWelcome({ ...contractor, licensees: directLicensee });
     } catch (emailErr) {
       console.error(`Failed to send welcome email for contractor ${contractor.id}:`, emailErr.message);
+    }
+
+    // Best-effort internal new-lead alert — independent of the welcome
+    // email, and a failed send must not fail signup
+    try {
+      await sendNewLeadAlert(contractor);
+    } catch (alertErr) {
+      console.error(`Failed to send new-lead alert for contractor ${contractor.id}:`, alertErr.message);
     }
 
     // 6. Sign the new user in immediately

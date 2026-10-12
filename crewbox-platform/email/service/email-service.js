@@ -34,6 +34,7 @@ import {
   quoteAcceptedTemplate,
   documentExpiryTemplate,
   licenseeWelcomeTemplate,
+  newLeadAlertTemplate,
 } from './email-templates.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -44,6 +45,9 @@ const supabase = createClient(
 
 // ── DEFAULT SENDER (used when licensee has no custom domain) ──
 const DEFAULT_FROM = 'CrewBox <noreply@getcrewbox.net>';
+
+// ── INTERNAL INBOX (new-lead alerts go here) ──
+const INTERNAL_LEADS_EMAIL = 'hello@getcrewbox.net';
 
 // ============================================================
 // CORE SEND FUNCTION
@@ -526,6 +530,37 @@ export async function sendLicenseeWelcome(licenseeId) {
     emailType: 'licensee_welcome',
     relatedEntityId:   licenseeId,
     relatedEntityType: 'licensee',
+  });
+}
+
+// ============================================================
+// 9. NEW LEAD ALERT (internal)
+// Sent to the CrewBox team when a contractor signs up, so we
+// can call them fast. Separate from the contractor welcome.
+// ============================================================
+
+export async function sendNewLeadAlert(contractor) {
+  const html = newLeadAlertTemplate({
+    ownerName:    contractor.owner_name,
+    phone:        contractor.owner_phone,
+    email:        contractor.owner_email,
+    businessName: contractor.business_name,
+    trade:        contractor.trade_type,
+    city:         contractor.address_city,
+    state:        contractor.address_state,
+    signedUpAt:   new Date().toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'medium', timeStyle: 'short' }) + ' ET',
+  });
+
+  // No licenseeId — always send from the default (verified) CrewBox sender.
+  // No contractorId — keeps this internal send out of the contractor's own
+  // activity feed; the contractor is still linked via relatedEntityId.
+  return sendEmail({
+    to:          INTERNAL_LEADS_EMAIL,
+    subject:     `New CrewBox lead: ${contractor.business_name} — ${contractor.trade_type}`,
+    html,
+    emailType:   'new_lead_alert',
+    relatedEntityId:   contractor.id,
+    relatedEntityType: 'contractor',
   });
 }
 
