@@ -43,7 +43,7 @@ const supabase = createClient(
 );
 
 // ── DEFAULT SENDER (used when licensee has no custom domain) ──
-const DEFAULT_FROM = 'CrewBox <noreply@getcrewbox.com>';
+const DEFAULT_FROM = 'CrewBox <noreply@getcrewbox.net>';
 
 // ============================================================
 // CORE SEND FUNCTION
@@ -63,18 +63,9 @@ async function sendEmail({
   relatedEntityType = null,
 }) {
   // Get licensee branding for white-label sender
-  let fromAddress;
-  try {
-    console.error(`[EMAIL STEP 1] before getFromAddress (type: ${emailType}, licenseeId: ${licenseeId}, RESEND_API_KEY present: ${!!process.env.RESEND_API_KEY})`);
-    fromAddress = await getFromAddress(licenseeId);
-    console.error(`[EMAIL STEP 2] after getFromAddress, value: ${fromAddress}`);
-  } catch (err) {
-    console.error('[EMAIL FAILED at STEP 1]:', err?.message, err?.stack);
-    throw err;
-  }
+  const fromAddress = await getFromAddress(licenseeId);
 
   try {
-    console.error(`[EMAIL STEP 5] before resend.emails.send (from: ${fromAddress}, to: ${to}, RESEND_API_KEY present: ${!!process.env.RESEND_API_KEY})`);
     const result = await resend.emails.send({
       from:    fromAddress,
       to:      Array.isArray(to) ? to : [to],
@@ -86,17 +77,20 @@ async function sendEmail({
         'X-CrewBox-Contractor': contractorId || '',
       },
     });
-    // Newer Resend SDKs resolve with { data, error } instead of throwing, so
-    // print both shapes — a returned error here would otherwise look like success.
-    console.error(`[EMAIL STEP 6] after resend.emails.send, id: ${result?.id ?? result?.data?.id}, returned error: ${JSON.stringify(result?.error ?? null)}`);
+
+    // The Resend SDK resolves with { data, error } rather than throwing, so a
+    // rejected send (e.g. unverified domain) has to be surfaced explicitly.
+    if (result?.error) {
+      throw new Error(`${result.error.message} (from: ${fromAddress})`);
+    }
+    const resendId = result?.data?.id ?? result?.id;
 
     // Log successful send
-    await logEmail(contractorId, licenseeId, emailType, to, subject, 'sent', result.id, relatedEntityId, relatedEntityType);
+    await logEmail(contractorId, licenseeId, emailType, to, subject, 'sent', resendId, relatedEntityId, relatedEntityType);
 
-    return { success: true, id: result.id };
+    return { success: true, id: resendId };
 
   } catch (err) {
-    console.error('[EMAIL FAILED at STEP 5]:', err?.message, err?.stack);
     console.error(`[CrewBox Email] Failed to send ${emailType} to ${to}:`, err.message);
 
     // Log failure
@@ -117,56 +111,36 @@ export async function sendContractorWelcome(contractorOrId) {
   // was intermittently timing out and silently skipping the send.
   let contractor = (contractorOrId && typeof contractorOrId === 'object') ? contractorOrId : null;
 
-  console.error(`[EMAIL STEP 0] sendContractorWelcome entered (arg type: ${typeof contractorOrId}, id: ${contractor?.id ?? contractorOrId}, has owner_email: ${!!contractor?.owner_email}, RESEND_API_KEY present: ${!!process.env.RESEND_API_KEY})`);
-
   if (!contractor?.owner_email) {
-    try {
-      const contractorId = contractor?.id || contractorOrId;
-      console.error(`[EMAIL STEP 0a] before contractor lookup for ${contractorId}`);
-      const { data, error: contractorError } = await supabase
-        .from('contractors')
-        .select(`
-          *,
-          licensees ( brand_name, brand_primary_color, custom_domain, owner_email )
-        `)
-        .eq('id', contractorId)
-        .single();
+    const contractorId = contractor?.id || contractorOrId;
+    const { data, error: contractorError } = await supabase
+      .from('contractors')
+      .select(`
+        *,
+        licensees ( brand_name, brand_primary_color, custom_domain, owner_email )
+      `)
+      .eq('id', contractorId)
+      .single();
 
-      if (contractorError) {
-        console.error(`[CrewBox Email] Contractor lookup failed for ${contractorId}:`, contractorError.message);
-      }
-      contractor = data;
-      console.error(`[EMAIL STEP 0b] after contractor lookup, found: ${!!contractor}, has owner_email: ${!!contractor?.owner_email}`);
-    } catch (err) {
-      console.error('[EMAIL FAILED at STEP 0a]:', err?.message, err?.stack);
-      throw err;
+    if (contractorError) {
+      console.error(`[CrewBox Email] Contractor lookup failed for ${contractorId}:`, contractorError.message);
     }
+    contractor = data;
   }
 
-  if (!contractor?.owner_email) {
-    console.error('[EMAIL SKIPPED] no owner_email on contractor — returning without sending');
-    return { skipped: true, reason: 'No email address' };
-  }
+  if (!contractor?.owner_email) return { skipped: true, reason: 'No email address' };
 
-  let html;
-  try {
-    console.error('[EMAIL STEP 3] before template render');
-    html = contractorWelcomeTemplate({
-      ownerName:    contractor.owner_name,
-      businessName: contractor.business_name,
-      trade:        contractor.trade_type,
-      aiPhone:      contractor.ai_phone_number,
-      setupUrl:     `${getAppUrl(contractor.licensees)}/setup`,
-      dashUrl:      `${getAppUrl(contractor.licensees)}/dashboard`,
-      signInUrl:    `${getAppUrl(contractor.licensees)}/auth`,
-      brandName:    contractor.licensees?.brand_name || 'CrewBox',
-      primaryColor: contractor.licensees?.brand_primary_color || '#F5C800',
-    });
-    console.error(`[EMAIL STEP 4] after template render (html length: ${html?.length})`);
-  } catch (err) {
-    console.error('[EMAIL FAILED at STEP 3]:', err?.message, err?.stack);
-    throw err;
-  }
+  const html = contractorWelcomeTemplate({
+    ownerName:    contractor.owner_name,
+    businessName: contractor.business_name,
+    trade:        contractor.trade_type,
+    aiPhone:      contractor.ai_phone_number,
+    setupUrl:     `${getAppUrl(contractor.licensees)}/setup`,
+    dashUrl:      `${getAppUrl(contractor.licensees)}/dashboard`,
+    signInUrl:    `${getAppUrl(contractor.licensees)}/auth`,
+    brandName:    contractor.licensees?.brand_name || 'CrewBox',
+    primaryColor: contractor.licensees?.brand_primary_color || '#F5C800',
+  });
 
   return sendEmail({
     to:          contractor.owner_email,
@@ -628,7 +602,7 @@ async function getFromAddress(licenseeId) {
 
     if (!licensee) return DEFAULT_FROM;
 
-    const domain = licensee.custom_domain || 'getcrewbox.com';
+    const domain = licensee.custom_domain || 'getcrewbox.net';
     const brand  = licensee.brand_name    || 'CrewBox';
     return `${brand} <noreply@${domain}>`;
   } catch (err) {

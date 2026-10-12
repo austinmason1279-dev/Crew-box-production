@@ -125,6 +125,6 @@
 
   <script>
     window.CREWBOX_VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY';
-    window.CREWBOX_APP_URL = 'https://app.getcrewbox.com';
+    window.CREWBOX_APP_URL = 'https://getcrewbox.net';
   </script>
 -->

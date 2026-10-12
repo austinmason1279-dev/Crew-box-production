@@ -447,7 +447,7 @@ export function licenseeWelcomeTemplate({
 
   return emailShell(content,
     `<p style="${BASE.foot_p}">${escHtml(companyName)} · CrewBox Partner</p>
-     <p style="${BASE.foot_p}"><a href="${escHtml(portalUrl)}" style="color:#9CA3AF;">Partner Portal</a> · <a href="mailto:support@getcrewbox.com" style="color:#9CA3AF;">Support</a></p>`,
+     <p style="${BASE.foot_p}"><a href="${escHtml(portalUrl)}" style="color:#9CA3AF;">Partner Portal</a> · <a href="mailto:support@getcrewbox.net" style="color:#9CA3AF;">Support</a></p>`,
     '#F5C800', 'CrewBox');
 }
 
