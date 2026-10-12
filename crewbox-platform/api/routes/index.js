@@ -141,10 +141,22 @@ router.post('/webhooks/vapi/inbound', async (req, res) => {
  * The AI calls this to actually book the job in the database
  */
 router.post('/vapi/tools/book-appointment', async (req, res) => {
+  // Vapi wraps tool-call requests in `message` (same envelope as the
+  // call-ended webhook). The tool call itself — id + arguments — lives in
+  // message.toolCallList[], or message.toolWithToolCallList[].toolCall.
+  const message = req.body?.message || {};
+  const toolCalls = message.toolCallList
+    || (message.toolWithToolCallList || []).map(t => t.toolCall).filter(Boolean);
+  const toolCall = toolCalls.find(tc => tc.function?.name === 'book_appointment') || toolCalls[0];
+  const toolCallId = toolCall?.id;
+
   try {
-    const { toolCallId, toolCallList, call } = req.body;
-    const contractorId = call.metadata?.contractor_id;
-    const args = toolCallList?.[0]?.function?.arguments || req.body;
+    const call = message.call;
+    const contractorId = call?.metadata?.contractor_id;
+    const args = toolCall?.function?.arguments;
+
+    if (!args) throw new Error('No tool-call arguments in request');
+    if (!contractorId) throw new Error('No contractor_id in call metadata');
 
     const result = await handleBookAppointment(
       contractorId,
@@ -160,9 +172,10 @@ router.post('/vapi/tools/book-appointment', async (req, res) => {
       }],
     });
   } catch (err) {
+    console.error('book-appointment tool error:', err.message);
     res.json({
       results: [{
-        toolCallId: req.body.toolCallId,
+        toolCallId,
         result: 'I was unable to complete the booking. I will make sure someone follows up with you directly.',
       }],
     });

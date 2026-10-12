@@ -402,6 +402,11 @@ export async function handleBookAppointment(contractorId, toolArgs, callId) {
     customerId = newCustomer.id;
   }
 
+  // Only trust an unambiguous ISO date (YYYY-MM-DD…). Anything else the
+  // caller said ("Thursday", "next week") is kept as text — JS would either
+  // throw on it or silently guess a wrong year.
+  const requestedDate = parseRequestedDate(preferred_date);
+
   // Create job record
   const { data: job } = await supabase
     .from('jobs')
@@ -415,7 +420,10 @@ export async function handleBookAppointment(contractorId, toolArgs, callId) {
       service_address,
       source: 'ai_call',
       source_call_id: callId,
-      requested_date: preferred_date ? new Date(preferred_date).toISOString() : null,
+      requested_date: requestedDate,
+      internal_notes: preferred_date && !requestedDate
+        ? `Caller's requested date (as spoken): "${preferred_date}"`
+        : null,
     })
     .select()
     .single();
@@ -448,6 +456,12 @@ export async function handleBookAppointment(contractorId, toolArgs, callId) {
     jobId: job.id,
     customerId,
   };
+}
+
+function parseRequestedDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}/.test(value.trim())) return null;
+  const date = new Date(value.trim());
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
 export async function handleTransferCall(contractorId, reason) {
