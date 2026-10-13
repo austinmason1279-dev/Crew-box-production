@@ -141,28 +141,13 @@ router.post('/webhooks/vapi/inbound', async (req, res) => {
  * The AI calls this to actually book the job in the database
  */
 router.post('/vapi/tools/book-appointment', async (req, res) => {
-  // Vapi wraps tool-call requests in `message` (same envelope as the
-  // call-ended webhook). The tool call itself — id + arguments — lives in
-  // message.toolCallList[], or message.toolWithToolCallList[].toolCall.
-  const message = req.body?.message || {};
-  const toolCalls = message.toolCallList
-    || (message.toolWithToolCallList || []).map(t => t.toolCall).filter(Boolean);
-  const toolCall = toolCalls.find(tc => tc.function?.name === 'book_appointment') || toolCalls[0];
-  const toolCallId = toolCall?.id;
+  const { message, toolCallId, args } = readVapiToolCall(req, 'book_appointment');
 
   try {
-    const call = message.call;
-    const contractorId = call?.metadata?.contractor_id;
-    const args = toolCall?.function?.arguments;
-
     if (!args) throw new Error('No tool-call arguments in request');
-    if (!contractorId) throw new Error('No contractor_id in call metadata');
+    const contractorId = await resolveVapiContractorId(message);
 
-    const result = await handleBookAppointment(
-      contractorId,
-      typeof args === 'string' ? JSON.parse(args) : args,
-      call.id
-    );
+    const result = await handleBookAppointment(contractorId, args, message.call?.id);
 
     // Vapi expects this response format for tool calls
     res.json({
@@ -187,23 +172,26 @@ router.post('/vapi/tools/book-appointment', async (req, res) => {
  * AI calls this to transfer to the business owner
  */
 router.post('/vapi/tools/transfer-call', async (req, res) => {
+  const { message, toolCallId, args } = readVapiToolCall(req, 'transfer_call');
+
   try {
-    const contractorId = req.body.call?.metadata?.contractor_id;
-    const { reason } = req.body.toolCallList?.[0]?.function?.arguments || {};
+    const contractorId = await resolveVapiContractorId(message);
+    const { reason } = args || {};
 
     const result = await handleTransferCall(contractorId, reason);
 
     res.json({
       results: [{
-        toolCallId: req.body.toolCallId,
+        toolCallId,
         result: result.message,
       }],
       // Vapi transfer instruction
       phoneNumberId: result.phoneNumber,
     });
   } catch (err) {
+    console.error('transfer-call tool error:', err.message);
     res.json({
-      results: [{ toolCallId: req.body.toolCallId, result: 'Transfer failed. Let me take your details instead.' }],
+      results: [{ toolCallId, result: 'Transfer failed. Let me take your details instead.' }],
     });
   }
 });
@@ -212,17 +200,20 @@ router.post('/vapi/tools/transfer-call', async (req, res) => {
  * POST /api/vapi/tools/check-service-area
  */
 router.post('/vapi/tools/check-service-area', async (req, res) => {
+  const { message, toolCallId, args } = readVapiToolCall(req, 'check_service_area');
+
   try {
-    const contractorId = req.body.call?.metadata?.contractor_id;
-    const { zip_code } = req.body.toolCallList?.[0]?.function?.arguments || {};
+    const contractorId = await resolveVapiContractorId(message);
+    const { zip_code } = args || {};
 
     const result = await handleCheckServiceArea(contractorId, zip_code);
 
     res.json({
-      results: [{ toolCallId: req.body.toolCallId, result: result.message }],
+      results: [{ toolCallId, result: result.message }],
     });
   } catch (err) {
-    res.json({ results: [{ toolCallId: req.body.toolCallId, result: 'Let me check on that for you.' }] });
+    console.error('check-service-area tool error:', err.message);
+    res.json({ results: [{ toolCallId, result: 'Let me check on that for you.' }] });
   }
 });
 
@@ -596,6 +587,54 @@ router.post('/cron/expiring-documents', async (req, res) => {
 // ============================================================
 // HELPER
 // ============================================================
+
+/**
+ * Pull one tool call out of a Vapi tool-call request.
+ * Vapi wraps these requests in `message` (same envelope as the call-ended
+ * webhook). The tool call itself — id + arguments — lives in
+ * message.toolCallList[], or message.toolWithToolCallList[].toolCall.
+ * `args` is undefined if the request has none or they are not valid JSON.
+ */
+function readVapiToolCall(req, toolName) {
+  const message = req.body?.message || {};
+  const toolCalls = message.toolCallList
+    || (message.toolWithToolCallList || []).map(t => t.toolCall).filter(Boolean);
+  const toolCall = toolCalls.find(tc => tc.function?.name === toolName) || toolCalls[0];
+
+  let args = toolCall?.function?.arguments;
+  if (typeof args === 'string') {
+    try { args = JSON.parse(args); } catch { args = undefined; }
+  }
+
+  return { message, toolCallId: toolCall?.id, args };
+}
+
+/**
+ * Work out which contractor a Vapi tool call belongs to.
+ * The contractor id lives in the Vapi assistant's metadata
+ * (metadata.contractor_id), which Vapi sends with every tool call.
+ * Throws with a specific message if it is missing or not a real contractor.
+ */
+async function resolveVapiContractorId(message) {
+  const contractorId = message.call?.assistant?.metadata?.contractor_id
+    || message.assistant?.metadata?.contractor_id;
+
+  if (!contractorId) {
+    throw new Error('Missing contractor_id: the Vapi assistant has no metadata.contractor_id (checked message.call.assistant.metadata and message.assistant.metadata)');
+  }
+
+  // Confirm it is a real contractor before anything gets written against it
+  const { data: contractor, error } = await supabase
+    .from('contractors')
+    .select('id')
+    .eq('id', contractorId)
+    .limit(1);
+  if (error || !contractor?.length) {
+    throw new Error(`contractor_id from assistant metadata does not match any contractor${error ? `: ${error.message}` : ''}`);
+  }
+
+  return contractorId;
+}
 
 function buildCallForwardInstructions(existingNumber, aiNumber) {
   return {
